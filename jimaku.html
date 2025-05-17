@@ -1,32 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>リアルタイム字幕</title>
+  <meta charset="UTF-8">
+  <title>リアルタイム字幕（Wikipediaリンク付き）</title>
   <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dist/kuromoji.js"></script>
 </head>
 <body>
   <h2>リアルタイム字幕（Wikipediaリンク付き）</h2>
-  <button id="startButton" disabled>開始</button>
-  <div id="output" style="font-size: 1.5em;"></div>
+  <button id="startButton" disabled>音声認識を開始</button>
+  <div id="output" style="font-size: 1.5em; margin-top: 20px;"></div>
+
   <script>
     const output = document.getElementById("output");
     const startButton = document.getElementById("startButton");
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+    // 音声認識の準備
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.lang = "ja-JP";
 
+    // 形態素解析（kuromoji）を準備
     let tokenizer = null;
     kuromoji.builder({
       dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/"
     }).build((err, builtTokenizer) => {
-      if (!err) {
-        tokenizer = builtTokenizer;
-        startButton.disabled = false;
+      if (err) {
+        console.error("kuromojiの初期化に失敗:", err);
+        return;
       }
+      tokenizer = builtTokenizer;
+      startButton.disabled = false;
     });
 
+    // ボタンクリックで音声認識開始
     startButton.onclick = () => {
+      if (!tokenizer) return;
       recognition.start();
       startButton.disabled = true;
     };
@@ -37,17 +46,22 @@
 
     recognition.onresult = event => {
       if (!tokenizer) return;
+
       const transcript = event.results[event.resultIndex][0].transcript;
       const tokens = tokenizer.tokenize(transcript);
+
       let linked = "";
       tokens.forEach(t => {
+        const word = t.surface_form;
+        if (!word) return;
         if (t.pos === "名詞") {
-          const url = `https://ja.wikipedia.org/wiki/${encodeURIComponent(t.surface_form)}`;
-          linked += `<a href="${url}" target="_blank">${t.surface_form}</a>`;
+          const url = `https://ja.wikipedia.org/wiki/${encodeURIComponent(word)}`;
+          linked += `<a href="${url}" target="_blank">${word}</a>`;
         } else {
-          linked += t.surface_form;
+          linked += word;
         }
       });
+
       output.innerHTML += `<p>${linked}</p>`;
     };
   </script>
