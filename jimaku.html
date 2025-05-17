@@ -22,7 +22,7 @@
     let tokenizer = null;
 
     kuromoji.builder({
-      dicPath: "./dict/"
+    dicPath: "/test/dict/"
     }).build(function (err, builtTokenizer) {
       if (err) {
         console.error("辞書の読み込みに失敗しました:", err);
