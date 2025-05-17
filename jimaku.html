@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>リアルタイム字幕</title>
+</head>
+<body>
+  <h2>リアルタイム字幕（Wikipediaリンク付き）</h2>
+  <div id="output" style="font-size: 1.5em;"></div>
+  <script>
+    const output = document.getElementById("output");
+    const recognition = new (webkitSpeechRecognition || SpeechRecognition)();
+    recognition.continuous = true;
+    recognition.lang = "ja-JP";
+
+    recognition.onresult = async function(event) {
+      const transcript = event.results[event.resultIndex][0].transcript;
+      const linked = await linkToWikipedia(transcript);
+      output.innerHTML += "<p>" + linked + "</p>";
+    };
+
+    async function linkToWikipedia(text) {
+      const keywords = await getKeywords(text);
+      let linkedText = text;
+      for (const word of keywords) {
+        const url = `https://ja.wikipedia.org/wiki/${encodeURIComponent(word)}`;
+        const regex = new RegExp(word, "g");
+        linkedText = linkedText.replace(regex, `<a href="${url}" target="_blank">${word}</a>`);
+      }
+      return linkedText;
+    }
+
+    async function getKeywords(text) {
+      // ここをChatGPT APIなどに置き換えることで精度UP可
+      const commonWords = ["日本", "東京", "AI", "京都", "Apple"];
+      return commonWords.filter(w => text.includes(w));
+    }
+
+    recognition.start();
+  </script>
+</body>
+</html>
