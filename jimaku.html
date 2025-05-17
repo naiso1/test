@@ -14,26 +14,24 @@
     const output = document.getElementById("output");
     const startButton = document.getElementById("startButton");
 
-    // 音声認識の準備
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
     recognition.lang = "ja-JP";
+    recognition.continuous = true;
 
-    // 形態素解析（kuromoji）を準備
     let tokenizer = null;
+
     kuromoji.builder({
-      dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/"
-    }).build((err, builtTokenizer) => {
+      dicPath: "./dict/"
+    }).build(function (err, builtTokenizer) {
       if (err) {
-        console.error("kuromojiの初期化に失敗:", err);
+        console.error("辞書の読み込みに失敗しました:", err);
         return;
       }
       tokenizer = builtTokenizer;
       startButton.disabled = false;
     });
 
-    // ボタンクリックで音声認識開始
     startButton.onclick = () => {
       if (!tokenizer) return;
       recognition.start();
@@ -46,23 +44,22 @@
 
     recognition.onresult = event => {
       if (!tokenizer) return;
-
       const transcript = event.results[event.resultIndex][0].transcript;
       const tokens = tokenizer.tokenize(transcript);
 
       let linked = "";
-      tokens.forEach(t => {
-        const word = t.surface_form;
+      tokens.forEach(token => {
+        const word = token.surface_form;
         if (!word) return;
-        if (t.pos === "名詞") {
-          const url = `https://ja.wikipedia.org/wiki/${encodeURIComponent(word)}`;
-          linked += `<a href="${url}" target="_blank">${word}</a>`;
+        if (token.pos === "名詞") {
+          const wikiUrl = `https://ja.wikipedia.org/wiki/${encodeURIComponent(word)}`;
+          linked += `<a href="\${wikiUrl}" target="_blank">\${word}</a>`;
         } else {
           linked += word;
         }
       });
 
-      output.innerHTML += `<p>${linked}</p>`;
+      output.innerHTML += `<p>\${linked}</p>`;
     };
   </script>
 </body>
