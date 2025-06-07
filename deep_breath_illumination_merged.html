@@ -21,7 +21,7 @@ body{
 }
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55)}
 .container{
-  position:relative;z-index:1;width:min(95%,520px);
+  position:relative;z-index:1;width:min(95%,1040px);
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
 }
 h1{font-size:1.6rem;margin-bottom:8px}
@@ -38,10 +38,14 @@ select,input[type="number"],input[type="color"]{
 }
 .patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem}
 .patterns th,.patterns td{border:1px solid #999;padding:4px}
-.mode-select{margin:16px 0}
-.mode-select label{display:inline-flex;align-items:center;gap:4px;margin:0 8px}
+.patterns tbody tr.selected{background:rgba(255,255,255,.3)}
+.mode-buttons button,.sound-buttons button{
+  margin:4px;padding:10px 16px;font-size:1rem;border:none;border-radius:8px;cursor:pointer
+}
+.mode-buttons button.active,.sound-buttons button.active{background:#555;color:#fff}
+.mode-buttons{margin:16px 0}
 #barContainer{
-  position:relative;margin:24px auto;width:100%;max-width:560px;height:40px;
+  position:relative;margin:24px auto;width:100%;max-width:1120px;height:40px;
   background:#444;border-radius:20px;overflow:hidden
 }
 #breathBar{
@@ -64,19 +68,19 @@ button:disabled{opacity:.6}
 <div class="overlay"></div>
 <div class="container">
   <h1>深呼吸誘発システム</h1>
+  <div id="barContainer"><div id="breathBar"></div></div>
+  <div id="phaseText">準備中...</div>
+  <div id="timerText">--</div>
+
+  <button id="startBtn">スタート</button>
+  <button id="stopBtn">ストップ</button>
+  <button id="applyBtn">適用</button>
+  <button id="settingsBtn">設定</button>
+
   <div id="settings" style="display:none">
   <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
-  <label for="patternSelect">呼吸パターン:</label>
-  <select id="patternSelect">
-    <option value="4-7-8-0">4-7-8ブリージング</option>
-    <option value="4-4-4-4">ボックス呼吸法</option>
-    <option value="5-0-5-0">レゾナンスブリージング</option>
-    <option value="3.3-0-6.7-0" selected>ワンツー呼吸法</option>
-    <option value="7-0-11-0">7-11ブリージング</option>
-    <option value="4-2-4-0">タクティカルブリージング</option>
-    <option value="custom">カスタム</option>
-  </select>
+  <input type="hidden" id="patternSelect" value="3.3-0-6.7-0">
 
   <table id="customInputs" class="paramtable">
     <thead>
@@ -102,42 +106,33 @@ button:disabled{opacity:.6}
       <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数/時間</th></tr>
     </thead>
     <tbody>
-      <tr><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
-      <tr><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
-      <tr><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
-      <tr><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
-      <tr><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
-      <tr><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
+      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
+      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
+      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
+      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
+      <tr data-pattern="4-2-4-0"><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
+      <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
     </tbody>
   </table>
   <p style="font-size:.8rem;opacity:.6">* 推奨回数/時間は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
 
-  <div class="mode-select">
-    <label><input type="radio" name="mode" value="expand" checked> 光の広がり</label>
-    <label><input type="radio" name="mode" value="color"> 色変化のみ</label>
+  <div class="mode-buttons">
+    <button type="button" class="modeBtn active" data-mode="expand">🔆 拡縮</button>
+    <button type="button" class="modeBtn" data-mode="color">🎨 色変化</button>
   </div>
-  <label>サウンド
-    <select id="sound">
-      <option value="off">なし</option>
-      <option value="wave">波の音</option>
-      <option value="birds">鳥のさえずり</option>
-      <option value="onsen">温泉の音</option>
-      <option value="bubble">泡風呂</option>
-      <option value="wind">風の音</option>
-      <option value="shishi">ししおどし</option>
-      <option value="rain">雨の音</option>
-    </select>
-  </label>
+  <div class="sound-buttons">
+    <button type="button" class="soundBtn active" data-sound="off">❌ なし</button>
+    <button type="button" class="soundBtn" data-sound="wave">🌊 波の音</button>
+    <button type="button" class="soundBtn" data-sound="birds">🐦 鳥のさえずり</button>
+    <button type="button" class="soundBtn" data-sound="onsen">♨️ 温泉の音</button>
+    <button type="button" class="soundBtn" data-sound="bubble">🫧 泡風呂</button>
+    <button type="button" class="soundBtn" data-sound="wind">🌬️ 風の音</button>
+    <button type="button" class="soundBtn" data-sound="shishi">🎍 ししおどし</button>
+    <button type="button" class="soundBtn" data-sound="rain">🌧️ 雨の音</button>
   </div>
-
-  <div id="barContainer"><div id="breathBar"></div></div>
-  <div id="phaseText">準備中...</div>
-  <div id="timerText">--</div>
-
-  <button id="startBtn">スタート</button>
-  <button id="stopBtn">ストップ</button>
-  <button id="applyBtn">適用</button>
-  <button id="settingsBtn">設定</button>
+  <input type="hidden" id="sound" value="off">
+  </div>
 
   <footer style="margin-top:16px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
 </div>
@@ -157,6 +152,9 @@ button:disabled{opacity:.6}
   const applyBtn      = document.getElementById('applyBtn');
   const settings      = document.getElementById('settings');
   const settingsBtn   = document.getElementById('settingsBtn');
+  const patternRows   = document.querySelectorAll('.patterns tbody tr');
+  const modeBtns      = document.querySelectorAll('.modeBtn');
+  const soundBtns     = document.querySelectorAll('.soundBtn');
 
   const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
   const bgMap = {
@@ -224,16 +222,40 @@ button:disabled{opacity:.6}
     }
   }
 
-  patternSelect.addEventListener('change', updateInputsFromPattern);
+  patternRows.forEach(row => {
+    if(row.dataset.pattern===patternSelect.value) row.classList.add('selected');
+    row.addEventListener('click', () => {
+      patternRows.forEach(r=>r.classList.remove('selected'));
+      row.classList.add('selected');
+      patternSelect.value = row.dataset.pattern;
+      updateInputsFromPattern();
+    });
+  });
   updateInputsFromPattern();
-  soundSel.addEventListener('change', updateBackground);
+  soundBtns.forEach(btn => {
+    if(btn.dataset.sound===soundSel.value) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      soundBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      soundSel.value = btn.dataset.sound;
+      updateBackground();
+    });
+  });
   updateBackground();
-  document.querySelectorAll('input[name="mode"]').forEach(radio => {
-    radio.addEventListener('change', e => mode = e.target.value);
+  modeBtns.forEach(btn => {
+    if(btn.dataset.mode===mode) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      modeBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+    });
   });
 
-  const soundFiles = {wave:'波の音.mp3', birds:'鳥のさえずり.mp3'};
+  const audioEls = {wave:new Audio('波の音.mp3'), birds:new Audio('鳥のさえずり.mp3')};
+  audioEls.wave.loop = audioEls.birds.loop = true;
+  const soundFiles = {wave:'', birds:''};
   async function initAudio(){
+    if(soundSel.value==='wave' || soundSel.value==='birds') return;
     if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     const file = soundFiles[soundSel.value];
     if(file && !buffers[soundSel.value]){
@@ -279,12 +301,27 @@ button:disabled{opacity:.6}
   }
   function playPhase(dur, from, to){
     if(soundSel.value==='off') return;
+    if(soundSel.value==='wave' || soundSel.value==='birds'){
+      const el = audioEls[soundSel.value];
+      el.volume = from;
+      if(el.paused) el.play();
+      const diff = to-from;
+      const steps = Math.max(1,Math.floor(dur*10));
+      let c=0;
+      clearInterval(el._fade);
+      el._fade=setInterval(()=>{
+        c++; el.volume = from + diff*c/steps;
+        if(c>=steps){
+          clearInterval(el._fade);
+          if(to===0){ el.pause(); el.currentTime=0; }
+        }
+      },100);
+      return;
+    }
     const src = audioCtx.createBufferSource();
     const gain = audioCtx.createGain();
     let filter;
-    if(soundSel.value==='wave'){src.buffer=buffers.wave;src.loop=true;}
-    else if(soundSel.value==='birds'){src.buffer=buffers.birds;src.loop=true;}
-    else if(soundSel.value==='onsen'){src.buffer=onsenBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=600;}
+    if(soundSel.value==='onsen'){src.buffer=onsenBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=600;}
     else if(soundSel.value==='bubble'){src.buffer=bubbleBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=800;}
     else if(soundSel.value==='wind'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=800;}
     else if(soundSel.value==='rain'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='highpass';filter.frequency.value=1000;}
@@ -344,6 +381,7 @@ button:disabled{opacity:.6}
       audioCtx = null;
       for(const k in buffers) buffers[k] = null;
     }
+    Object.values(audioEls).forEach(el=>{if(el._fade) clearInterval(el._fade); el.pause(); el.currentTime=0;});
   }
 
   function nextPhase(){
