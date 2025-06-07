@@ -51,6 +51,7 @@ button{
 }
 #startBtn{background:#76c7c0;color:#000}
 #stopBtn{background:#ff6f61;color:#000}
+#applyBtn{background:#74b9ff;color:#000}
 button:disabled{opacity:.6}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9)}}
 </style>
@@ -65,8 +66,8 @@ button:disabled{opacity:.6}
   <select id="patternSelect">
     <option value="4-7-8-0">4-7-8ブリージング</option>
     <option value="4-4-4-4">ボックス呼吸法</option>
-    <option value="5-0-5-0" selected>レゾナンスブリージング</option>
-    <option value="3.3-0-6.7-0">ワンツー呼吸法</option>
+    <option value="5-0-5-0">レゾナンスブリージング</option>
+    <option value="3.3-0-6.7-0" selected>ワンツー呼吸法</option>
     <option value="7-0-11-0">7-11ブリージング</option>
     <option value="4-2-4-0">タクティカルブリージング</option>
     <option value="custom">カスタム</option>
@@ -86,8 +87,8 @@ button:disabled{opacity:.6}
       <label>吐く色: <input type="color" id="colorExhale" value="#ff6f61"></label>
     </div>
     <div class="row">
-      <label>休む秒数: <input type="number" id="restSec" min="0" value="0"></label>
-      <label>休む色: <input type="color" id="colorRest" value="#74b9ff"></label>
+      <label>止める秒数: <input type="number" id="restSec" min="0" value="0"></label>
+      <label>止める色: <input type="color" id="colorRest" value="#74b9ff"></label>
     </div>
   </div>
 
@@ -136,6 +137,7 @@ button:disabled{opacity:.6}
 
   <button id="startBtn">スタート</button>
   <button id="stopBtn">ストップ</button>
+  <button id="applyBtn">適用</button>
 
   <footer style="margin-top:16px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
 </div>
@@ -866,6 +868,16 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   const soundSel      = document.getElementById('sound');
   const cycleInput    = document.getElementById('cycleCount');
   const minuteInput   = document.getElementById('totalMinutes');
+  const applyBtn      = document.getElementById('applyBtn');
+
+  const recommendedMap = {
+    '4-7-8-0': '4セット',
+    '4-4-4-4': '2-3分',
+    '5-0-5-0': '5分',
+    '3.3-0-6.7-0': '5分',
+    '7-0-11-0': '2-3分',
+    '4-2-4-0': '1-2分'
+  };
 
   let timerId = null;
   let currentPhase = 0;
@@ -879,7 +891,7 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   let cycleStarted = false;
   const buffers = {};
 
-  const phaseNames = ['吸って〜','止めて〜','吐いて〜','休んで〜'];
+  const phaseNames = ['吸って〜','止めて〜','吐いて〜','止めて〜'];
 
   const inhaleInput = document.getElementById('inhaleSec');
   const holdInput   = document.getElementById('holdSec');
@@ -893,6 +905,18 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
       if(patternSelect.value !== 'custom') el.value = arr[i];
       el.disabled = patternSelect.value !== 'custom';
     });
+    const rec = recommendedMap[patternSelect.value];
+    if(rec){
+      if(rec.includes('セット')){
+        const m = rec.match(/(\d+)/g);
+        cycleInput.value = m ? parseInt(m[m.length-1]) : 0;
+        minuteInput.value = 0;
+      } else if(rec.includes('分')){
+        const m = rec.match(/(\d+)(?:-(\d+))?/);
+        minuteInput.value = m ? parseInt(m[2] || m[1]) : 0;
+        cycleInput.value = 0;
+      }
+    }
   }
 
   patternSelect.addEventListener('change', updateInputsFromPattern);
@@ -1097,8 +1121,7 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     }, 100);
   }
 
-  startBtn.addEventListener('click', async ()=>{
-    if(running) return;
+  async function startSession(){
     if(soundSel.value !== 'off') await initAudio();
     running = true;
     currentPhase = 0;
@@ -1109,6 +1132,16 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     startTime  = Date.now();
     nextPhase();
     startBtn.disabled = true;
+  }
+
+  startBtn.addEventListener('click', async ()=>{
+    if(running) return;
+    await startSession();
+  });
+
+  applyBtn.addEventListener('click', async ()=>{
+    await stopSession();
+    await startSession();
   });
 
   stopBtn.addEventListener('click', async ()=>{
