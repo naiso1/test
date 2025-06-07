@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>深呼吸誘発イルミ – Mobile v3</title>
 <style>
+:root{
+  --color-inhale:#76c7c0;
+  --color-hold:#f7c59f;
+  --color-exhale:#ff6f61;
+  --color-rest:#74b9ff;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
@@ -51,12 +57,12 @@ button:disabled{opacity:.6}
 
   <label for="patternSelect">呼吸パターン:</label>
   <select id="patternSelect">
-    <option value="5-0-5" selected>5-0-5 呼吸法</option>
-    <option value="4-7-8">4-7-8 呼吸法</option>
-    <option value="5-5-5">5-5-5 呼吸法</option>
-    <option value="4-0-4">4-0-4 呼吸法</option>
-    <option value="6-0-6">6-0-6 呼吸法</option>
-    <option value="3-3-6">3-3-6 呼吸法</option>
+    <option value="5-0-5-0" selected>5-0-5 呼吸法</option>
+    <option value="4-7-8-0">4-7-8 呼吸法</option>
+    <option value="5-5-5-0">5-5-5 呼吸法</option>
+    <option value="4-0-4-0">4-0-4 呼吸法</option>
+    <option value="6-0-6-0">6-0-6 呼吸法</option>
+    <option value="3-3-6-0">3-3-6 呼吸法</option>
     <option value="custom">カスタム</option>
   </select>
 
@@ -64,19 +70,30 @@ button:disabled{opacity:.6}
     <label>吸う秒数: <input type="number" id="inhaleSec" min="1" value="5"></label>
     <label>止める秒数: <input type="number" id="holdSec" min="0" value="0"></label>
     <label>吐く秒数: <input type="number" id="exhaleSec" min="1" value="5"></label>
+    <label>休む秒数: <input type="number" id="restSec" min="0" value="0"></label>
   </div>
 
   <div class="colors">
     <label>吸う色: <input type="color" id="colorInhale" value="#76c7c0"></label>
     <label>止める色: <input type="color" id="colorHold" value="#f7c59f"></label>
     <label>吐く色: <input type="color" id="colorExhale" value="#ff6f61"></label>
+    <label>休む色: <input type="color" id="colorRest" value="#74b9ff"></label>
   </div>
 
   <div class="mode-select">
     <label><input type="radio" name="mode" value="expand" checked> 光の広がり</label>
     <label><input type="radio" name="mode" value="color"> 色変化のみ</label>
   </div>
-  <label>波の音 <input type="checkbox" id="wave"></label>
+  <label>サウンド
+    <select id="sound">
+      <option value="off">なし</option>
+      <option value="wave">波の音</option>
+      <option value="birds">鳥のさえずり</option>
+      <option value="wind">風の音</option>
+      <option value="shishi">ししおどし</option>
+      <option value="rain">雨の音</option>
+    </select>
+  </label>
 
   <div id="barContainer"><div id="breathBar"></div></div>
   <div id="phaseText">準備中...</div>
@@ -811,16 +828,16 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   const breathBar     = document.getElementById('breathBar');
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
-  const waveCheckbox  = document.getElementById('wave');
+  const soundSel      = document.getElementById('sound');
 
   let timerId = null;
   let currentPhase = 0;
   let mode = 'expand';
   let running = false;
   let audioCtx = null;
-  let audioBuf = null;
+  const buffers = {};
 
-  const phaseNames = ['吸って〜','止めて〜','吐いて〜'];
+  const phaseNames = ['吸って〜','止めて〜','吐いて〜','休んで〜'];
 
   patternSelect.addEventListener('change', ()=> {
     customInputs.style.display = (patternSelect.value === 'custom') ? 'block' : 'none';
@@ -830,24 +847,55 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   });
 
   async function initAudio(){
-    if(!audioCtx){
-      audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(soundSel.value==='wave' && !buffers.wave){
       const res = await fetch('data:audio/mp3;base64,' + base64);
       const arr = await res.arrayBuffer();
-      audioBuf = await audioCtx.decodeAudioData(arr);
+      buffers.wave = await audioCtx.decodeAudioData(arr);
     }
   }
+  function createNoiseBuffer(){
+    const buffer = audioCtx.createBuffer(1,audioCtx.sampleRate,audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+    return buffer;
+  }
+  function birdBuffer(){
+    if(buffers.birds) return buffers.birds;
+    const len = audioCtx.sampleRate*2;
+    const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+    const d = b.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = 0;
+    const chirp = off=>{for(let j=0;j<0.15*audioCtx.sampleRate;j++){const t=j/audioCtx.sampleRate;d[off+j]+=Math.sin(2*Math.PI*(1200+800*t)*t)*Math.exp(-30*t);}};
+    chirp(0.1*audioCtx.sampleRate);
+    chirp(0.6*audioCtx.sampleRate);
+    buffers.birds = b; return b;
+  }
+  function shishiBuffer(){
+    if(buffers.shishi) return buffers.shishi;
+    const len = audioCtx.sampleRate*3;
+    const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+    const d = b.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = 0;
+    for(let j=0;j<0.25*audioCtx.sampleRate;j++){const t=j/audioCtx.sampleRate;d[j]+=Math.sin(2*Math.PI*400*t)*Math.exp(-15*t);} 
+    buffers.shishi = b; return b;
+  }
   function playPhase(dur, from, to){
-    if(!waveCheckbox.checked || !audioCtx || !audioBuf) return;
+    if(soundSel.value==='off') return;
     const src = audioCtx.createBufferSource();
     const gain = audioCtx.createGain();
-    src.buffer = audioBuf;
-    src.loop = true;
-    src.connect(gain).connect(audioCtx.destination);
-    gain.gain.setValueAtTime(from, audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(to, audioCtx.currentTime + dur);
+    let filter;
+    if(soundSel.value==='wave'){src.buffer=buffers.wave;src.loop=true;}
+    else if(soundSel.value==='birds'){src.buffer=birdBuffer();src.loop=true;}
+    else if(soundSel.value==='wind'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=800;}
+    else if(soundSel.value==='rain'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='highpass';filter.frequency.value=1000;}
+    else if(soundSel.value==='shishi'){src.buffer=shishiBuffer();src.loop=true;}
+    if(filter) src.connect(filter).connect(gain); else src.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(from,audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(to,audioCtx.currentTime+dur);
     src.start();
-    src.stop(audioCtx.currentTime + dur + 0.1);
+    src.stop(audioCtx.currentTime+dur+0.1);
   }
 
   function getDurations(){
@@ -855,15 +903,19 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
       const inhale = parseInt(document.getElementById('inhaleSec').value,10) || 0;
       const hold   = parseInt(document.getElementById('holdSec').value,10) || 0;
       const exhale = parseInt(document.getElementById('exhaleSec').value,10) || 0;
-      return [inhale,hold,exhale];
+      const rest   = parseInt(document.getElementById('restSec').value,10) || 0;
+      return [inhale,hold,exhale,rest];
     }
-    return patternSelect.value.split('-').map(n=>parseInt(n,10));
+    const arr = patternSelect.value.split('-').map(n=>parseInt(n,10));
+    while(arr.length < 4) arr.push(0);
+    return arr;
   }
   function getColors(){
     return [
       document.getElementById('colorInhale').value,
       document.getElementById('colorHold').value,
-      document.getElementById('colorExhale').value
+      document.getElementById('colorExhale').value,
+      document.getElementById('colorRest').value
     ];
   }
   function setBar(widthPercent,duration,color){
@@ -877,8 +929,8 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     const colors    = getColors();
 
     let guard = 0;
-    while(durations[currentPhase] === 0 && guard < 3){
-      currentPhase = (currentPhase + 1) % 3;
+    while(durations[currentPhase] === 0 && guard < 4){
+      currentPhase = (currentPhase + 1) % 4;
       guard++;
     }
 
@@ -899,7 +951,7 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     }
 
     if(duration === 0){
-      currentPhase = (currentPhase + 1) % 3;
+      currentPhase = (currentPhase + 1) % 4;
       nextPhase();
       return;
     }
@@ -912,7 +964,7 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
       timerText.textContent = remaining + ' 秒';
       if(remaining <= 0){
         clearInterval(timerId);
-        currentPhase = (currentPhase + 1) % 3;
+        currentPhase = (currentPhase + 1) % 4;
         nextPhase();
       }
     }, 1000);
@@ -920,14 +972,14 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
   startBtn.addEventListener('click', async ()=>{
     if(running) return;
-    if(waveCheckbox.checked) await initAudio();
+    if(soundSel.value !== 'off') await initAudio();
     running = true;
     currentPhase = 0;
     nextPhase();
     startBtn.disabled = true;
   });
 
-  stopBtn.addEventListener('click', ()=>{
+  stopBtn.addEventListener('click', async ()=>{
     if(timerId) clearInterval(timerId);
     running = false;
     breathBar.style.width = '0%';
@@ -935,9 +987,9 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     timerText.textContent = '--';
     startBtn.disabled = false;
     if(audioCtx){
-      audioCtx.close();
+      await audioCtx.close();
       audioCtx = null;
-      audioBuf = null;
+      for(const k in buffers) buffers[k] = null;
     }
   });
 })();
