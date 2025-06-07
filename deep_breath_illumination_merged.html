@@ -32,6 +32,8 @@ label{display:block;margin:12px 0 4px;font-size:.9rem}
 select,input[type="number"],input[type="color"]{
   width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:4px;margin-bottom:12px
 }
+.patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem}
+.patterns th,.patterns td{border:1px solid #999;padding:4px}
 .mode-select{margin:16px 0}
 .mode-select label{display:inline-flex;align-items:center;gap:4px;margin:0 8px}
 #barContainer{
@@ -57,16 +59,16 @@ button:disabled{opacity:.6}
 <div class="overlay"></div>
 <div class="container">
   <h1>深呼吸誘発イルミ</h1>
+  <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
   <label for="patternSelect">呼吸パターン:</label>
   <select id="patternSelect">
-    <option value="5-0-5-0" selected>5-0-5 呼吸法 - リラックス</option>
-    <option value="4-7-8-0">4-7-8 呼吸法 - 睡眠導入</option>
-    <option value="5-5-5-0">5-5-5 呼吸法 - 集中力UP</option>
-    <option value="4-4-4-4">4-4-4-4 呼吸法 - 集中力UP</option>
-    <option value="4-0-4-0">4-0-4 呼吸法 - リラックス</option>
-    <option value="6-0-6-0">6-0-6 呼吸法 - リラックス</option>
-    <option value="3-3-6-0">3-3-6 呼吸法 - リラックス</option>
+    <option value="4-7-8-0">4-7-8ブリージング</option>
+    <option value="4-4-4-4">ボックス呼吸法</option>
+    <option value="5-0-5-0" selected>レゾナンスブリージング</option>
+    <option value="3.3-0-6.7-0">ワンツー呼吸法</option>
+    <option value="7-0-11-0">7-11ブリージング</option>
+    <option value="4-2-4-0">タクティカルブリージング</option>
     <option value="custom">カスタム</option>
   </select>
 
@@ -88,6 +90,28 @@ button:disabled{opacity:.6}
       <label>休む色: <input type="color" id="colorRest" value="#74b9ff"></label>
     </div>
   </div>
+
+  <div class="timings">
+    <div class="row">
+      <label>回数(0=無限): <input type="number" id="cycleCount" min="0" value="0"></label>
+      <label>時間(分,0=無限): <input type="number" id="totalMinutes" min="0" value="0"></label>
+    </div>
+  </div>
+
+  <table class="patterns">
+    <thead>
+      <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数*</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
+      <tr><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>2-3分</td></tr>
+      <tr><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
+      <tr><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>2-3分</td></tr>
+      <tr><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>1-2分</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8rem;opacity:.6">* 推奨回数は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
 
   <div class="mode-select">
     <label><input type="radio" name="mode" value="expand" checked> 光の広がり</label>
@@ -840,12 +864,19 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
   const soundSel      = document.getElementById('sound');
+  const cycleInput    = document.getElementById('cycleCount');
+  const minuteInput   = document.getElementById('totalMinutes');
 
   let timerId = null;
   let currentPhase = 0;
   let mode = 'expand';
   let running = false;
   let audioCtx = null;
+  let cycleLimit = 0;
+  let timeLimit  = 0;
+  let cyclesDone = 0;
+  let startTime  = 0;
+  let cycleStarted = false;
   const buffers = {};
 
   const phaseNames = ['吸って〜','止めて〜','吐いて〜','休んで〜'];
@@ -856,7 +887,7 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   const restInput   = document.getElementById('restSec');
 
   function updateInputsFromPattern(){
-    const arr = patternSelect.value.split('-').map(n=>parseInt(n,10));
+    const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
     while(arr.length < 4) arr.push(0);
     [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
       if(patternSelect.value !== 'custom') el.value = arr[i];
@@ -953,13 +984,13 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
   function getDurations(){
     if(patternSelect.value === 'custom'){
-      const inhale = parseInt(inhaleInput.value,10) || 0;
-      const hold   = parseInt(holdInput.value,10) || 0;
-      const exhale = parseInt(exhaleInput.value,10) || 0;
-      const rest   = parseInt(restInput.value,10) || 0;
+      const inhale = parseFloat(inhaleInput.value) || 0;
+      const hold   = parseFloat(holdInput.value) || 0;
+      const exhale = parseFloat(exhaleInput.value) || 0;
+      const rest   = parseFloat(restInput.value) || 0;
       return [inhale,hold,exhale,rest];
     }
-    const arr = patternSelect.value.split('-').map(n=>parseInt(n,10));
+    const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
     while(arr.length < 4) arr.push(0);
     return arr;
   }
@@ -982,6 +1013,21 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     breathBar.style.backgroundColor = color;
   }
 
+  async function stopSession(){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+    running = false;
+    breathBar.style.width = '0%';
+    phaseText.textContent = '準備中...';
+    timerText.textContent = '--';
+    startBtn.disabled = false;
+    if(audioCtx){
+      await audioCtx.close();
+      audioCtx = null;
+      for(const k in buffers) buffers[k] = null;
+    }
+  }
+
   function nextPhase(){
     const durations = getDurations();
     const colors    = getColors();
@@ -990,6 +1036,21 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     while(durations[currentPhase] === 0 && guard < 4){
       currentPhase = (currentPhase + 1) % 4;
       guard++;
+    }
+
+    if(currentPhase === 0){
+      if(cycleStarted){
+        cyclesDone++;
+        if(cycleLimit > 0 && cyclesDone >= cycleLimit){
+          stopSession();
+          return;
+        }
+      }
+      cycleStarted = true;
+    }
+    if(timeLimit > 0 && Date.now() - startTime >= timeLimit){
+      stopSession();
+      return;
     }
 
     const duration = durations[currentPhase];
@@ -1014,18 +1075,26 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
       return;
     }
 
-    let remaining = duration;
-    timerText.textContent = remaining + ' 秒';
+    let start = Date.now();
+    let end   = start + duration*1000;
+    timerText.textContent = duration.toFixed(1) + ' 秒';
 
     timerId = setInterval(()=>{
-      remaining--;
-      timerText.textContent = remaining + ' 秒';
+      const now = Date.now();
+      const remaining = Math.max(0,(end - now)/1000);
+      timerText.textContent = remaining.toFixed(1) + ' 秒';
+
+      if(timeLimit > 0 && now - startTime >= timeLimit){
+        stopSession();
+        return;
+      }
+
       if(remaining <= 0){
         clearInterval(timerId);
         currentPhase = (currentPhase + 1) % 4;
         nextPhase();
       }
-    }, 1000);
+    }, 100);
   }
 
   startBtn.addEventListener('click', async ()=>{
@@ -1033,22 +1102,17 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     if(soundSel.value !== 'off') await initAudio();
     running = true;
     currentPhase = 0;
+    cyclesDone = 0;
+    cycleStarted = false;
+    cycleLimit = parseInt(cycleInput.value,10) || 0;
+    timeLimit  = (parseFloat(minuteInput.value) || 0) * 60000;
+    startTime  = Date.now();
     nextPhase();
     startBtn.disabled = true;
   });
 
   stopBtn.addEventListener('click', async ()=>{
-    if(timerId) clearInterval(timerId);
-    running = false;
-    breathBar.style.width = '0%';
-    phaseText.textContent = '準備中...';
-    timerText.textContent = '--';
-    startBtn.disabled = false;
-    if(audioCtx){
-      await audioCtx.close();
-      audioCtx = null;
-      for(const k in buffers) buffers[k] = null;
-    }
+    await stopSession();
   });
 })();
 </script>
