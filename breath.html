@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>深呼吸誘発イルミ</title>
 <style>
+:root{
+  --color-inhale:#76c7c0;
+  --color-hold:#ffeaa7;
+  --color-exhale:#ff7675;
+  --color-rest:#74b9ff;
+}
 html,body{margin:0;height:100%;font-family:sans-serif;color:#fff}
 body{display:flex;align-items:center;justify-content:center;position:relative;background:#111 url('https://source.unsplash.com/1600x900/?ocean') center/cover no-repeat fixed}
 body::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,transparent,rgba(0,0,0,.8));}
@@ -26,31 +32,42 @@ select,input[type=number]{width:80px}
  <div class="controls">
   <label>呼吸パターン
    <select id="preset">
-    <option value="4-0-4">Equal 4-4</option>
-    <option value="4-4-4">Box 4-4-4</option>
-    <option value="4-7-8">Relax 4-7-8</option>
-    <option value="6-2-4">Energize 6-2-4</option>
-    <option value="5-0-5">Equal 5-5</option>
-    <option value="2-2-4">Short 2-2-4</option>
+    <option value="4-0-4-0">Equal 4-4</option>
+    <option value="4-4-4-0">Box 4-4-4</option>
+    <option value="4-7-8-0">Relax 4-7-8</option>
+    <option value="6-2-4-0">Energize 6-2-4</option>
+    <option value="5-0-5-0">Equal 5-5</option>
+    <option value="2-2-4-0">Short 2-2-4</option>
     <option value="custom">カスタム</option>
    </select>
   </label>
-  <label id="customFields" style="display:none">吸/止/吐
+  <label id="customFields" style="display:none">吸/止/吐/止
    <input type="number" id="inTime" value="4" min="1" style="width:40px">
    <input type="number" id="holdTime" value="0" min="0" style="width:40px">
    <input type="number" id="exTime" value="4" min="1" style="width:40px">
+   <input type="number" id="restTime" value="0" min="0" style="width:40px">
   </label>
   <label>吸う色 <input type="color" id="colIn" value="#76c7c0"></label>
   <label>止める色 <input type="color" id="colHold" value="#ffeaa7"></label>
   <label>吐く色 <input type="color" id="colEx" value="#ff7675"></label>
+  <label>吐後止め色 <input type="color" id="colRest" value="#74b9ff"></label>
   <label>モード
    <select id="mode">
     <option value="color">色変化のみ</option>
     <option value="light">光の広がり</option>
    </select>
   </label>
-  <label>波の音 <input type="checkbox" id="wave"></label>
- </div>
+  <label>サウンド
+   <select id="sound">
+    <option value="off">なし</option>
+    <option value="wave">波の音</option>
+    <option value="birds">鳥のさえずり</option>
+    <option value="wind">風の音</option>
+    <option value="shishi">ししおどし</option>
+    <option value="rain">雨の音</option>
+   </select>
+  </label>
+  </div>
  <button class="start" id="toggle">スタート</button>
 </div>
 <script>
@@ -768,34 +785,71 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 `;
-let ctx=null,buf=null,run=false;
+let ctx=null,run=false;
+const buffers={};
 const bar=document.getElementById('bar');
 const preset=document.getElementById('preset');
 const modeSel=document.getElementById('mode');
 const customFields=document.getElementById('customFields');
 const toggle=document.getElementById('toggle');
-const wave=document.getElementById('wave');
+const soundSel=document.getElementById('sound');
 function setColorVar(name,val){document.documentElement.style.setProperty(name,val)}
 colIn.oninput=e=>setColorVar('--color-inhale',e.target.value);
 colHold.oninput=e=>setColorVar('--color-hold',e.target.value);
 colEx.oninput=e=>setColorVar('--color-exhale',e.target.value);
+colRest.oninput=e=>setColorVar('--color-rest',e.target.value);
 modeSel.onchange=e=>document.body.dataset.mode=e.target.value;
 preset.onchange=()=>{customFields.style.display=preset.value==='custom'?'block':'none'};
-async function init(){if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();const res=await fetch('data:audio/mp3;base64,'+base64);const arr=await res.arrayBuffer();buf=await ctx.decodeAudioData(arr);}}
+async function init(){
+ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)();
+ if(soundSel.value==='wave' && !buffers.wave){
+   const res=await fetch('data:audio/mp3;base64,'+base64);
+   const arr=await res.arrayBuffer();
+   buffers.wave=await ctx.decodeAudioData(arr);
+ }
+}
+function createNoiseBuffer(){
+ const buffer=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
+ const data=buffer.getChannelData(0);
+ for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+ return buffer;
+}
+function birdBuffer(){
+ if(buffers.birds)return buffers.birds;
+ const len=ctx.sampleRate*2;const b=ctx.createBuffer(1,len,ctx.sampleRate);
+ const d=b.getChannelData(0);
+ for(let i=0;i<len;i++)d[i]=0;
+ const chirp=(off)=>{for(let j=0;j<0.15*ctx.sampleRate;j++){const t=j/ctx.sampleRate;d[off+j]+=Math.sin(2*Math.PI*(1200+800*t)*t)*Math.exp(-30*t);} };
+ chirp(0.1*ctx.sampleRate);chirp(0.6*ctx.sampleRate);
+ buffers.birds=b;return b;
+}
+function shishiBuffer(){
+ if(buffers.shishi)return buffers.shishi;
+ const len=ctx.sampleRate*3;const b=ctx.createBuffer(1,len,ctx.sampleRate);
+ const d=b.getChannelData(0);
+ for(let i=0;i<len;i++)d[i]=0;
+ for(let j=0;j<0.25*ctx.sampleRate;j++){const t=j/ctx.sampleRate;d[j]+=Math.sin(2*Math.PI*400*t)*Math.exp(-15*t);}
+ buffers.shishi=b;return b;
+}
 function playPhase(dur,from,to){
- if(!wave.checked)return;
+ if(soundSel.value==='off')return;
  const src=ctx.createBufferSource();
  const gain=ctx.createGain();
- src.buffer=buf;
- src.loop=true;
- src.connect(gain).connect(ctx.destination);
+ let filter;
+ if(soundSel.value==='wave'){src.buffer=buffers.wave;src.loop=true;}
+ else if(soundSel.value==='birds'){src.buffer=birdBuffer();src.loop=true;}
+ else if(soundSel.value==='wind'){src.buffer=createNoiseBuffer();src.loop=true;filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=800;}
+ else if(soundSel.value==='rain'){src.buffer=createNoiseBuffer();src.loop=true;filter=ctx.createBiquadFilter();filter.type='highpass';filter.frequency.value=1000;}
+ else if(soundSel.value==='shishi'){src.buffer=shishiBuffer();src.loop=true;}
+ if(filter)src.connect(filter).connect(gain);else src.connect(gain);
+ gain.connect(ctx.destination);
  gain.gain.setValueAtTime(from,ctx.currentTime);
  gain.gain.linearRampToValueAtTime(to,ctx.currentTime+dur);
  src.start();
  src.stop(ctx.currentTime+dur+0.1);
 }
 function delay(t){return new Promise(r=>setTimeout(r,t*1000))}
-async function cycle(inh,hold,exh){
+async function cycle(inh,hold,exh,rest){
  document.documentElement.style.setProperty('--duration',inh);
  bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');
  bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');
@@ -812,21 +866,32 @@ async function cycle(inh,hold,exh){
  if(document.body.dataset.mode==='light')bar.style.transform='scaleX(0)';
  playPhase(exh,1,0);
  await delay(exh);
+ document.documentElement.style.setProperty('--duration',rest);
+ bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-rest');
+ bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-rest');
+ await delay(rest);
 }
-function getTimes(){if(preset.value==='custom'){return[+inTime.value,+holdTime.value,+exTime.value]}return preset.value.split('-').map(Number)}
-async function loop(){while(run){const[t1,t2,t3]=getTimes();await cycle(t1,t2,t3)}}
+function getTimes(){
+ if(preset.value==='custom'){
+   return[+inTime.value,+holdTime.value,+exTime.value,+restTime.value];
+ }
+ const arr=preset.value.split('-').map(Number);
+ while(arr.length<4)arr.push(0);
+ return arr;
+}
+async function loop(){while(run){const[t1,t2,t3,t4]=getTimes();await cycle(t1,t2,t3,t4)}}
 toggle.onclick=async()=>{
  if(run){
   run=false;
   toggle.textContent='スタート';
-  if(ctx){await ctx.close();ctx=null;}
+  if(ctx){await ctx.close();ctx=null;for(const k in buffers)buffers[k]=null;}
   bar.style.transform='scaleX(0)';
  }else{
   run=true;
   toggle.textContent='ストップ';
-  if(wave.checked) await init();
+  if(soundSel.value!=='off') await init();
   loop();
- }};
+}};
 </script>
 </body>
 </html>
