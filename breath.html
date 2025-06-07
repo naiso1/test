@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Breathing Coach</title>
+<title>深呼吸誘発イルミ</title>
 <style>
 html,body{margin:0;height:100%;font-family:sans-serif;color:#fff}
 body{display:flex;align-items:center;justify-content:center;position:relative;background:#111 url('https://source.unsplash.com/1600x900/?ocean') center/cover no-repeat fixed}
 body::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,transparent,rgba(0,0,0,.8));}
 .card{position:relative;z-index:1;padding:20px 25px;width:90%;max-width:420px;border-radius:15px;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);box-shadow:0 4px 30px rgba(0,0,0,.5)}
 .bar-container{height:20px;background:rgba(255,255,255,.2);border-radius:10px;overflow:hidden;margin-top:20px}
-.breath-bar{height:100%;width:0;background:var(--color-inhale,#76c7c0);box-shadow:0 0 20px var(--color-inhale,#76c7c0)}
-[data-mode="color"] .breath-bar{width:100%;transition:background var(--duration)s linear}
-[data-mode="light"] .breath-bar{transition:width var(--duration)s linear}
+.breath-bar{height:100%;width:100%;transform:scaleX(0);transform-origin:center;background:var(--color-inhale,#76c7c0);box-shadow:0 0 20px var(--color-inhale,#76c7c0)}
+[data-mode="color"] .breath-bar{transform:scaleX(1);transition:background var(--duration)s linear}
+[data-mode="light"] .breath-bar{transition:transform var(--duration)s linear}
 .controls{margin-top:15px;display:flex;flex-direction:column;gap:10px}
 .controls label{display:flex;justify-content:space-between;align-items:center;font-size:.9em}
 select,input[type=number]{width:80px}
@@ -21,10 +21,10 @@ select,input[type=number]{width:80px}
 </head>
 <body data-mode="color">
 <div class="card">
- <h2 style="text-align:center;margin-top:0">Breathing Coach</h2>
+ <h2 style="text-align:center;margin-top:0">深呼吸誘発イルミ</h2>
  <div class="bar-container"><div class="breath-bar" id="bar"></div></div>
  <div class="controls">
-  <label>Preset
+  <label>呼吸パターン
    <select id="preset">
     <option value="4-0-4">Equal 4-4</option>
     <option value="4-4-4">Box 4-4-4</option>
@@ -32,25 +32,26 @@ select,input[type=number]{width:80px}
     <option value="6-2-4">Energize 6-2-4</option>
     <option value="5-0-5">Equal 5-5</option>
     <option value="2-2-4">Short 2-2-4</option>
-    <option value="custom">Custom</option>
+    <option value="custom">カスタム</option>
    </select>
   </label>
-  <label id="customFields" style="display:none">In/Hold/Ex
+  <label id="customFields" style="display:none">吸/止/吐
    <input type="number" id="inTime" value="4" min="1" style="width:40px">
    <input type="number" id="holdTime" value="0" min="0" style="width:40px">
    <input type="number" id="exTime" value="4" min="1" style="width:40px">
   </label>
-  <label>Inhale Color <input type="color" id="colIn" value="#76c7c0"></label>
-  <label>Hold Color <input type="color" id="colHold" value="#ffeaa7"></label>
-  <label>Exhale Color <input type="color" id="colEx" value="#ff7675"></label>
-  <label>Mode
+  <label>吸う色 <input type="color" id="colIn" value="#76c7c0"></label>
+  <label>止める色 <input type="color" id="colHold" value="#ffeaa7"></label>
+  <label>吐く色 <input type="color" id="colEx" value="#ff7675"></label>
+  <label>モード
    <select id="mode">
-    <option value="color">Color Change</option>
-    <option value="light">Light Spread</option>
+    <option value="color">色変化のみ</option>
+    <option value="light">光の広がり</option>
    </select>
   </label>
+  <label>波の音 <input type="checkbox" id="wave"></label>
  </div>
- <button class="start" id="toggle">Start</button>
+ <button class="start" id="toggle">スタート</button>
 </div>
 <script>
 const base64 = `
@@ -773,6 +774,7 @@ const preset=document.getElementById('preset');
 const modeSel=document.getElementById('mode');
 const customFields=document.getElementById('customFields');
 const toggle=document.getElementById('toggle');
+const wave=document.getElementById('wave');
 function setColorVar(name,val){document.documentElement.style.setProperty(name,val)}
 colIn.oninput=e=>setColorVar('--color-inhale',e.target.value);
 colHold.oninput=e=>setColorVar('--color-hold',e.target.value);
@@ -780,12 +782,51 @@ colEx.oninput=e=>setColorVar('--color-exhale',e.target.value);
 modeSel.onchange=e=>document.body.dataset.mode=e.target.value;
 preset.onchange=()=>{customFields.style.display=preset.value==='custom'?'block':'none'};
 async function init(){if(!ctx){ctx=new (window.AudioContext||window.webkitAudioContext)();const res=await fetch('data:audio/mp3;base64,'+base64);const arr=await res.arrayBuffer();buf=await ctx.decodeAudioData(arr);}}
-function playPhase(dur){const src=ctx.createBufferSource();const gain=ctx.createGain();src.buffer=buf;src.loop=true;src.connect(gain).connect(ctx.destination);gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(1,ctx.currentTime+0.5);gain.gain.linearRampToValueAtTime(0,ctx.currentTime+dur);src.start();src.stop(ctx.currentTime+dur+0.1);}
+function playPhase(dur,from,to){
+ if(!wave.checked)return;
+ const src=ctx.createBufferSource();
+ const gain=ctx.createGain();
+ src.buffer=buf;
+ src.loop=true;
+ src.connect(gain).connect(ctx.destination);
+ gain.gain.setValueAtTime(from,ctx.currentTime);
+ gain.gain.linearRampToValueAtTime(to,ctx.currentTime+dur);
+ src.start();
+ src.stop(ctx.currentTime+dur+0.1);
+}
 function delay(t){return new Promise(r=>setTimeout(r,t*1000))}
-async function cycle(inh,hold,exh){document.documentElement.style.setProperty('--duration',inh);bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');if(document.body.dataset.mode==='light')bar.style.width='100%';playPhase(inh);await delay(inh);document.documentElement.style.setProperty('--duration',hold);bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-hold');bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-hold');await delay(hold);document.documentElement.style.setProperty('--duration',exh);bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-exhale');bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-exhale');if(document.body.dataset.mode==='light')bar.style.width='0%';playPhase(exh);await delay(exh);}
+async function cycle(inh,hold,exh){
+ document.documentElement.style.setProperty('--duration',inh);
+ bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');
+ bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-inhale');
+ if(document.body.dataset.mode==='light')bar.style.transform='scaleX(1)';
+ playPhase(inh,0,1);
+ await delay(inh);
+ document.documentElement.style.setProperty('--duration',hold);
+ bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-hold');
+ bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-hold');
+ await delay(hold);
+ document.documentElement.style.setProperty('--duration',exh);
+ bar.style.background=getComputedStyle(document.documentElement).getPropertyValue('--color-exhale');
+ bar.style.boxShadow='0 0 20px '+getComputedStyle(document.documentElement).getPropertyValue('--color-exhale');
+ if(document.body.dataset.mode==='light')bar.style.transform='scaleX(0)';
+ playPhase(exh,1,0);
+ await delay(exh);
+}
 function getTimes(){if(preset.value==='custom'){return[+inTime.value,+holdTime.value,+exTime.value]}return preset.value.split('-').map(Number)}
 async function loop(){while(run){const[t1,t2,t3]=getTimes();await cycle(t1,t2,t3)}}
-toggle.onclick=async()=>{if(run){run=false;toggle.textContent='Start';if(ctx){await ctx.close();ctx=null;}}else{run=true;toggle.textContent='Stop';await init();loop();}};
+toggle.onclick=async()=>{
+ if(run){
+  run=false;
+  toggle.textContent='スタート';
+  if(ctx){await ctx.close();ctx=null;}
+  bar.style.transform='scaleX(0)';
+ }else{
+  run=true;
+  toggle.textContent='ストップ';
+  if(wave.checked) await init();
+  loop();
+ }};
 </script>
 </body>
 </html>
