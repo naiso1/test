@@ -25,11 +25,14 @@ body{
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
 }
 h1{font-size:1.6rem;margin-bottom:8px}
+.timings{margin:16px 0}
+.timings .row{display:flex;gap:8px;margin-bottom:8px}
+.timings label{display:flex;align-items:center;gap:4px;flex:1;margin:0}
 label{display:block;margin:12px 0 4px;font-size:.9rem}
 select,input[type="number"],input[type="color"]{
   width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:4px;margin-bottom:12px
 }
-.colors,.mode-select{margin:16px 0}
+.mode-select{margin:16px 0}
 .mode-select label{display:inline-flex;align-items:center;gap:4px;margin:0 8px}
 #barContainer{
   position:relative;margin:24px auto;width:100%;max-width:560px;height:40px;
@@ -57,27 +60,33 @@ button:disabled{opacity:.6}
 
   <label for="patternSelect">呼吸パターン:</label>
   <select id="patternSelect">
-    <option value="5-0-5-0" selected>5-0-5 呼吸法</option>
-    <option value="4-7-8-0">4-7-8 呼吸法</option>
-    <option value="5-5-5-0">5-5-5 呼吸法</option>
-    <option value="4-0-4-0">4-0-4 呼吸法</option>
-    <option value="6-0-6-0">6-0-6 呼吸法</option>
-    <option value="3-3-6-0">3-3-6 呼吸法</option>
+    <option value="5-0-5-0" selected>5-0-5 呼吸法 - リラックス</option>
+    <option value="4-7-8-0">4-7-8 呼吸法 - 睡眠導入</option>
+    <option value="5-5-5-0">5-5-5 呼吸法 - 集中力UP</option>
+    <option value="4-4-4-4">4-4-4-4 呼吸法 - 集中力UP</option>
+    <option value="4-0-4-0">4-0-4 呼吸法 - リラックス</option>
+    <option value="6-0-6-0">6-0-6 呼吸法 - リラックス</option>
+    <option value="3-3-6-0">3-3-6 呼吸法 - リラックス</option>
     <option value="custom">カスタム</option>
   </select>
 
-  <div id="customInputs" style="display:none;">
-    <label>吸う秒数: <input type="number" id="inhaleSec" min="1" value="5"></label>
-    <label>止める秒数: <input type="number" id="holdSec" min="0" value="0"></label>
-    <label>吐く秒数: <input type="number" id="exhaleSec" min="1" value="5"></label>
-    <label>休む秒数: <input type="number" id="restSec" min="0" value="0"></label>
-  </div>
-
-  <div class="colors">
-    <label>吸う色: <input type="color" id="colorInhale" value="#76c7c0"></label>
-    <label>止める色: <input type="color" id="colorHold" value="#f7c59f"></label>
-    <label>吐く色: <input type="color" id="colorExhale" value="#ff6f61"></label>
-    <label>休む色: <input type="color" id="colorRest" value="#74b9ff"></label>
+  <div id="customInputs" class="timings">
+    <div class="row">
+      <label>吸う秒数: <input type="number" id="inhaleSec" min="1" value="5"></label>
+      <label>吸う色: <input type="color" id="colorInhale" value="#76c7c0"></label>
+    </div>
+    <div class="row">
+      <label>止める秒数: <input type="number" id="holdSec" min="0" value="0"></label>
+      <label>止める色: <input type="color" id="colorHold" value="#f7c59f"></label>
+    </div>
+    <div class="row">
+      <label>吐く秒数: <input type="number" id="exhaleSec" min="1" value="5"></label>
+      <label>吐く色: <input type="color" id="colorExhale" value="#ff6f61"></label>
+    </div>
+    <div class="row">
+      <label>休む秒数: <input type="number" id="restSec" min="0" value="0"></label>
+      <label>休む色: <input type="color" id="colorRest" value="#74b9ff"></label>
+    </div>
   </div>
 
   <div class="mode-select">
@@ -89,6 +98,8 @@ button:disabled{opacity:.6}
       <option value="off">なし</option>
       <option value="wave">波の音</option>
       <option value="birds">鳥のさえずり</option>
+      <option value="onsen">温泉の音</option>
+      <option value="bubble">泡風呂</option>
       <option value="wind">風の音</option>
       <option value="shishi">ししおどし</option>
       <option value="rain">雨の音</option>
@@ -839,9 +850,22 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
   const phaseNames = ['吸って〜','止めて〜','吐いて〜','休んで〜'];
 
-  patternSelect.addEventListener('change', ()=> {
-    customInputs.style.display = (patternSelect.value === 'custom') ? 'block' : 'none';
-  });
+  const inhaleInput = document.getElementById('inhaleSec');
+  const holdInput   = document.getElementById('holdSec');
+  const exhaleInput = document.getElementById('exhaleSec');
+  const restInput   = document.getElementById('restSec');
+
+  function updateInputsFromPattern(){
+    const arr = patternSelect.value.split('-').map(n=>parseInt(n,10));
+    while(arr.length < 4) arr.push(0);
+    [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
+      if(patternSelect.value !== 'custom') el.value = arr[i];
+      el.disabled = patternSelect.value !== 'custom';
+    });
+  }
+
+  patternSelect.addEventListener('change', updateInputsFromPattern);
+  updateInputsFromPattern();
   document.querySelectorAll('input[name="mode"]').forEach(radio => {
     radio.addEventListener('change', e => mode = e.target.value);
   });
@@ -862,14 +886,41 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   }
   function birdBuffer(){
     if(buffers.birds) return buffers.birds;
-    const len = audioCtx.sampleRate*2;
+    const len = audioCtx.sampleRate*4;
     const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
     const d = b.getChannelData(0);
     for(let i=0;i<len;i++) d[i] = 0;
-    const chirp = off=>{for(let j=0;j<0.15*audioCtx.sampleRate;j++){const t=j/audioCtx.sampleRate;d[off+j]+=Math.sin(2*Math.PI*(1200+800*t)*t)*Math.exp(-30*t);}};
-    chirp(0.1*audioCtx.sampleRate);
-    chirp(0.6*audioCtx.sampleRate);
+    const chirp = (off,f)=>{
+      for(let j=0;j<0.2*audioCtx.sampleRate;j++){
+        const t=j/audioCtx.sampleRate;
+        d[off+j]+=Math.sin(2*Math.PI*(f+f*0.5*t)*t)*Math.exp(-25*t);
+      }
+    };
+    chirp(0.5*audioCtx.sampleRate,1000);
+    chirp(1.2*audioCtx.sampleRate,1500);
+    chirp(2*audioCtx.sampleRate,1200);
+    chirp(2.7*audioCtx.sampleRate,1700);
     buffers.birds = b; return b;
+  }
+  function onsenBuffer(){
+    if(buffers.onsen) return buffers.onsen;
+    const buffer = createNoiseBuffer();
+    buffers.onsen = buffer; return buffer;
+  }
+  function bubbleBuffer(){
+    if(buffers.bubble) return buffers.bubble;
+    const len = audioCtx.sampleRate*3;
+    const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
+    const d = b.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=0;
+    for(let k=0;k<20;k++){
+      const start=Math.floor(Math.random()*(len-500));
+      for(let j=0;j<500;j++){
+        const t=j/500;
+        d[start+j]+=Math.sin(2*Math.PI*400*(1+t)*t)*Math.exp(-6*t);
+      }
+    }
+    buffers.bubble=b;return b;
   }
   function shishiBuffer(){
     if(buffers.shishi) return buffers.shishi;
@@ -887,6 +938,8 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
     let filter;
     if(soundSel.value==='wave'){src.buffer=buffers.wave;src.loop=true;}
     else if(soundSel.value==='birds'){src.buffer=birdBuffer();src.loop=true;}
+    else if(soundSel.value==='onsen'){src.buffer=onsenBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=600;}
+    else if(soundSel.value==='bubble'){src.buffer=bubbleBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=800;}
     else if(soundSel.value==='wind'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=800;}
     else if(soundSel.value==='rain'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='highpass';filter.frequency.value=1000;}
     else if(soundSel.value==='shishi'){src.buffer=shishiBuffer();src.loop=true;}
@@ -900,22 +953,27 @@ VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
   function getDurations(){
     if(patternSelect.value === 'custom'){
-      const inhale = parseInt(document.getElementById('inhaleSec').value,10) || 0;
-      const hold   = parseInt(document.getElementById('holdSec').value,10) || 0;
-      const exhale = parseInt(document.getElementById('exhaleSec').value,10) || 0;
-      const rest   = parseInt(document.getElementById('restSec').value,10) || 0;
+      const inhale = parseInt(inhaleInput.value,10) || 0;
+      const hold   = parseInt(holdInput.value,10) || 0;
+      const exhale = parseInt(exhaleInput.value,10) || 0;
+      const rest   = parseInt(restInput.value,10) || 0;
       return [inhale,hold,exhale,rest];
     }
     const arr = patternSelect.value.split('-').map(n=>parseInt(n,10));
     while(arr.length < 4) arr.push(0);
     return arr;
   }
+  const colorInhale = document.getElementById('colorInhale');
+  const colorHold   = document.getElementById('colorHold');
+  const colorExhale = document.getElementById('colorExhale');
+  const colorRest   = document.getElementById('colorRest');
+
   function getColors(){
     return [
-      document.getElementById('colorInhale').value,
-      document.getElementById('colorHold').value,
-      document.getElementById('colorExhale').value,
-      document.getElementById('colorRest').value
+      colorInhale.value,
+      colorHold.value,
+      colorExhale.value,
+      colorRest.value
     ];
   }
   function setBar(widthPercent,duration,color){
