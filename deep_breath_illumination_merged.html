@@ -24,7 +24,11 @@ body{
   position:relative;z-index:1;width:min(95%,1040px);
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
   backdrop-filter:blur(12px);
+  max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
 }
+.container::-webkit-scrollbar{width:6px}
+.container::-webkit-scrollbar-track{background:transparent}
+.container::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
 h1{font-size:1.6rem;margin-bottom:8px}
 .paramtable{width:100%;border-collapse:collapse;margin:16px 0;font-size:.9rem}
 #customInputs{width:50%;margin:16px auto}
@@ -43,12 +47,14 @@ select,input[type="number"],input[type="color"]{
 .section{margin:16px 0}
 .section h3{margin-bottom:8px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
-  margin:0;padding:0;font-size:1rem;cursor:pointer;border:none;border-radius:0;
+  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:8px;
   background:transparent;color:#fff;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   aspect-ratio:1/1;
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:rgba(255,255,255,.2);color:#000}
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{
+  background:rgba(255,255,255,.2);color:#000;border-color:#fff;
+}
 .mode-buttons{margin:0}
 #barContainer{
   position:relative;margin:24px auto;width:100%;max-width:1120px;height:40px;
@@ -69,10 +75,11 @@ button{
 button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
 .grid-buttons{display:grid;gap:8px}
-.mode-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
-.env-buttons.grid-buttons,.switch-buttons.grid-buttons,.music-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(45px,1fr))}
+.mode-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(22px,1fr))}
+.env-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(45px,1fr))}
+.switch-buttons.grid-buttons,.music-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(11px,1fr))}
 .env-buttons img,.music-buttons img{width:100%;height:100%;object-fit:cover}
-@media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9)}}
+@media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
 </style>
 </head>
 <body>
@@ -157,7 +164,7 @@ button:disabled{opacity:.6}
       <button type="button" class="envBtn" data-env="birds"><img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=100&q=60" alt=""> 鳥のさえずり</button>
       <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
       <button type="button" class="envBtn" data-env="bubble"><img src="泡風呂.jpeg" alt=""> 泡風呂</button>
-      <button type="button" class="envBtn" data-env="wind"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=100&q=60" alt=""> 風の音</button>
+      <button type="button" class="envBtn" data-env="wind"><img src="風の音.png" alt=""> 風の音</button>
       <button type="button" class="envBtn" data-env="rain"><img src="雨の音.jpg" alt=""> 雨の音</button>
       <button type="button" class="envBtn" data-env="kirakira"><img src="キラキラ.jpg" alt=""> キラキラ</button>
     </div>
@@ -221,11 +228,11 @@ button:disabled{opacity:.6}
     off: defaultBg,
     wave: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=60',
     birds: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1400&q=60',
-    onsen: 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=1400&q=60',
-    bubble: 'https://images.unsplash.com/photo-1516376128745-7dcb70d19147?auto=format&fit=crop&w=1400&q=60',
-    wind: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=60',
-    rain: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1400&q=60',
-    kirakira: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=60'
+    onsen: '温泉の音.jpg',
+    bubble: '泡風呂.jpeg',
+    wind: '風の音.png',
+    rain: '雨の音.jpg',
+    kirakira: 'キラキラ.jpg'
   };
 
   function updateBackground(){
