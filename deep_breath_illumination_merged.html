@@ -43,11 +43,12 @@ select,input[type="number"],input[type="color"]{
 .section{margin:16px 0}
 .section h3{margin-bottom:8px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
-  margin:0;padding:10px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;
-  background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
-  backdrop-filter:blur(6px);
+  margin:0;padding:0;font-size:1rem;cursor:pointer;border:none;border-radius:0;
+  background:transparent;color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  aspect-ratio:1/1;
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:rgba(255,255,255,.3);color:#000}
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:rgba(255,255,255,.2);color:#000}
 .mode-buttons{margin:0}
 #barContainer{
   position:relative;margin:24px auto;width:100%;max-width:1120px;height:40px;
@@ -60,9 +61,8 @@ select,input[type="number"],input[type="color"]{
   transition:width 1s linear,background-color .8s
 }
 button{
-  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:8px;cursor:pointer;width:100%;
-  background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
-  backdrop-filter:blur(6px);
+  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:0;cursor:pointer;width:100%;
+  background:rgba(255,255,255,.15);color:#fff;
 }
 #startBtn{background:rgba(118,199,192,.5);color:#fff}
 #applyBtn{background:rgba(116,185,255,.5);color:#fff}
@@ -149,14 +149,14 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>環境音</h3>
     <div class="env-buttons grid-buttons">
-      <button type="button" class="envBtn active" data-env="off">❌ なし</button>
-      <button type="button" class="envBtn" data-env="wave">🌊 波の音</button>
-      <button type="button" class="envBtn" data-env="birds">🐦 鳥のさえずり</button>
-      <button type="button" class="envBtn" data-env="onsen">♨️ 温泉の音</button>
-      <button type="button" class="envBtn" data-env="bubble">🫧 泡風呂</button>
-      <button type="button" class="envBtn" data-env="wind">🌬️ 風の音</button>
-      <button type="button" class="envBtn" data-env="rain">🌧️ 雨の音</button>
-      <button type="button" class="envBtn" data-env="kirakira">✨ キラキラ</button>
+      <button type="button" class="envBtn active" data-env="off"><img src="https://via.placeholder.com/100.jpg?text=OFF" alt=""> なし</button>
+      <button type="button" class="envBtn" data-env="wave"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=60" alt=""> 波の音</button>
+      <button type="button" class="envBtn" data-env="birds"><img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=100&q=60" alt=""> 鳥のさえずり</button>
+      <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
+      <button type="button" class="envBtn" data-env="bubble"><img src="泡風呂.jpeg" alt=""> 泡風呂</button>
+      <button type="button" class="envBtn" data-env="wind"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=100&q=60" alt=""> 風の音</button>
+      <button type="button" class="envBtn" data-env="rain"><img src="雨の音.jpg" alt=""> 雨の音</button>
+      <button type="button" class="envBtn" data-env="kirakira"><img src="キラキラ.jpg" alt=""> キラキラ</button>
     </div>
   </div>
   <div class="section">
@@ -168,10 +168,13 @@ button:disabled{opacity:.6}
   </div>
   <div class="section">
     <h3>音楽</h3>
-    <div class="music-buttons grid-buttons">
+  <div class="music-buttons grid-buttons">
       <button type="button" class="musicBtn active" data-music="off">❌ なし</button>
       <button type="button" class="musicBtn" data-music="canon">🎻 カノン</button>
     </div>
+  </div>
+  <div class="controls" style="margin-top:8px">
+    <button id="applyBtn" style="display:none">適用</button>
   </div>
   </div>
   <input type="hidden" id="envSound" value="off">
@@ -179,7 +182,6 @@ button:disabled{opacity:.6}
   <input type="hidden" id="musicSel" value="off">
   <div id="controls" class="controls">
     <button id="startBtn">スタート</button>
-    <button id="applyBtn" style="display:none">適用</button>
     <button id="settingsBtn">設定</button>
   </div>
 
