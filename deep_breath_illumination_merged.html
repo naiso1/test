@@ -23,24 +23,31 @@ body{
 .container{
   position:relative;z-index:1;width:min(95%,1040px);
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
+  backdrop-filter:blur(12px);
 }
 h1{font-size:1.6rem;margin-bottom:8px}
 .paramtable{width:100%;border-collapse:collapse;margin:16px 0;font-size:.9rem}
+#customInputs{width:50%;margin:16px auto}
 .paramtable th,.paramtable td{border:1px solid #999;padding:4px;text-align:center}
 #customInputs th{white-space:nowrap}
 label{display:block;margin:12px 0 4px;font-size:.9rem}
 select,input[type="number"],input[type="color"]{
-  width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:4px;margin-bottom:12px
+  width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:8px;margin-bottom:12px;
+  background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(6px);
 }
 .patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem}
 .patterns th,.patterns td{border:1px solid #999;padding:4px}
 .patterns tbody tr.selected{background:rgba(255,255,255,.3)}
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:16px 0}
+.section h3{margin-bottom:8px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
-  margin:0;padding:10px;font-size:1rem;border:none;border-radius:8px;cursor:pointer
+  margin:0;padding:10px;font-size:1rem;border:none;border-radius:8px;cursor:pointer;
+  background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(6px);
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:#555;color:#fff}
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:rgba(255,255,255,.3);color:#000}
 .mode-buttons{margin:0}
 #barContainer{
   position:relative;margin:24px auto;width:100%;max-width:1120px;height:40px;
@@ -53,10 +60,12 @@ select,input[type="number"],input[type="color"]{
   transition:width 1s linear,background-color .8s
 }
 button{
-  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:8px;cursor:pointer;width:100%
+  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:8px;cursor:pointer;width:100%;
+  background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(6px);
 }
-#startBtn{background:#76c7c0;color:#000}
-#applyBtn{background:#74b9ff;color:#000}
+#startBtn{background:rgba(118,199,192,.5);color:#fff}
+#applyBtn{background:rgba(116,185,255,.5);color:#fff}
 button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
 .grid-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
@@ -75,8 +84,24 @@ button:disabled{opacity:.6}
   <div id="settings" style="display:none">
   <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
-  <input type="hidden" id="patternSelect" value="3.3-0-6.7-0">
+  <table class="patterns">
+    <thead>
+      <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数/時間</th></tr>
+    </thead>
+    <tbody>
+      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
+      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
+      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
+      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
+      <tr data-pattern="4-2-4-0"><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
+      <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
+      <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8rem;opacity:.6">* 推奨回数/時間は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
 
+  <input type="hidden" id="patternSelect" value="3.3-0-6.7-0">
 
   <table id="customInputs" class="paramtable">
     <thead>
@@ -113,24 +138,6 @@ button:disabled{opacity:.6}
       </tr>
     </tbody>
   </table>
-
-
-  <table class="patterns">
-    <thead>
-      <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数/時間</th></tr>
-    </thead>
-    <tbody>
-      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
-      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
-      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
-      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
-      <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
-      <tr data-pattern="4-2-4-0"><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
-      <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
-      <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:.8rem;opacity:.6">* 推奨回数/時間は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
 
   <div class="section">
     <h3>光の表現</h3>
@@ -172,7 +179,7 @@ button:disabled{opacity:.6}
   <input type="hidden" id="musicSel" value="off">
   <div id="controls" class="controls">
     <button id="startBtn">スタート</button>
-    <button id="applyBtn">適用</button>
+    <button id="applyBtn" style="display:none">適用</button>
     <button id="settingsBtn">設定</button>
   </div>
 
@@ -287,6 +294,7 @@ button:disabled{opacity:.6}
     btn.addEventListener('click', () => {
       const env = btn.dataset.env;
       if(env === 'off'){
+        selectedEnvs.forEach(stopEnvSound);
         selectedEnvs = [];
         lastEnv = 'off';
         envBtns.forEach(b=>b.classList.remove('active'));
@@ -298,6 +306,7 @@ button:disabled{opacity:.6}
           lastEnv = env;
         } else {
           selectedEnvs = selectedEnvs.filter(e=>e!==env);
+          stopEnvSound(env);
           if(lastEnv===env) lastEnv = selectedEnvs[selectedEnvs.length-1] || 'off';
         }
         envBtns.forEach(b=>{if(b.dataset.env==='off') b.classList.remove('active');});
@@ -351,6 +360,11 @@ button:disabled{opacity:.6}
   Object.values(envAudios).forEach(a=>a.loop=true);
   const switchAudios = {shishi:new Audio('ししおどし.mp3')};
   const musicAudios = {canon:new Audio('カノン.m4a')};
+
+  function stopEnvSound(env){
+    const el = envAudios[env];
+    if(el){ if(el._fade) clearInterval(el._fade); try{el.pause();}catch{} el.currentTime=0; }
+  }
 
   function handleMusic(forceStop=false){
     Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} if(forceStop) a.currentTime=0;});
@@ -545,11 +559,15 @@ button:disabled{opacity:.6}
     await startSession();
   });
 
+  settings.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('change',()=>{ applyBtn.style.display=''; });
+  });
 
   settingsBtn.addEventListener('click', ()=>{
     const open = settings.style.display !== 'none';
     settings.style.display = open ? 'none' : '';
     settingsBtn.textContent = open ? '設定' : '閉じる';
+    if(open) applyBtn.style.display='none';
   });
 })();
 </script>
