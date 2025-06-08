@@ -353,9 +353,9 @@ button:disabled{opacity:.6}
   const musicAudios = {canon:new Audio('カノン.m4a')};
 
   function handleMusic(forceStop=false){
-    Object.values(musicAudios).forEach(a=>{a.pause(); if(forceStop) a.currentTime=0;});
+    Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} if(forceStop) a.currentTime=0;});
     if(!forceStop && running && musicSel.value==='canon'){
-      const el = musicAudios.canon; el.volume=1; el.play();
+      const el = musicAudios.canon; el.volume=1; el.play().catch(()=>{});
     }
   }
 
@@ -365,7 +365,7 @@ button:disabled{opacity:.6}
       const el = envAudios[env];
       if(!el) return;
       el.volume = from;
-      if(el.paused) el.play();
+      if(el.paused) el.play().catch(()=>{});
       const diff = to-from;
       const steps = Math.max(1,Math.floor(dur*10));
       let c=0;
@@ -374,7 +374,7 @@ button:disabled{opacity:.6}
         c++; el.volume = from + diff*c/steps;
         if(c>=steps){
           clearInterval(el._fade);
-          if(to===0){ el.pause(); el.currentTime=0; }
+          if(to===0){ try{el.pause();}catch{} el.currentTime=0; }
         }
       },100);
     });
@@ -383,7 +383,7 @@ button:disabled{opacity:.6}
   function playSwitchSound(){
     if(switchSel.value==='off') return;
     const el = switchAudios[switchSel.value];
-    if(el){ el.currentTime=0; el.volume=1; el.play(); }
+    if(el){ el.currentTime=0; el.volume=1; el.play().catch(()=>{}); }
   }
 
   function getDurations(){
@@ -437,8 +437,8 @@ button:disabled{opacity:.6}
     timerText.textContent = '--';
     startBtn.disabled = false;
     startBtn.textContent = 'スタート';
-    Object.values(envAudios).forEach(el=>{if(el._fade) clearInterval(el._fade); el.pause(); el.currentTime=0;});
-    Object.values(switchAudios).forEach(el=>{el.pause(); el.currentTime=0;});
+    Object.values(envAudios).forEach(el=>{if(el._fade) clearInterval(el._fade); try{el.pause();}catch{} el.currentTime=0;});
+    Object.values(switchAudios).forEach(el=>{try{el.pause();}catch{} el.currentTime=0;});
     handleMusic(true);
   }
 
