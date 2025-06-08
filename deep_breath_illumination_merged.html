@@ -68,7 +68,10 @@ button{
 #applyBtn{background:rgba(116,185,255,.5);color:#fff}
 button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
-.grid-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.grid-buttons{display:grid;gap:8px}
+.mode-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+.env-buttons.grid-buttons,.switch-buttons.grid-buttons,.music-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(45px,1fr))}
+.env-buttons img,.music-buttons img{width:100%;height:100%;object-fit:cover}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9)}}
 </style>
 </head>
