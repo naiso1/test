@@ -25,13 +25,9 @@ body{
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
 }
 h1{font-size:1.6rem;margin-bottom:8px}
-.timings{margin:16px 0}
-.timings .row{display:flex;gap:8px;margin-bottom:8px}
-.timings label{display:flex;align-items:center;gap:4px;flex:1;margin:0}
 .paramtable{width:100%;border-collapse:collapse;margin:16px 0;font-size:.9rem}
-.paramtable th,.paramtable td{border:1px solid #999;padding:4px;text-align:left}
-#customInputs th:nth-child(2),#customInputs td:nth-child(2),
-#customInputs th:nth-child(3),#customInputs td:nth-child(3){width:30%}
+.paramtable th,.paramtable td{border:1px solid #999;padding:4px;text-align:center}
+#customInputs th{white-space:nowrap}
 label{display:block;margin:12px 0 4px;font-size:.9rem}
 select,input[type="number"],input[type="color"]{
   width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:4px;margin-bottom:12px
@@ -42,7 +38,7 @@ select,input[type="number"],input[type="color"]{
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:16px 0}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
-  margin:4px;padding:10px 16px;font-size:1rem;border:none;border-radius:8px;cursor:pointer
+  margin:0;padding:10px;font-size:1rem;border:none;border-radius:8px;cursor:pointer
 }
 .mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:#555;color:#fff}
 .mode-buttons{margin:0}
@@ -57,12 +53,13 @@ select,input[type="number"],input[type="color"]{
   transition:width 1s linear,background-color .8s
 }
 button{
-  margin:4px 6px;padding:10px 24px;font-size:1rem;font-weight:600;border:none;border-radius:8px;cursor:pointer
+  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:8px;cursor:pointer;width:100%
 }
 #startBtn{background:#76c7c0;color:#000}
-#stopBtn{background:#ff6f61;color:#000}
 #applyBtn{background:#74b9ff;color:#000}
 button:disabled{opacity:.6}
+.controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.grid-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9)}}
 </style>
 </head>
@@ -74,34 +71,49 @@ button:disabled{opacity:.6}
   <div id="phaseText">準備中...</div>
   <div id="timerText">--</div>
 
-  <button id="startBtn">スタート</button>
-  <button id="stopBtn">ストップ</button>
-  <button id="applyBtn">適用</button>
-  <button id="settingsBtn">設定</button>
 
   <div id="settings" style="display:none">
   <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
   <input type="hidden" id="patternSelect" value="3.3-0-6.7-0">
 
+
   <table id="customInputs" class="paramtable">
     <thead>
-      <tr><th></th><th>秒数</th><th>色</th></tr>
+      <tr>
+        <th></th>
+        <th>🫁 吸う</th>
+        <th>⏸️ 止める</th>
+        <th>💨 吐く</th>
+        <th>⏸️ 止める</th>
+      </tr>
     </thead>
     <tbody>
-      <tr><th>吸う</th><td><input type="number" id="inhaleSec" min="1" value="5"></td><td><input type="color" id="colorInhale" value="#76c7c0"></td></tr>
-      <tr><th>止める</th><td><input type="number" id="holdSec" min="0" value="0"></td><td><input type="color" id="colorHold" value="#f7c59f"></td></tr>
-      <tr><th>吐く</th><td><input type="number" id="exhaleSec" min="1" value="5"></td><td><input type="color" id="colorExhale" value="#ff6f61"></td></tr>
-      <tr><th>止める</th><td><input type="number" id="restSec" min="0" value="0"></td><td><input type="color" id="colorRest" value="#74b9ff"></td></tr>
+      <tr>
+        <th>秒数</th>
+        <td><input type="number" id="inhaleSec" min="1" value="5"></td>
+        <td><input type="number" id="holdSec" min="0" value="0"></td>
+        <td><input type="number" id="exhaleSec" min="1" value="5"></td>
+        <td><input type="number" id="restSec" min="0" value="0"></td>
+      </tr>
+      <tr>
+        <th>色</th>
+        <td><input type="color" id="colorInhale" value="#76c7c0"></td>
+        <td><input type="color" id="colorHold" value="#f7c59f"></td>
+        <td><input type="color" id="colorExhale" value="#ff6f61"></td>
+        <td><input type="color" id="colorRest" value="#74b9ff"></td>
+      </tr>
+      <tr>
+        <th>回数(0=無限)</th>
+        <td colspan="4"><input type="number" id="cycleCount" min="0" value="0"></td>
+      </tr>
+      <tr>
+        <th>時間(分,0=無限)</th>
+        <td colspan="4"><input type="number" id="totalMinutes" min="0" value="0"></td>
+      </tr>
     </tbody>
   </table>
 
-  <div class="timings">
-    <div class="row">
-      <label>回数(0=無限): <input type="number" id="cycleCount" min="0" value="0"></label>
-      <label>時間(分,0=無限): <input type="number" id="totalMinutes" min="0" value="0"></label>
-    </div>
-  </div>
 
   <table class="patterns">
     <thead>
@@ -122,14 +134,14 @@ button:disabled{opacity:.6}
 
   <div class="section">
     <h3>光の表現</h3>
-    <div class="mode-buttons">
+    <div class="mode-buttons grid-buttons">
       <button type="button" class="modeBtn active" data-mode="expand">🔆 拡縮</button>
       <button type="button" class="modeBtn" data-mode="color">🎨 色変化</button>
     </div>
   </div>
   <div class="section">
     <h3>環境音</h3>
-    <div class="env-buttons">
+    <div class="env-buttons grid-buttons">
       <button type="button" class="envBtn active" data-env="off">❌ なし</button>
       <button type="button" class="envBtn" data-env="wave">🌊 波の音</button>
       <button type="button" class="envBtn" data-env="birds">🐦 鳥のさえずり</button>
@@ -137,18 +149,19 @@ button:disabled{opacity:.6}
       <button type="button" class="envBtn" data-env="bubble">🫧 泡風呂</button>
       <button type="button" class="envBtn" data-env="wind">🌬️ 風の音</button>
       <button type="button" class="envBtn" data-env="rain">🌧️ 雨の音</button>
+      <button type="button" class="envBtn" data-env="kirakira">✨ キラキラ</button>
     </div>
   </div>
   <div class="section">
     <h3>切り替え音</h3>
-    <div class="switch-buttons">
+    <div class="switch-buttons grid-buttons">
       <button type="button" class="switchBtn active" data-switch="off">❌ なし</button>
       <button type="button" class="switchBtn" data-switch="shishi">🎍 ししおどし</button>
     </div>
   </div>
   <div class="section">
     <h3>音楽</h3>
-    <div class="music-buttons">
+    <div class="music-buttons grid-buttons">
       <button type="button" class="musicBtn active" data-music="off">❌ なし</button>
       <button type="button" class="musicBtn" data-music="canon">🎻 カノン</button>
     </div>
@@ -156,6 +169,11 @@ button:disabled{opacity:.6}
   <input type="hidden" id="envSound" value="off">
   <input type="hidden" id="switchSound" value="off">
   <input type="hidden" id="musicSel" value="off">
+  <div id="controls" class="controls">
+    <button id="startBtn">スタート</button>
+    <button id="applyBtn">適用</button>
+    <button id="settingsBtn">設定</button>
+  </div>
   </div>
 
   <footer style="margin-top:16px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
@@ -166,7 +184,6 @@ button:disabled{opacity:.6}
   const patternSelect = document.getElementById('patternSelect');
   const customInputs  = document.getElementById('customInputs');
   const startBtn      = document.getElementById('startBtn');
-  const stopBtn       = document.getElementById('stopBtn');
   const breathBar     = document.getElementById('breathBar');
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
@@ -183,20 +200,24 @@ button:disabled{opacity:.6}
   const envBtns       = document.querySelectorAll('.envBtn');
   const switchBtns    = document.querySelectorAll('.switchBtn');
   const musicBtns     = document.querySelectorAll('.musicBtn');
+  let selectedEnvs = [];
+  let lastEnv = 'off';
+  const canonMinutes = 431.654/60;
 
   const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
   const bgMap = {
     off: defaultBg,
     wave: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=60',
     birds: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1400&q=60',
-    onsen: 'https://images.unsplash.com/photo-1500169066331-3fe2c6167a8d?auto=format&fit=crop&w=1400&q=60',
+    onsen: 'https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=1400&q=60',
     bubble: 'https://images.unsplash.com/photo-1516376128745-7dcb70d19147?auto=format&fit=crop&w=1400&q=60',
-    wind: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=60',
-    rain: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=60'
+    wind: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=60',
+    rain: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1400&q=60',
+    kirakira: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=60'
   };
 
   function updateBackground(){
-    const url = bgMap[envSel.value] || defaultBg;
+    const url = bgMap[lastEnv] || defaultBg;
     document.body.style.background = `#000 url('${url}') center/cover no-repeat fixed`;
   }
 
@@ -263,14 +284,33 @@ button:disabled{opacity:.6}
   });
   updateInputsFromPattern();
   envBtns.forEach(btn => {
-    if(btn.dataset.env===envSel.value) btn.classList.add('active');
     btn.addEventListener('click', () => {
-      envBtns.forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      envSel.value = btn.dataset.env;
+      const env = btn.dataset.env;
+      if(env === 'off'){
+        selectedEnvs = [];
+        lastEnv = 'off';
+        envBtns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+      } else {
+        btn.classList.toggle('active');
+        if(btn.classList.contains('active')){
+          selectedEnvs.push(env);
+          lastEnv = env;
+        } else {
+          selectedEnvs = selectedEnvs.filter(e=>e!==env);
+          if(lastEnv===env) lastEnv = selectedEnvs[selectedEnvs.length-1] || 'off';
+        }
+        envBtns.forEach(b=>{if(b.dataset.env==='off') b.classList.remove('active');});
+        if(selectedEnvs.length===0){
+          document.querySelector('.envBtn[data-env="off"]').classList.add('active');
+          lastEnv = 'off';
+        }
+      }
+      envSel.value = selectedEnvs.join(',');
       updateBackground();
     });
   });
+  document.querySelector('.envBtn[data-env="off"]').classList.add('active');
   switchBtns.forEach(btn => {
     if(btn.dataset.switch===switchSel.value) btn.classList.add('active');
     btn.addEventListener('click', () => {
@@ -285,6 +325,7 @@ button:disabled{opacity:.6}
       musicBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       musicSel.value = btn.dataset.music;
+      if(btn.dataset.music==='canon') minuteInput.value = canonMinutes.toFixed(1);
       handleMusic();
     });
   });
@@ -304,36 +345,39 @@ button:disabled{opacity:.6}
     onsen:new Audio('温泉の音.mp3'),
     bubble:new Audio('泡風呂.mp3'),
     wind:new Audio('風の音.mp3'),
-    rain:new Audio('雨の音.mp3')
+    rain:new Audio('雨の音.mp3'),
+    kirakira:new Audio('キラキラ.mp3')
   };
   Object.values(envAudios).forEach(a=>a.loop=true);
   const switchAudios = {shishi:new Audio('ししおどし.mp3')};
   const musicAudios = {canon:new Audio('カノン.m4a')};
 
-  function handleMusic(){
-    Object.values(musicAudios).forEach(a=>{a.pause(); a.currentTime=0;});
-    if(musicSel.value==='canon'){
+  function handleMusic(forceStop=false){
+    Object.values(musicAudios).forEach(a=>{a.pause(); if(forceStop) a.currentTime=0;});
+    if(!forceStop && running && musicSel.value==='canon'){
       const el = musicAudios.canon; el.volume=1; el.play();
     }
   }
 
   function playEnv(dur, from, to){
-    if(envSel.value==='off') return;
-    const el = envAudios[envSel.value];
-    if(!el) return;
-    el.volume = from;
-    if(el.paused) el.play();
-    const diff = to-from;
-    const steps = Math.max(1,Math.floor(dur*10));
-    let c=0;
-    clearInterval(el._fade);
-    el._fade=setInterval(()=>{
-      c++; el.volume = from + diff*c/steps;
-      if(c>=steps){
-        clearInterval(el._fade);
-        if(to===0){ el.pause(); el.currentTime=0; }
-      }
-    },100);
+    if(selectedEnvs.length===0) return;
+    selectedEnvs.forEach(env=>{
+      const el = envAudios[env];
+      if(!el) return;
+      el.volume = from;
+      if(el.paused) el.play();
+      const diff = to-from;
+      const steps = Math.max(1,Math.floor(dur*10));
+      let c=0;
+      clearInterval(el._fade);
+      el._fade=setInterval(()=>{
+        c++; el.volume = from + diff*c/steps;
+        if(c>=steps){
+          clearInterval(el._fade);
+          if(to===0){ el.pause(); el.currentTime=0; }
+        }
+      },100);
+    });
   }
 
   function playSwitchSound(){
@@ -392,9 +436,10 @@ button:disabled{opacity:.6}
     phaseText.textContent = '準備中...';
     timerText.textContent = '--';
     startBtn.disabled = false;
+    startBtn.textContent = 'スタート';
     Object.values(envAudios).forEach(el=>{if(el._fade) clearInterval(el._fade); el.pause(); el.currentTime=0;});
     Object.values(switchAudios).forEach(el=>{el.pause(); el.currentTime=0;});
-    handleMusic();
+    handleMusic(true);
   }
 
   function nextPhase(){
@@ -484,12 +529,15 @@ button:disabled{opacity:.6}
     startTime  = Date.now();
     handleMusic();
     nextPhase();
-    startBtn.disabled = true;
+    startBtn.textContent = 'ストップ';
   }
 
   startBtn.addEventListener('click', async ()=>{
-    if(running) return;
-    await startSession();
+    if(running){
+      await stopSession();
+    }else{
+      await startSession();
+    }
   });
 
   applyBtn.addEventListener('click', async ()=>{
@@ -497,9 +545,6 @@ button:disabled{opacity:.6}
     await startSession();
   });
 
-  stopBtn.addEventListener('click', async ()=>{
-    await stopSession();
-  });
 
   settingsBtn.addEventListener('click', ()=>{
     const open = settings.style.display !== 'none';
