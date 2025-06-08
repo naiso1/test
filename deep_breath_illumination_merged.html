@@ -39,11 +39,13 @@ select,input[type="number"],input[type="color"]{
 .patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem}
 .patterns th,.patterns td{border:1px solid #999;padding:4px}
 .patterns tbody tr.selected{background:rgba(255,255,255,.3)}
-.mode-buttons button,.sound-buttons button{
+.patterns tbody tr:hover{background:rgba(255,255,255,.2)}
+.section{margin:16px 0}
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
   margin:4px;padding:10px 16px;font-size:1rem;border:none;border-radius:8px;cursor:pointer
 }
-.mode-buttons button.active,.sound-buttons button.active{background:#555;color:#fff}
-.mode-buttons{margin:16px 0}
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active{background:#555;color:#fff}
+.mode-buttons{margin:0}
 #barContainer{
   position:relative;margin:24px auto;width:100%;max-width:1120px;height:40px;
   background:#444;border-radius:20px;overflow:hidden
@@ -112,26 +114,48 @@ button:disabled{opacity:.6}
       <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
       <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
       <tr data-pattern="4-2-4-0"><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
+      <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
       <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
     </tbody>
   </table>
   <p style="font-size:.8rem;opacity:.6">* 推奨回数/時間は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
 
-  <div class="mode-buttons">
-    <button type="button" class="modeBtn active" data-mode="expand">🔆 拡縮</button>
-    <button type="button" class="modeBtn" data-mode="color">🎨 色変化</button>
+  <div class="section">
+    <h3>光の表現</h3>
+    <div class="mode-buttons">
+      <button type="button" class="modeBtn active" data-mode="expand">🔆 拡縮</button>
+      <button type="button" class="modeBtn" data-mode="color">🎨 色変化</button>
+    </div>
   </div>
-  <div class="sound-buttons">
-    <button type="button" class="soundBtn active" data-sound="off">❌ なし</button>
-    <button type="button" class="soundBtn" data-sound="wave">🌊 波の音</button>
-    <button type="button" class="soundBtn" data-sound="birds">🐦 鳥のさえずり</button>
-    <button type="button" class="soundBtn" data-sound="onsen">♨️ 温泉の音</button>
-    <button type="button" class="soundBtn" data-sound="bubble">🫧 泡風呂</button>
-    <button type="button" class="soundBtn" data-sound="wind">🌬️ 風の音</button>
-    <button type="button" class="soundBtn" data-sound="shishi">🎍 ししおどし</button>
-    <button type="button" class="soundBtn" data-sound="rain">🌧️ 雨の音</button>
+  <div class="section">
+    <h3>環境音</h3>
+    <div class="env-buttons">
+      <button type="button" class="envBtn active" data-env="off">❌ なし</button>
+      <button type="button" class="envBtn" data-env="wave">🌊 波の音</button>
+      <button type="button" class="envBtn" data-env="birds">🐦 鳥のさえずり</button>
+      <button type="button" class="envBtn" data-env="onsen">♨️ 温泉の音</button>
+      <button type="button" class="envBtn" data-env="bubble">🫧 泡風呂</button>
+      <button type="button" class="envBtn" data-env="wind">🌬️ 風の音</button>
+      <button type="button" class="envBtn" data-env="rain">🌧️ 雨の音</button>
+    </div>
   </div>
-  <input type="hidden" id="sound" value="off">
+  <div class="section">
+    <h3>切り替え音</h3>
+    <div class="switch-buttons">
+      <button type="button" class="switchBtn active" data-switch="off">❌ なし</button>
+      <button type="button" class="switchBtn" data-switch="shishi">🎍 ししおどし</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>音楽</h3>
+    <div class="music-buttons">
+      <button type="button" class="musicBtn active" data-music="off">❌ なし</button>
+      <button type="button" class="musicBtn" data-music="canon">🎻 カノン</button>
+    </div>
+  </div>
+  <input type="hidden" id="envSound" value="off">
+  <input type="hidden" id="switchSound" value="off">
+  <input type="hidden" id="musicSel" value="off">
   </div>
 
   <footer style="margin-top:16px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
@@ -146,7 +170,9 @@ button:disabled{opacity:.6}
   const breathBar     = document.getElementById('breathBar');
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
-  const soundSel      = document.getElementById('sound');
+  const envSel        = document.getElementById('envSound');
+  const switchSel     = document.getElementById('switchSound');
+  const musicSel      = document.getElementById('musicSel');
   const cycleInput    = document.getElementById('cycleCount');
   const minuteInput   = document.getElementById('totalMinutes');
   const applyBtn      = document.getElementById('applyBtn');
@@ -154,7 +180,9 @@ button:disabled{opacity:.6}
   const settingsBtn   = document.getElementById('settingsBtn');
   const patternRows   = document.querySelectorAll('.patterns tbody tr');
   const modeBtns      = document.querySelectorAll('.modeBtn');
-  const soundBtns     = document.querySelectorAll('.soundBtn');
+  const envBtns       = document.querySelectorAll('.envBtn');
+  const switchBtns    = document.querySelectorAll('.switchBtn');
+  const musicBtns     = document.querySelectorAll('.musicBtn');
 
   const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
   const bgMap = {
@@ -164,12 +192,11 @@ button:disabled{opacity:.6}
     onsen: 'https://images.unsplash.com/photo-1500169066331-3fe2c6167a8d?auto=format&fit=crop&w=1400&q=60',
     bubble: 'https://images.unsplash.com/photo-1516376128745-7dcb70d19147?auto=format&fit=crop&w=1400&q=60',
     wind: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=60',
-    shishi: 'https://images.unsplash.com/photo-1594628460799-9d548f950292?auto=format&fit=crop&w=1400&q=60',
     rain: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=60'
   };
 
   function updateBackground(){
-    const url = bgMap[soundSel.value] || defaultBg;
+    const url = bgMap[envSel.value] || defaultBg;
     document.body.style.background = `#000 url('${url}') center/cover no-repeat fixed`;
   }
 
@@ -186,13 +213,11 @@ button:disabled{opacity:.6}
   let currentPhase = 0;
   let mode = 'expand';
   let running = false;
-  let audioCtx = null;
   let cycleLimit = 0;
   let timeLimit  = 0;
   let cyclesDone = 0;
   let startTime  = 0;
   let cycleStarted = false;
-  const buffers = {};
 
   const phaseNames = ['吸って〜','止めて〜','吐いて〜','止めて〜'];
 
@@ -204,6 +229,11 @@ button:disabled{opacity:.6}
   function updateInputsFromPattern(){
     const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
     while(arr.length < 4) arr.push(0);
+    if(patternSelect.value==='music'){
+      arr[0]=musicSel.value==='canon'?3.636363636:0;
+      arr[2]=musicSel.value==='canon'?7.272727273:0;
+      arr[1]=arr[3]=0;
+    }
     [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
       if(patternSelect.value !== 'custom') el.value = arr[i];
       el.disabled = patternSelect.value !== 'custom';
@@ -232,13 +262,30 @@ button:disabled{opacity:.6}
     });
   });
   updateInputsFromPattern();
-  soundBtns.forEach(btn => {
-    if(btn.dataset.sound===soundSel.value) btn.classList.add('active');
+  envBtns.forEach(btn => {
+    if(btn.dataset.env===envSel.value) btn.classList.add('active');
     btn.addEventListener('click', () => {
-      soundBtns.forEach(b=>b.classList.remove('active'));
+      envBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      soundSel.value = btn.dataset.sound;
+      envSel.value = btn.dataset.env;
       updateBackground();
+    });
+  });
+  switchBtns.forEach(btn => {
+    if(btn.dataset.switch===switchSel.value) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      switchBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      switchSel.value = btn.dataset.switch;
+    });
+  });
+  musicBtns.forEach(btn => {
+    if(btn.dataset.music===musicSel.value) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      musicBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      musicSel.value = btn.dataset.music;
+      handleMusic();
     });
   });
   updateBackground();
@@ -251,87 +298,48 @@ button:disabled{opacity:.6}
     });
   });
 
-  const audioEls = {wave:new Audio('波の音.mp3'), birds:new Audio('鳥のさえずり.mp3')};
-  audioEls.wave.loop = audioEls.birds.loop = true;
-  const soundFiles = {wave:'', birds:''};
-  async function initAudio(){
-    if(soundSel.value==='wave' || soundSel.value==='birds') return;
-    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    const file = soundFiles[soundSel.value];
-    if(file && !buffers[soundSel.value]){
-      const res = await fetch(file);
-      const arr = await res.arrayBuffer();
-      buffers[soundSel.value] = await audioCtx.decodeAudioData(arr);
+  const envAudios = {
+    wave:new Audio('波の音.mp3'),
+    birds:new Audio('鳥のさえずり.mp3'),
+    onsen:new Audio('温泉の音.mp3'),
+    bubble:new Audio('泡風呂.mp3'),
+    wind:new Audio('風の音.mp3'),
+    rain:new Audio('雨の音.mp3')
+  };
+  Object.values(envAudios).forEach(a=>a.loop=true);
+  const switchAudios = {shishi:new Audio('ししおどし.mp3')};
+  const musicAudios = {canon:new Audio('カノン.mp4')};
+
+  function handleMusic(){
+    Object.values(musicAudios).forEach(a=>{a.pause(); a.currentTime=0;});
+    if(musicSel.value==='canon'){
+      const el = musicAudios.canon; el.volume=1; el.play();
     }
   }
-  function createNoiseBuffer(){
-    const buffer = audioCtx.createBuffer(1,audioCtx.sampleRate,audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
-    return buffer;
-  }
-  function onsenBuffer(){
-    if(buffers.onsen) return buffers.onsen;
-    const buffer = createNoiseBuffer();
-    buffers.onsen = buffer; return buffer;
-  }
-  function bubbleBuffer(){
-    if(buffers.bubble) return buffers.bubble;
-    const len = audioCtx.sampleRate*3;
-    const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
-    const d = b.getChannelData(0);
-    for(let i=0;i<len;i++) d[i]=0;
-    for(let k=0;k<20;k++){
-      const start=Math.floor(Math.random()*(len-500));
-      for(let j=0;j<500;j++){
-        const t=j/500;
-        d[start+j]+=Math.sin(2*Math.PI*400*(1+t)*t)*Math.exp(-6*t);
+
+  function playEnv(dur, from, to){
+    if(envSel.value==='off') return;
+    const el = envAudios[envSel.value];
+    if(!el) return;
+    el.volume = from;
+    if(el.paused) el.play();
+    const diff = to-from;
+    const steps = Math.max(1,Math.floor(dur*10));
+    let c=0;
+    clearInterval(el._fade);
+    el._fade=setInterval(()=>{
+      c++; el.volume = from + diff*c/steps;
+      if(c>=steps){
+        clearInterval(el._fade);
+        if(to===0){ el.pause(); el.currentTime=0; }
       }
-    }
-    buffers.bubble=b;return b;
+    },100);
   }
-  function shishiBuffer(){
-    if(buffers.shishi) return buffers.shishi;
-    const len = audioCtx.sampleRate*3;
-    const b = audioCtx.createBuffer(1,len,audioCtx.sampleRate);
-    const d = b.getChannelData(0);
-    for(let i=0;i<len;i++) d[i] = 0;
-    for(let j=0;j<0.25*audioCtx.sampleRate;j++){const t=j/audioCtx.sampleRate;d[j]+=Math.sin(2*Math.PI*400*t)*Math.exp(-15*t);} 
-    buffers.shishi = b; return b;
-  }
-  function playPhase(dur, from, to){
-    if(soundSel.value==='off') return;
-    if(soundSel.value==='wave' || soundSel.value==='birds'){
-      const el = audioEls[soundSel.value];
-      el.volume = from;
-      if(el.paused) el.play();
-      const diff = to-from;
-      const steps = Math.max(1,Math.floor(dur*10));
-      let c=0;
-      clearInterval(el._fade);
-      el._fade=setInterval(()=>{
-        c++; el.volume = from + diff*c/steps;
-        if(c>=steps){
-          clearInterval(el._fade);
-          if(to===0){ el.pause(); el.currentTime=0; }
-        }
-      },100);
-      return;
-    }
-    const src = audioCtx.createBufferSource();
-    const gain = audioCtx.createGain();
-    let filter;
-    if(soundSel.value==='onsen'){src.buffer=onsenBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=600;}
-    else if(soundSel.value==='bubble'){src.buffer=bubbleBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=800;}
-    else if(soundSel.value==='wind'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=800;}
-    else if(soundSel.value==='rain'){src.buffer=createNoiseBuffer();src.loop=true;filter=audioCtx.createBiquadFilter();filter.type='highpass';filter.frequency.value=1000;}
-    else if(soundSel.value==='shishi'){src.buffer=shishiBuffer();src.loop=true;}
-    if(filter) src.connect(filter).connect(gain); else src.connect(gain);
-    gain.connect(audioCtx.destination);
-    gain.gain.setValueAtTime(from,audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(to,audioCtx.currentTime+dur);
-    src.start();
-    src.stop(audioCtx.currentTime+dur+0.1);
+
+  function playSwitchSound(){
+    if(switchSel.value==='off') return;
+    const el = switchAudios[switchSel.value];
+    if(el){ el.currentTime=0; el.volume=1; el.play(); }
   }
 
   function getDurations(){
@@ -341,6 +349,14 @@ button:disabled{opacity:.6}
       const exhale = parseFloat(exhaleInput.value) || 0;
       const rest   = parseFloat(restInput.value) || 0;
       return [inhale,hold,exhale,rest];
+    }
+    if(patternSelect.value === 'music'){
+      return [
+        musicSel.value==='canon'?3.636363636:0,
+        0,
+        musicSel.value==='canon'?7.272727273:0,
+        0
+      ];
     }
     const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
     while(arr.length < 4) arr.push(0);
@@ -376,12 +392,9 @@ button:disabled{opacity:.6}
     phaseText.textContent = '準備中...';
     timerText.textContent = '--';
     startBtn.disabled = false;
-    if(audioCtx){
-      await audioCtx.close();
-      audioCtx = null;
-      for(const k in buffers) buffers[k] = null;
-    }
-    Object.values(audioEls).forEach(el=>{if(el._fade) clearInterval(el._fade); el.pause(); el.currentTime=0;});
+    Object.values(envAudios).forEach(el=>{if(el._fade) clearInterval(el._fade); el.pause(); el.currentTime=0;});
+    Object.values(switchAudios).forEach(el=>{el.pause(); el.currentTime=0;});
+    handleMusic();
   }
 
   function nextPhase(){
@@ -420,13 +433,17 @@ button:disabled{opacity:.6}
     }
 
     if(currentPhase === 0){
-      playPhase(duration,0,1);
+      playSwitchSound();
+      playEnv(duration,0,1);
     } else if(currentPhase === 1){
-      playPhase(duration,1,1);
+      playSwitchSound();
+      playEnv(duration,1,1);
     } else if(currentPhase === 2){
-      playPhase(duration,1,0);
+      playSwitchSound();
+      playEnv(duration,1,0);
     } else if(currentPhase === 3){
-      playPhase(duration,0,0);
+      playSwitchSound();
+      playEnv(duration,0,0);
     }
 
     if(duration === 0){
@@ -458,7 +475,6 @@ button:disabled{opacity:.6}
   }
 
   async function startSession(){
-    if(soundSel.value !== 'off') await initAudio();
     running = true;
     currentPhase = 0;
     cyclesDone = 0;
@@ -466,6 +482,7 @@ button:disabled{opacity:.6}
     cycleLimit = parseInt(cycleInput.value,10) || 0;
     timeLimit  = (parseFloat(minuteInput.value) || 0) * 60000;
     startTime  = Date.now();
+    handleMusic();
     nextPhase();
     startBtn.disabled = true;
   }
