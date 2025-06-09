@@ -48,7 +48,7 @@ select,input[type="number"],input[type="color"]{
 .section h3{margin-bottom:8px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
   margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:0;
-  background:transparent;color:#fff;flex:0 0 auto;width:72px;
+  background:transparent;color:#fff;flex:0 0 auto;width:72px;height:72px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   aspect-ratio:1/1;
 }
@@ -355,11 +355,12 @@ button:disabled{opacity:.6}
     let down=false,startX=0,scroll=0;
     sc.addEventListener('pointerdown',e=>{
       down=true;startX=e.clientX;scroll=sc.scrollLeft;sc.style.cursor='grabbing';
-      sc.setPointerCapture(e.pointerId);
     });
     sc.addEventListener('pointermove',e=>{if(down) sc.scrollLeft=scroll-(e.clientX-startX);});
-    sc.addEventListener('pointerup',e=>{down=false;sc.style.cursor='';sc.releasePointerCapture(e.pointerId);});
-    sc.addEventListener('pointercancel',()=>{down=false;sc.style.cursor='';});
+    const end=()=>{down=false;sc.style.cursor='';};
+    sc.addEventListener('pointerup',end);
+    sc.addEventListener('pointerleave',end);
+    sc.addEventListener('pointercancel',end);
   });
   updateBackground();
   modeBtns.forEach(btn => {
