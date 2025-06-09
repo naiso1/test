@@ -24,7 +24,7 @@ body{
   position:relative;z-index:1;width:min(95%,1040px);
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
   backdrop-filter:blur(12px);
-  max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
+  max-height:100vh;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
 }
 .container::-webkit-scrollbar{width:6px}
 .container::-webkit-scrollbar-track{background:transparent}
@@ -36,7 +36,7 @@ h1{font-size:1.6rem;margin-bottom:8px}
 #customInputs th{white-space:nowrap}
 label{display:block;margin:12px 0 4px;font-size:.9rem}
 select,input[type="number"],input[type="color"]{
-  width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:8px;margin-bottom:12px;
+  width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:0;margin-bottom:12px;
   background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);
   backdrop-filter:blur(6px);
 }
@@ -47,8 +47,8 @@ select,input[type="number"],input[type="color"]{
 .section{margin:16px 0}
 .section h3{margin-bottom:8px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button{
-  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:8px;
-  background:transparent;color:#fff;
+  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:0;
+  background:transparent;color:#fff;flex:0 0 auto;width:72px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   aspect-ratio:1/1;
 }
@@ -74,11 +74,8 @@ button{
 #applyBtn{background:rgba(116,185,255,.5);color:#fff}
 button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
-.grid-buttons{display:grid;gap:8px}
-.mode-buttons.grid-buttons,
-.env-buttons.grid-buttons,
-.switch-buttons.grid-buttons,
-.music-buttons.grid-buttons{grid-template-columns:repeat(8,1fr)}
+.scroll-buttons{display:flex;gap:8px;justify-content:center;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.scroll-buttons::-webkit-scrollbar{display:none}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img{width:100%;height:100%;object-fit:cover}
 .noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#555;color:#fff;font-size:.6rem}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
@@ -153,15 +150,16 @@ button:disabled{opacity:.6}
 
   <div class="section">
     <h3>光の表現</h3>
-    <div class="mode-buttons grid-buttons">
+    <div class="mode-buttons scroll-buttons">
       <button type="button" class="modeBtn" data-mode="off"><div class="noimg">画像なし</div> なし</button>
-      <button type="button" class="modeBtn active" data-mode="expand"><div class="noimg">画像なし</div> 拡縮</button>
-      <button type="button" class="modeBtn" data-mode="color"><div class="noimg">画像なし</div> 色変化</button>
+      <button type="button" class="modeBtn active" data-mode="expand"><img src="光の広がり.gif" alt=""> 拡縮</button>
+      <button type="button" class="modeBtn" data-mode="color"><img src="色変化.gif" alt=""> 色変化</button>
+      <button type="button" class="modeBtn" data-mode="fade"><img src="フェード.gif" alt=""> フェード</button>
     </div>
   </div>
   <div class="section">
     <h3>環境音</h3>
-    <div class="env-buttons grid-buttons">
+    <div class="env-buttons scroll-buttons">
       <button type="button" class="envBtn active" data-env="off"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=" alt=""> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=60" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=100&q=60" alt=""> 鳥のさえずり</button>
@@ -174,16 +172,16 @@ button:disabled{opacity:.6}
   </div>
   <div class="section">
     <h3>切り替え音</h3>
-    <div class="switch-buttons grid-buttons">
+    <div class="switch-buttons scroll-buttons">
       <button type="button" class="switchBtn active" data-switch="off"><div class="noimg">画像なし</div> なし</button>
-      <button type="button" class="switchBtn" data-switch="shishi"><div class="noimg">画像なし</div> ししおどし</button>
+      <button type="button" class="switchBtn" data-switch="shishi"><img src="ししおどし.jpg" alt=""> ししおどし</button>
     </div>
   </div>
   <div class="section">
     <h3>音楽</h3>
-  <div class="music-buttons grid-buttons">
+  <div class="music-buttons scroll-buttons">
       <button type="button" class="musicBtn active" data-music="off"><div class="noimg">画像なし</div> なし</button>
-      <button type="button" class="musicBtn" data-music="canon"><div class="noimg">画像なし</div> カノン</button>
+      <button type="button" class="musicBtn" data-music="canon"><img src="カノン.jpg" alt=""> カノン</button>
     </div>
   </div>
   <div class="controls" style="margin-top:8px">
@@ -353,6 +351,16 @@ button:disabled{opacity:.6}
       handleMusic();
     });
   });
+  document.querySelectorAll('.scroll-buttons').forEach(sc => {
+    let down=false,startX=0,scroll=0;
+    sc.addEventListener('pointerdown',e=>{
+      down=true;startX=e.clientX;scroll=sc.scrollLeft;sc.style.cursor='grabbing';
+      sc.setPointerCapture(e.pointerId);
+    });
+    sc.addEventListener('pointermove',e=>{if(down) sc.scrollLeft=scroll-(e.clientX-startX);});
+    sc.addEventListener('pointerup',e=>{down=false;sc.style.cursor='';sc.releasePointerCapture(e.pointerId);});
+    sc.addEventListener('pointercancel',()=>{down=false;sc.style.cursor='';});
+  });
   updateBackground();
   modeBtns.forEach(btn => {
     if(btn.dataset.mode===mode) btn.classList.add('active');
@@ -448,8 +456,8 @@ button:disabled{opacity:.6}
       colorRest.value
     ];
   }
-  function setBar(widthPercent,duration,color){
-    breathBar.style.transition = `width ${duration}s linear, background-color .8s`;
+  function setBar(widthPercent,widthDur,color,colorDur){
+    breathBar.style.transition = `width ${widthDur}s linear, background-color ${colorDur}s linear`;
     breathBar.style.width = widthPercent + '%';
     breathBar.style.backgroundColor = color;
   }
@@ -501,11 +509,27 @@ button:disabled{opacity:.6}
 
     phaseText.textContent = phaseNames[currentPhase] || '';
     if(mode === 'expand'){
-      setBar(currentPhase < 2 ? 100 : 0, duration, color);
+      setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
     } else if(mode === 'color') {
-      setBar(100, 0.8, color);
+      setBar(100, 0, color, 0.8);
+    } else if(mode === 'fade') {
+      if(currentPhase === 0){
+        breathBar.style.transition = 'background-color 0s';
+        breathBar.style.backgroundColor = '#000';
+        void breathBar.offsetWidth;
+        setBar(100, 0, color, duration);
+      } else if(currentPhase === 1){
+        setBar(100, 0, color, 0);
+      } else if(currentPhase === 2){
+        breathBar.style.transition = 'background-color 0s';
+        breathBar.style.backgroundColor = color;
+        void breathBar.offsetWidth;
+        setBar(100, 0, '#000', duration);
+      } else {
+        setBar(100, 0, color, 0);
+      }
     } else {
-      setBar(0, 0, 'transparent');
+      setBar(0, 0, 'transparent', 0);
     }
 
     if(currentPhase === 0){
