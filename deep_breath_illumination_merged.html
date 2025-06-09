@@ -75,10 +75,12 @@ button{
 button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:16px}
 .grid-buttons{display:grid;gap:8px}
-.mode-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(22px,1fr))}
-.env-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(45px,1fr))}
-.switch-buttons.grid-buttons,.music-buttons.grid-buttons{grid-template-columns:repeat(auto-fit,minmax(11px,1fr))}
-.env-buttons img,.music-buttons img{width:100%;height:100%;object-fit:cover}
+.mode-buttons.grid-buttons,
+.env-buttons.grid-buttons,
+.switch-buttons.grid-buttons,
+.music-buttons.grid-buttons{grid-template-columns:repeat(8,1fr)}
+.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img{width:100%;height:100%;object-fit:cover}
+.noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#555;color:#fff;font-size:.6rem}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
 </style>
 </head>
@@ -152,14 +154,15 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>光の表現</h3>
     <div class="mode-buttons grid-buttons">
-      <button type="button" class="modeBtn active" data-mode="expand">🔆 拡縮</button>
-      <button type="button" class="modeBtn" data-mode="color">🎨 色変化</button>
+      <button type="button" class="modeBtn" data-mode="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="modeBtn active" data-mode="expand"><div class="noimg">画像なし</div> 拡縮</button>
+      <button type="button" class="modeBtn" data-mode="color"><div class="noimg">画像なし</div> 色変化</button>
     </div>
   </div>
   <div class="section">
     <h3>環境音</h3>
     <div class="env-buttons grid-buttons">
-      <button type="button" class="envBtn active" data-env="off"><img src="https://via.placeholder.com/100.jpg?text=OFF" alt=""> なし</button>
+      <button type="button" class="envBtn active" data-env="off"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=" alt=""> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=60" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=100&q=60" alt=""> 鳥のさえずり</button>
       <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
@@ -172,15 +175,15 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>切り替え音</h3>
     <div class="switch-buttons grid-buttons">
-      <button type="button" class="switchBtn active" data-switch="off">❌ なし</button>
-      <button type="button" class="switchBtn" data-switch="shishi">🎍 ししおどし</button>
+      <button type="button" class="switchBtn active" data-switch="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="switchBtn" data-switch="shishi"><div class="noimg">画像なし</div> ししおどし</button>
     </div>
   </div>
   <div class="section">
     <h3>音楽</h3>
   <div class="music-buttons grid-buttons">
-      <button type="button" class="musicBtn active" data-music="off">❌ なし</button>
-      <button type="button" class="musicBtn" data-music="canon">🎻 カノン</button>
+      <button type="button" class="musicBtn active" data-music="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="musicBtn" data-music="canon"><div class="noimg">画像なし</div> カノン</button>
     </div>
   </div>
   <div class="controls" style="margin-top:8px">
@@ -499,8 +502,10 @@ button:disabled{opacity:.6}
     phaseText.textContent = phaseNames[currentPhase] || '';
     if(mode === 'expand'){
       setBar(currentPhase < 2 ? 100 : 0, duration, color);
-    } else {
+    } else if(mode === 'color') {
       setBar(100, 0.8, color);
+    } else {
+      setBar(0, 0, 'transparent');
     }
 
     if(currentPhase === 0){
