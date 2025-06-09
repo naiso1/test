@@ -368,7 +368,6 @@ button:disabled{opacity:.6}
     sc.addEventListener('pointercancel',end);
   });
   updateBackground();
-  restoreDefaultColors();
   modeBtns.forEach(btn => {
     if(btn.dataset.mode===mode) btn.classList.add('active');
     btn.addEventListener('click', () => {
@@ -481,6 +480,8 @@ button:disabled{opacity:.6}
   colorInhale.addEventListener('change', () => {
     if(mode === 'fade') applyFadeColors();
   });
+
+  restoreDefaultColors();
 
   function getColors(){
     return [
