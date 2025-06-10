@@ -41,7 +41,10 @@ select,input[type="number"],input[type="color"]{
   backdrop-filter:blur(6px);
 }
 .patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem;table-layout:fixed}
-.patterns th,.patterns td{border:1px solid #999;padding:4px;white-space:nowrap;font-size:min(.8rem,2.5vw)}
+.patterns th,.patterns td{
+  border:1px solid #999;padding:4px;font-size:min(.8rem,2.5vw);
+  white-space:normal;line-height:1.2em;height:2.4em;
+}
 .patterns tbody tr.selected{background:rgba(255,255,255,.3)}
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:16px 0}
@@ -94,14 +97,13 @@ button:disabled{opacity:.6}
   <div id="fixedArea">
     <h1>深呼吸誘発システム</h1>
 
+    <div id="barContainer"><div id="breathBar"></div></div>
+    <div id="phaseText">準備中...</div>
+    <div id="timerText">--</div>
     <div id="controls" class="controls">
       <button id="startBtn">スタート</button>
       <button id="settingsBtn">設定</button>
     </div>
-
-    <div id="barContainer"><div id="breathBar"></div></div>
-    <div id="phaseText">準備中...</div>
-    <div id="timerText">--</div>
   </div>
 
 
@@ -352,12 +354,17 @@ button:disabled{opacity:.6}
   });
   musicBtns.forEach(btn => {
     if(btn.dataset.music===musicSel.value) btn.classList.add('active');
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       musicBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       musicSel.value = btn.dataset.music;
       if(btn.dataset.music==='canon') minuteInput.value = canonMinutes.toFixed(1);
-      handleMusic();
+      if(patternSelect.value==='music' && btn.dataset.music!=='off'){
+        await stopSession();
+        await startSession();
+      }else{
+        handleMusic();
+      }
     });
   });
   document.querySelectorAll('.scroll-buttons').forEach(sc => {
@@ -396,16 +403,7 @@ button:disabled{opacity:.6}
     kirakira:new Audio('キラキラ.mp3')
   };
   Object.values(envAudios).forEach(a=>a.loop=true);
-  const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   const switchAudios = {shishi:new Audio('ししおどし.mp3')};
-  const switchGain = {};
-  Object.entries(switchAudios).forEach(([k,a])=>{
-    const src = audioCtx.createMediaElementSource(a);
-    const gain = audioCtx.createGain();
-    gain.gain.value = 1.5;
-    src.connect(gain).connect(audioCtx.destination);
-    switchGain[k] = gain;
-  });
   const musicAudios = {canon:new Audio('カノン.m4a')};
 
   function stopEnvSound(env){
@@ -444,10 +442,7 @@ button:disabled{opacity:.6}
   function playSwitchSound(){
     if(switchSel.value==='off') return;
     const el = switchAudios[switchSel.value];
-    if(el){
-      if(audioCtx.state==='suspended') audioCtx.resume();
-      el.currentTime=0; el.play().catch(()=>{});
-    }
+    if(el){ el.currentTime=0; el.volume=1; el.play().catch(()=>{}); }
   }
 
   function getDurations(){
