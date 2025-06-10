@@ -24,7 +24,9 @@ body{
   position:relative;z-index:1;width:min(95%,1040px);
   background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
   backdrop-filter:blur(12px);
-  height:100vh;display:flex;flex-direction:column;
+  margin-top:40px;
+  height:calc(100vh - 40px);
+  display:flex;flex-direction:column;
   overflow-y:hidden;overflow-x:visible;
   scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
 }
@@ -62,12 +64,16 @@ select,input[type="number"],input[type="color"]{
 }
 .mode-buttons{margin:0}
 #barContainer{
-  position:relative;
-  margin:16px calc(-50vw + 50%);
-  width:100vw;
-  max-width:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
   height:40px;
-  background:#444;border-radius:20px;overflow:hidden
+  background:#444;
+  border-radius:0;
+  margin:0;
+  z-index:3;
+  overflow:hidden
 }
 #breathBar{
   position:absolute;left:50%;top:0;height:100%;width:0%;
@@ -100,11 +106,11 @@ button:disabled{opacity:.6}
 </head>
 <body>
 <div class="overlay"></div>
+<div id="barContainer"><div id="breathBar"></div></div>
 <div class="container">
   <div id="fixedArea">
     <h1>深呼吸誘発システム</h1>
 
-    <div id="barContainer"><div id="breathBar"></div></div>
     <div id="phaseText">準備中...</div>
     <div id="timerText">--</div>
     <div id="controls" class="controls">
