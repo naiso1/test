@@ -40,8 +40,8 @@ select,input[type="number"],input[type="color"]{
   background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);
   backdrop-filter:blur(6px);
 }
-.patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem}
-.patterns th,.patterns td{border:1px solid #999;padding:4px}
+.patterns{width:100%;border-collapse:collapse;margin:16px auto;font-size:.8rem;table-layout:fixed}
+.patterns th,.patterns td{border:1px solid #999;padding:4px;white-space:nowrap;font-size:min(.8rem,2.5vw)}
 .patterns tbody tr.selected{background:rgba(255,255,255,.3)}
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:16px 0}
@@ -83,16 +83,26 @@ button:disabled{opacity:.6}
   width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
   background:#555;color:#fff;font-size:.6rem
 }
+#fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
+#settings{max-height:calc(100dvh - 240px);overflow-y:auto}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
 </style>
 </head>
 <body>
 <div class="overlay"></div>
 <div class="container">
-  <h1>深呼吸誘発システム</h1>
-  <div id="barContainer"><div id="breathBar"></div></div>
-  <div id="phaseText">準備中...</div>
-  <div id="timerText">--</div>
+  <div id="fixedArea">
+    <h1>深呼吸誘発システム</h1>
+
+    <div id="controls" class="controls">
+      <button id="startBtn">スタート</button>
+      <button id="settingsBtn">設定</button>
+    </div>
+
+    <div id="barContainer"><div id="breathBar"></div></div>
+    <div id="phaseText">準備中...</div>
+    <div id="timerText">--</div>
+  </div>
 
 
   <div id="settings" style="display:none">
@@ -103,12 +113,11 @@ button:disabled{opacity:.6}
       <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数/時間</th></tr>
     </thead>
     <tbody>
-      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8ブリージング</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
-      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
+      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8呼吸法</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
+      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
       <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
-      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
       <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
-      <tr data-pattern="4-2-4-0"><td>4-2-4</td><td>タクティカルブリージング</td><td>即応パフォーマンス維持（射撃・試験前）</td><td>SpO₂安定、心拍リセット</td><td>パフォーマンス維持、不安↓</td><td>2分</td></tr>
       <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
       <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
     </tbody>
@@ -196,10 +205,6 @@ button:disabled{opacity:.6}
   <input type="hidden" id="envSound" value="off">
   <input type="hidden" id="switchSound" value="off">
   <input type="hidden" id="musicSel" value="off">
-  <div id="controls" class="controls">
-    <button id="startBtn">スタート</button>
-    <button id="settingsBtn">設定</button>
-  </div>
 
   <footer style="margin-top:16px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
 </div>
@@ -251,8 +256,7 @@ button:disabled{opacity:.6}
     '4-4-4-4': '3分',
     '5-0-5-0': '5分',
     '3.3-0-6.7-0': '5分',
-    '7-0-11-0': '3分',
-    '4-2-4-0': '2分'
+    '7-0-11-0': '3分'
   };
 
   let timerId = null;
@@ -392,7 +396,16 @@ button:disabled{opacity:.6}
     kirakira:new Audio('キラキラ.mp3')
   };
   Object.values(envAudios).forEach(a=>a.loop=true);
+  const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   const switchAudios = {shishi:new Audio('ししおどし.mp3')};
+  const switchGain = {};
+  Object.entries(switchAudios).forEach(([k,a])=>{
+    const src = audioCtx.createMediaElementSource(a);
+    const gain = audioCtx.createGain();
+    gain.gain.value = 1.5;
+    src.connect(gain).connect(audioCtx.destination);
+    switchGain[k] = gain;
+  });
   const musicAudios = {canon:new Audio('カノン.m4a')};
 
   function stopEnvSound(env){
@@ -431,7 +444,10 @@ button:disabled{opacity:.6}
   function playSwitchSound(){
     if(switchSel.value==='off') return;
     const el = switchAudios[switchSel.value];
-    if(el){ el.currentTime=0; el.volume=1; el.play().catch(()=>{}); }
+    if(el){
+      if(audioCtx.state==='suspended') audioCtx.resume();
+      el.currentTime=0; el.play().catch(()=>{});
+    }
   }
 
   function getDurations(){
