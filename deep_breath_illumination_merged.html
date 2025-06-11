@@ -91,6 +91,10 @@ button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
 .scroll-buttons{display:flex;gap:8px;justify-content:center;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
 .scroll-buttons::-webkit-scrollbar{display:none}
+.env-buttons{-ms-overflow-style:auto;scrollbar-width:auto}
+.env-buttons::-webkit-scrollbar{display:block;height:6px}
+.env-buttons::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
+.env-buttons::-webkit-scrollbar-thumb{background:rgba(255,255,255,.4)}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
@@ -121,6 +125,7 @@ button:disabled{opacity:.6}
 
 
   <div id="settings" style="display:none">
+  <p style="font-weight:600;margin-bottom:4px">呼吸リズム</p>
   <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
   <table class="patterns">
@@ -129,6 +134,7 @@ button:disabled{opacity:.6}
     </thead>
     <tbody>
       <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="resStep"><td>誘導</td><td>レゾナンス＋ワンツー呼吸法（徐々に誘導）</td><td colspan="4">初期リズムからレゾナンス＋ワンツーへ漸移</td></tr>
       <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8呼吸法</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
       <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
       <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
@@ -174,6 +180,13 @@ button:disabled{opacity:.6}
         <th>時間(分,0=無限)</th>
         <td colspan="4"><input type="number" id="totalMinutes" min="0" value="0"></td>
       </tr>
+      <tr class="resStepRow" style="display:none">
+        <th>初期リズム</th>
+        <td><input type="number" id="initInhale" step="0.1" value="2.5" placeholder="吸う"></td>
+        <td><input type="number" id="initExhale" step="0.1" value="2.5" placeholder="吐く"></td>
+        <th>誘導時間</th>
+        <td><input type="number" id="induceTime" step="1" value="60"></td>
+      </tr>
     </tbody>
   </table>
 
@@ -190,8 +203,8 @@ button:disabled{opacity:.6}
     <h3>環境音</h3>
     <div class="env-buttons scroll-buttons">
       <button type="button" class="envBtn active" data-env="off"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=" alt=""> なし</button>
-      <button type="button" class="envBtn" data-env="wave"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=100&q=60" alt=""> 波の音</button>
-      <button type="button" class="envBtn" data-env="birds"><img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=100&q=60" alt=""> 鳥のさえずり</button>
+      <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
+      <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
       <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
       <button type="button" class="envBtn" data-env="bubble"><img src="泡風呂.jpeg" alt=""> 泡風呂</button>
       <button type="button" class="envBtn" data-env="wind"><img src="風の音.png" alt=""> 風の音</button>
@@ -211,6 +224,7 @@ button:disabled{opacity:.6}
   <div class="music-buttons scroll-buttons">
       <button type="button" class="musicBtn active" data-music="off"><div class="noimg">画像なし</div> なし</button>
       <button type="button" class="musicBtn" data-music="canon"><img src="カノン.jpg" alt=""> カノン</button>
+      <button type="button" class="musicBtn" data-music="aria"><img src="g線上のアリア.jpg" alt=""> G線上のアリア</button>
     </div>
   </div>
   <div class="controls" style="margin-top:8px">
@@ -249,13 +263,14 @@ button:disabled{opacity:.6}
   let selectedEnvs = [];
   let lastEnv = 'off';
   const canonMinutes = 431.654/60;
+  const ariaMinutes  = 355.66/60;
   const ENV_MAX_VOL = 0.8;
 
   const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
   const bgMap = {
     off: defaultBg,
-    wave: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=60',
-    birds: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1400&q=60',
+    wave: '波の音.jpg',
+    birds: '鳥のさえずり.jpg',
     onsen: '温泉の音.jpg',
     bubble: '泡風呂.jpeg',
     wind: '風の音.png',
@@ -273,7 +288,8 @@ button:disabled{opacity:.6}
     '4-4-4-4': '3分',
     '5-0-5-0': '5分',
     '3.3-0-6.7-0': '5分',
-    '7-0-11-0': '3分'
+    '7-0-11-0': '3分',
+    'resStep': '5分'
   };
 
   let timerId = null;
@@ -292,6 +308,10 @@ button:disabled{opacity:.6}
   const holdInput   = document.getElementById('holdSec');
   const exhaleInput = document.getElementById('exhaleSec');
   const restInput   = document.getElementById('restSec');
+  const resRows = document.querySelectorAll('.resStepRow');
+  const initInhaleInput = document.getElementById('initInhale');
+  const initExhaleInput = document.getElementById('initExhale');
+  const induceTimeInput = document.getElementById('induceTime');
 
   function updateInputsFromPattern(){
     const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
@@ -300,11 +320,14 @@ button:disabled{opacity:.6}
       arr[0]=musicSel.value==='canon'?3.636363636:0;
       arr[2]=musicSel.value==='canon'?7.272727273:0;
       arr[1]=arr[3]=0;
+    } else if(patternSelect.value==='resStep'){
+      arr=[3.3,0,6.7,0];
     }
     [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
       if(patternSelect.value !== 'custom') el.value = arr[i];
       el.disabled = patternSelect.value !== 'custom';
     });
+    resRows.forEach(r=>r.style.display=patternSelect.value==='resStep'?'' :'none');
     const rec = recommendedMap[patternSelect.value];
     if(rec){
       if(rec.includes('セット')){
@@ -375,6 +398,7 @@ button:disabled{opacity:.6}
       btn.classList.add('active');
       musicSel.value = btn.dataset.music;
       if(btn.dataset.music==='canon') minuteInput.value = canonMinutes.toFixed(1);
+      else if(btn.dataset.music==='aria') minuteInput.value = ariaMinutes.toFixed(1);
       if(patternSelect.value==='music' && btn.dataset.music!=='off'){
         await stopSession();
         await startSession();
@@ -430,7 +454,7 @@ button:disabled{opacity:.6}
     kirakira:createEnvAudio('キラキラ.mp3')
   };
   const switchAudios = {shishi:new Audio('ししおどし.mp3')};
-  const musicAudios = {canon:new Audio('カノン.m4a')};
+  const musicAudios = {canon:new Audio('カノン.m4a'), aria:new Audio('G線上のアリア.m4a')};
 
   function stopEnvSound(env){
     const obj = envAudios[env];
@@ -445,8 +469,9 @@ button:disabled{opacity:.6}
 
   function handleMusic(forceStop=false){
     Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} if(forceStop) a.currentTime=0;});
-    if(!forceStop && running && musicSel.value==='canon'){
-      const el = musicAudios.canon; el.volume=0.8; el.play().catch(()=>{});
+    if(!forceStop && running && musicSel.value!=='off'){
+      const el = musicAudios[musicSel.value];
+      if(el){ el.volume=0.8; el.play().catch(()=>{}); }
     }
   }
 
@@ -482,11 +507,20 @@ button:disabled{opacity:.6}
     }
     if(patternSelect.value === 'music'){
       return [
-        musicSel.value==='canon'?3.636363636:0,
+        musicSel.value!=='off'?3.636363636:0,
         0,
-        musicSel.value==='canon'?7.272727273:0,
+        musicSel.value!=='off'?7.272727273:0,
         0
       ];
+    }
+    if(patternSelect.value === 'resStep'){
+      const initIn = parseFloat(initInhaleInput.value)||0;
+      const initEx = parseFloat(initExhaleInput.value)||0;
+      const dur    = parseFloat(induceTimeInput.value)||1;
+      const prog   = running?Math.min(1,(Date.now()-startTime)/(dur*1000)):0;
+      const inhale = initIn + (3.3 - initIn)*prog;
+      const exhale = initEx + (6.7 - initEx)*prog;
+      return [inhale,0,exhale,0];
     }
     const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
     while(arr.length < 4) arr.push(0);
