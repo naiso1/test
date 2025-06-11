@@ -134,10 +134,10 @@ button:disabled{opacity:.6}
     </thead>
     <tbody>
       <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
-      <tr data-pattern="resStep"><td>誘導</td><td>レゾナンス＋ワンツー呼吸法（徐々に誘導）</td><td colspan="4">初期リズムからレゾナンス＋ワンツーへ漸移</td></tr>
+      <tr data-pattern="resStep"><td>初期～3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法<br>（徐々に誘導）</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
       <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8呼吸法</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
-      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
-      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
+      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持<br>（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
+      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス呼吸法</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
       <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
       <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
       <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
@@ -181,11 +181,16 @@ button:disabled{opacity:.6}
         <td colspan="4"><input type="number" id="totalMinutes" min="0" value="0"></td>
       </tr>
       <tr class="resStepRow" style="display:none">
-        <th>初期リズム</th>
-        <td><input type="number" id="initInhale" step="0.1" value="2.5" placeholder="吸う"></td>
-        <td><input type="number" id="initExhale" step="0.1" value="2.5" placeholder="吐く"></td>
-        <th>誘導時間</th>
-        <td><input type="number" id="induceTime" step="1" value="60"></td>
+        <th>初期リズム：吸う(秒)</th>
+        <td colspan="4"><input type="number" id="initInhale" step="0.1" value="2.5"></td>
+      </tr>
+      <tr class="resStepRow" style="display:none">
+        <th>初期リズム：吐く(秒)</th>
+        <td colspan="4"><input type="number" id="initExhale" step="0.1" value="2.5"></td>
+      </tr>
+      <tr class="resStepRow" style="display:none">
+        <th>誘導時間(秒)</th>
+        <td colspan="4"><input type="number" id="induceTime" step="1" value="60"></td>
       </tr>
     </tbody>
   </table>
@@ -327,7 +332,10 @@ button:disabled{opacity:.6}
       if(patternSelect.value !== 'custom') el.value = arr[i];
       el.disabled = patternSelect.value !== 'custom';
     });
-    resRows.forEach(r=>r.style.display=patternSelect.value==='resStep'?'' :'none');
+    const showRes = patternSelect.value==='resStep';
+    resRows.forEach(r=>r.style.display=showRes?'':'none');
+    const initEnabled = patternSelect.value==='resStep' || patternSelect.value==='custom';
+    [initInhaleInput,initExhaleInput,induceTimeInput].forEach(el=>{el.disabled=!initEnabled;});
     const rec = recommendedMap[patternSelect.value];
     if(rec){
       if(rec.includes('セット')){
