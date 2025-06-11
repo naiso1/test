@@ -412,7 +412,6 @@ button:disabled{opacity:.6}
   function createEnvAudio(src){
     const audio = new Audio(src);
     audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous';
     const node  = audioCtx.createMediaElementSource(audio);
     const gain  = audioCtx.createGain();
     node.connect(gain).connect(audioCtx.destination);
