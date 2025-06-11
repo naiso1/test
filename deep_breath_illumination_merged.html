@@ -249,6 +249,7 @@ button:disabled{opacity:.6}
   let selectedEnvs = [];
   let lastEnv = 'off';
   const canonMinutes = 431.654/60;
+  const ENV_MAX_VOL = 0.8;
 
   const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
   const bgMap = {
@@ -456,8 +457,8 @@ button:disabled{opacity:.6}
       if(!obj) return;
       if(obj.audio.paused) obj.audio.play().catch(()=>{});
       obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-      obj.gain.gain.setValueAtTime(from*0.8, audioCtx.currentTime);
-      obj.gain.gain.linearRampToValueAtTime(to*0.8, audioCtx.currentTime + dur);
+      obj.gain.gain.setValueAtTime(from*ENV_MAX_VOL, audioCtx.currentTime);
+      obj.gain.gain.linearRampToValueAtTime(to*ENV_MAX_VOL, audioCtx.currentTime + dur);
       if(obj.fade) clearInterval(obj.fade);
       if(to===0){
         obj.fade = setTimeout(()=>{ try{obj.audio.pause();}catch{} obj.audio.currentTime=0; }, dur*1000+50);
