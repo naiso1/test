@@ -125,7 +125,7 @@ button:disabled{opacity:.6}
 
 
   <div id="settings" style="display:none">
-  <p style="font-weight:600;margin-bottom:4px">呼吸リズム</p>
+  <h3>呼吸リズム</h3>
   <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
 
   <table class="patterns">
@@ -180,15 +180,15 @@ button:disabled{opacity:.6}
         <th>時間(分,0=無限)</th>
         <td colspan="4"><input type="number" id="totalMinutes" min="0" value="0"></td>
       </tr>
-      <tr class="resStepRow" style="display:none">
+      <tr class="resStepRow">
         <th>初期リズム：吸う(秒)</th>
         <td colspan="4"><input type="number" id="initInhale" step="0.1" value="2.5"></td>
       </tr>
-      <tr class="resStepRow" style="display:none">
+      <tr class="resStepRow">
         <th>初期リズム：吐く(秒)</th>
         <td colspan="4"><input type="number" id="initExhale" step="0.1" value="2.5"></td>
       </tr>
-      <tr class="resStepRow" style="display:none">
+      <tr class="resStepRow">
         <th>誘導時間(秒)</th>
         <td colspan="4"><input type="number" id="induceTime" step="1" value="60"></td>
       </tr>
@@ -313,7 +313,6 @@ button:disabled{opacity:.6}
   const holdInput   = document.getElementById('holdSec');
   const exhaleInput = document.getElementById('exhaleSec');
   const restInput   = document.getElementById('restSec');
-  const resRows = document.querySelectorAll('.resStepRow');
   const initInhaleInput = document.getElementById('initInhale');
   const initExhaleInput = document.getElementById('initExhale');
   const induceTimeInput = document.getElementById('induceTime');
@@ -332,8 +331,6 @@ button:disabled{opacity:.6}
       if(patternSelect.value !== 'custom') el.value = arr[i];
       el.disabled = patternSelect.value !== 'custom';
     });
-    const showRes = patternSelect.value==='resStep';
-    resRows.forEach(r=>r.style.display=showRes?'':'none');
     const initEnabled = patternSelect.value==='resStep' || patternSelect.value==='custom';
     [initInhaleInput,initExhaleInput,induceTimeInput].forEach(el=>{el.disabled=!initEnabled;});
     const rec = recommendedMap[patternSelect.value];
