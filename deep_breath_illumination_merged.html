@@ -393,12 +393,10 @@ button:disabled{opacity:.6}
     const obj = envAudios[env];
     if(!obj) return;
     if(obj.audio.paused) obj.audio.play().catch(()=>{});
-    obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-    obj.gain.gain.setValueAtTime(ENV_MAX_VOL, audioCtx.currentTime);
+    obj.audio.volume = ENV_MAX_VOL;
   }
   envBtns.forEach(btn => {
-    btn.addEventListener('click', async () => {
-      await audioCtx.resume();
+    btn.addEventListener('click', () => {
       const env = btn.dataset.env;
       if(env === 'off'){
         selectedEnvs.forEach(stopEnvSound);
@@ -503,18 +501,14 @@ button:disabled{opacity:.6}
     });
   });
 
-  const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   function createEnvAudio(src){
     const audio = new Audio(encodeURI(src));
     audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous';
     audio.setAttribute('playsinline','');
-    const node  = audioCtx.createMediaElementSource(audio);
-    const gain  = audioCtx.createGain();
-    node.connect(gain).connect(audioCtx.destination);
     audio.loop = true;
+    audio.volume = 0;
     audio.load();
-    return {audio,gain,fade:null};
+    return {audio,fade:null};
   }
   const envAudios = {
     wave:createEnvAudio('波の音.mp3'),
@@ -538,8 +532,7 @@ button:disabled{opacity:.6}
       if(obj.fade) clearInterval(obj.fade);
       try{obj.audio.pause();}catch{}
       obj.audio.currentTime = 0;
-      obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-      obj.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      obj.audio.volume = 0;
     }
   }
 
@@ -551,21 +544,41 @@ function handleMusic(forceStop=false){
   }
 }
 
-  function playEnv(dur, from, to){
-    if(selectedEnvs.length===0) return;
-    selectedEnvs.forEach(env=>{
-      const obj = envAudios[env];
-      if(!obj) return;
-      if(obj.audio.paused) obj.audio.play().catch(()=>{});
-      obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-      obj.gain.gain.setValueAtTime(from*ENV_MAX_VOL, audioCtx.currentTime);
-      obj.gain.gain.linearRampToValueAtTime(to*ENV_MAX_VOL, audioCtx.currentTime + dur);
-      if(obj.fade) clearInterval(obj.fade);
-      if(to===0){
-        obj.fade = setTimeout(()=>{ try{obj.audio.pause();}catch{} obj.audio.currentTime=0; }, dur*1000+50);
-      }
-    });
-  }
+    function playEnv(dur, from, to){
+      if(selectedEnvs.length===0) return;
+      selectedEnvs.forEach(env=>{
+        const obj = envAudios[env];
+        if(!obj) return;
+        if(obj.audio.paused) obj.audio.play().catch(()=>{});
+        if(obj.fade) clearInterval(obj.fade);
+        const startVol = from * ENV_MAX_VOL;
+        const endVol   = to   * ENV_MAX_VOL;
+        const steps    = dur > 0 ? Math.max(1, Math.round(dur * 20)) : 1;
+        const stepDur  = dur > 0 ? (dur * 1000 / steps) : 0;
+        let step = 0;
+        obj.audio.volume = startVol;
+        if(steps === 1){
+          obj.audio.volume = endVol;
+          if(to === 0){
+            obj.fade = setTimeout(()=>{ try{obj.audio.pause();}catch{} obj.audio.currentTime=0; }, 50);
+          }
+          return;
+        }
+        obj.fade = setInterval(()=>{
+          step++;
+          obj.audio.volume = startVol + (endVol - startVol) * (step / steps);
+          if(step >= steps){
+            clearInterval(obj.fade);
+            obj.fade = null;
+            obj.audio.volume = endVol;
+            if(to === 0){
+              obj.audio.pause();
+              obj.audio.currentTime = 0;
+            }
+          }
+        }, stepDur);
+      });
+    }
 
   function playSwitchSound(){
     if(switchSel.value==='off') return;
@@ -671,12 +684,10 @@ function handleMusic(forceStop=false){
       if(obj.fade) clearTimeout(obj.fade);
       try{obj.audio.pause();}catch{}
       obj.audio.currentTime = 0;
-      obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-      obj.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      obj.audio.volume = 0;
     });
     Object.values(switchAudios).forEach(el=>{try{el.pause();}catch{} el.currentTime=0;});
     handleMusic(true);
-    audioCtx.suspend();
   }
 
   function nextPhase(){
@@ -801,7 +812,6 @@ function handleMusic(forceStop=false){
   }
 
   async function startSession(){
-    await audioCtx.resume();
     running = true;
     currentPhase = 0;
     cyclesDone = 0;
