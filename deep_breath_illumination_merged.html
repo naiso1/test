@@ -507,7 +507,7 @@ button:disabled{opacity:.6}
   function createEnvAudio(src){
     const audio = new Audio(encodeURI(src));
     audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous';
+    if(location.protocol !== 'file:') audio.crossOrigin = 'anonymous';
     audio.setAttribute('playsinline','');
     const node  = audioCtx.createMediaElementSource(audio);
     const gain  = audioCtx.createGain();
