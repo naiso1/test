@@ -471,7 +471,7 @@ button:disabled{opacity:.6}
       modeSection.style.display='';
     }else if(shape==='plane'){
       barContainer.style.display='none';
-      breathPlane.style.display='';
+      breathPlane.style.display='block';
       modeSection.style.display='';
     }else{
       barContainer.style.display='none';
@@ -505,7 +505,7 @@ button:disabled{opacity:.6}
 
   const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   function createEnvAudio(src){
-    const audio = new Audio(src);
+    const audio = new Audio(encodeURI(src));
     audio.preload = 'auto';
     const node  = audioCtx.createMediaElementSource(audio);
     const gain  = audioCtx.createGain();
@@ -524,8 +524,11 @@ button:disabled{opacity:.6}
     rain:createEnvAudio('雨の音.mp3'),
     kirakira:createEnvAudio('キラキラ.mp3')
   };
-  const switchAudios = {shishi:new Audio('ししおどし.mp3')};
-  const musicAudios = {canon:new Audio('カノン.m4a'), aria:new Audio('G線上のアリア.m4a')};
+  const switchAudios = {shishi:new Audio(encodeURI('ししおどし.mp3'))};
+  const musicAudios = {
+    canon:new Audio(encodeURI('カノン.m4a')),
+    aria:new Audio(encodeURI('G線上のアリア.m4a'))
+  };
 
   function stopEnvSound(env){
     const obj = envAudios[env];
