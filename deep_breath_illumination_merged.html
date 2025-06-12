@@ -386,6 +386,13 @@ button:disabled{opacity:.6}
     });
   });
   updateInputsFromPattern();
+  function startEnvSound(env){
+    const obj = envAudios[env];
+    if(!obj) return;
+    if(obj.audio.paused) obj.audio.play().catch(()=>{});
+    obj.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+    obj.gain.gain.setValueAtTime(ENV_MAX_VOL, audioCtx.currentTime);
+  }
   envBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
       await audioCtx.resume();
@@ -401,6 +408,7 @@ button:disabled{opacity:.6}
         if(btn.classList.contains('active')){
           selectedEnvs.push(env);
           lastEnv = env;
+          startEnvSound(env);
         } else {
           selectedEnvs = selectedEnvs.filter(e=>e!==env);
           stopEnvSound(env);
