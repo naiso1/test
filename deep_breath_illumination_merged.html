@@ -433,7 +433,7 @@ button:disabled{opacity:.6}
       musicSel.value = btn.dataset.music;
       if(btn.dataset.music==='canon') minuteInput.value = canonMinutes.toFixed(1);
       else if(btn.dataset.music==='aria') minuteInput.value = ariaMinutes.toFixed(1);
-      if(patternSelect.value==='music' && btn.dataset.music!=='off'){
+      if(btn.dataset.music!=='off' && running){
         await stopSession();
         await startSession();
       }else{
@@ -527,13 +527,13 @@ button:disabled{opacity:.6}
     }
   }
 
-  function handleMusic(forceStop=false){
-    Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} if(forceStop) a.currentTime=0;});
-    if(!forceStop && running && musicSel.value!=='off'){
-      const el = musicAudios[musicSel.value];
-      if(el){ el.volume=0.8; el.play().catch(()=>{}); }
-    }
+function handleMusic(forceStop=false){
+  Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} a.currentTime=0;});
+  if(!forceStop && running && musicSel.value!=='off'){
+    const el = musicAudios[musicSel.value];
+    if(el){ el.volume=0.8; el.play().catch(()=>{}); }
   }
+}
 
   function playEnv(dur, from, to){
     if(selectedEnvs.length===0) return;
