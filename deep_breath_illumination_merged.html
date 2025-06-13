@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>深呼吸誘発システム – Mobile v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --color-inhale:#76c7c0;
@@ -14,7 +15,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","YuGothic","Meiryo",sans-serif;
+  font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","YuGothic","Meiryo",sans-serif;
   color:#fff;
   background:#000 url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60') center/cover no-repeat fixed;
   display:flex;justify-content:center;align-items:center;min-height:100dvh;
@@ -53,17 +54,18 @@ select,input[type="number"],input[type="color"]{
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
-.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button{
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button{
   margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   white-space:nowrap;text-align:center;
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active{
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active{
   background:rgba(255,255,255,.2);color:#000;border-color:#fff;
 }
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
+.speed-buttons{margin:0}
 #barContainer{
   position:fixed;
   top:240px;
@@ -85,7 +87,7 @@ select,input[type="number"],input[type="color"]{
 }
 #breathPlane{
   position:fixed;
-  top:50%;
+  top:35%;
   left:50%;
   width:60vmin;
   height:60vmin;
@@ -127,7 +129,7 @@ button:disabled{opacity:.6}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
 #bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.8),rgba(255,255,255,.1));backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#000;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s}
+.bubble{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),var(--bubble-color,rgba(255,255,255,.2)));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
 .bubble.pop{animation:pop .5s forwards}
@@ -150,11 +152,11 @@ button:disabled{opacity:.6}
     </div>
   </div>
   <div id="bubbleContainer">
-    <div class="bubble">気持ちを切り替えたい</div>
-    <div class="bubble">緊張をほぐしたい</div>
-    <div class="bubble">集中力を上げたい</div>
-    <div class="bubble">リフレッシュしたい</div>
-    <div class="bubble">寝たい</div>
+    <div class="bubble" style="--bubble-color:#ff7f7f">気持ちを切り替えたい</div>
+    <div class="bubble" style="--bubble-color:#ffcc66">緊張をほぐしたい</div>
+    <div class="bubble" style="--bubble-color:#66ccff">集中力を上げたい</div>
+    <div class="bubble" style="--bubble-color:#99ff99">リフレッシュしたい</div>
+    <div class="bubble" style="--bubble-color:#cc99ff">寝たい</div>
   </div>
 
 
@@ -229,11 +231,19 @@ button:disabled{opacity:.6}
     </tbody>
   </table>
 
+  <div class="section" id="speedSection">
+    <h3>表現速度</h3>
+    <div class="speed-buttons scroll-buttons">
+      <button type="button" class="speedBtn active" data-speed="linear">リニア</button>
+      <button type="button" class="speedBtn" data-speed="biorhythm">バイオリズム</button>
+    </div>
+  </div>
+
   <div class="section">
     <h3>光の形状</h3>
     <div class="shape-buttons scroll-buttons">
       <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
-      <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="2" x2="12" y2="22" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> 線</button>
+      <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> 線</button>
       <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#fff"/></svg> 面</button>
     </div>
   </div>
@@ -310,6 +320,7 @@ button:disabled{opacity:.6}
   const patternRows   = document.querySelectorAll('.patterns tbody tr');
   const modeBtns      = document.querySelectorAll('.modeBtn');
   const shapeBtns     = document.querySelectorAll('.shapeBtn');
+  const speedBtns     = document.querySelectorAll('.speedBtn');
   const envBtns       = document.querySelectorAll('.envBtn');
   const switchBtns    = document.querySelectorAll('.switchBtn');
   const musicBtns     = document.querySelectorAll('.musicBtn');
@@ -355,6 +366,7 @@ button:disabled{opacity:.6}
   let currentPhase = 0;
   let mode = 'expand';
   let shape = 'line';
+  let speed = 'linear';
   let running = false;
   let cycleLimit = 0;
   let timeLimit  = 0;
@@ -510,6 +522,14 @@ button:disabled{opacity:.6}
       updateShapeVisibility();
     });
   });
+  speedBtns.forEach(btn=>{
+    if(btn.dataset.speed===speed) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      speedBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      speed = btn.dataset.speed;
+    });
+  });
   modeBtns.forEach(btn => {
     if(btn.dataset.mode===mode) btn.classList.add('active');
     btn.addEventListener('click', () => {
@@ -595,7 +615,9 @@ function handleMusic(forceStop=false){
         }
         obj.fade = setInterval(()=>{
           step++;
-          obj.audio.volume = startVol + (endVol - startVol) * (step / steps);
+          const ratio = step / steps;
+          const ease = speed==='biorhythm'? (1 - Math.cos(Math.PI*ratio))/2 : ratio;
+          obj.audio.volume = startVol + (endVol - startVol) * ease;
           if(step >= steps){
             clearInterval(obj.fade);
             obj.fade = null;
@@ -682,12 +704,14 @@ function handleMusic(forceStop=false){
     ];
   }
   function setBar(widthPercent,widthDur,color,colorDur){
-    breathBar.style.transition = `width ${widthDur}s linear, background-color ${colorDur}s linear`;
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}`;
     breathBar.style.width = widthPercent + '%';
-    breathBar.style.background = `linear-gradient(to right, ${color}, rgba(255,255,255,0))`;
+    breathBar.style.background = `linear-gradient(to right, rgba(255,255,255,0), ${color} 50%, rgba(255,255,255,0))`;
   }
   function setPlane(scale,dur,color,colorDur){
-    breathPlane.style.transition = `transform ${dur}s linear, background-color ${colorDur}s linear`;
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}`;
     breathPlane.style.transform = `scale(${scale})`;
     breathPlane.style.background = `radial-gradient(circle, ${color}, rgba(255,255,255,0) 70%)`;
   }
@@ -889,8 +913,10 @@ function handleMusic(forceStop=false){
     if(open){
       applyBtn.style.display='none';
       footer.style.display='';
+      if(!running && bubbleContainer) bubbleContainer.style.display='';
     }else{
       footer.style.display='none';
+      if(bubbleContainer) bubbleContainer.style.display='none';
     }
   });
 })();
