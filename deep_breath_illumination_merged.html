@@ -155,9 +155,11 @@ button:disabled{opacity:.6}
 .env-scroll .env-buttons{flex:1}
 .env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:32px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .env-scroll button:hover{opacity:.8}
-.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
+.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
+.speed-buttons svg{width:100%;aspect-ratio:1/1;}
+.env-buttons button{width:16%;}
 .shape-buttons svg{width:100%;aspect-ratio:1/1;}
 .noimg{
   width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
@@ -251,12 +253,12 @@ button:disabled{opacity:.6}
         <td><input type="number" id="exhaleSec" min="1" value="5"></td>
         <td><input type="number" id="restSec" min="0" value="0"></td>
       </tr>
-      <tr>
+      <tr id="colorRow">
         <th>色</th>
-        <td><input type="color" id="colorInhale" value="#76c7c0"></td>
-        <td><input type="color" id="colorHold" value="#f7c59f"></td>
-        <td><input type="color" id="colorExhale" value="#ff6f61"></td>
-        <td><input type="color" id="colorRest" value="#74b9ff"></td>
+        <td id="colorInhaleTd"><input type="color" id="colorInhale" value="#76c7c0"></td>
+        <td id="colorHoldTd"><input type="color" id="colorHold" value="#f7c59f"></td>
+        <td id="colorExhaleTd"><input type="color" id="colorExhale" value="#ff6f61"></td>
+        <td id="colorRestTd"><input type="color" id="colorRest" value="#74b9ff"></td>
       </tr>
       <tr>
         <th>回数(0=無限)</th>
@@ -284,15 +286,15 @@ button:disabled{opacity:.6}
   <div class="section" id="speedSection">
     <h3>表現速度</h3>
     <div class="speed-buttons scroll-buttons">
-      <button type="button" class="speedBtn active" data-speed="linear"><div class="noimg">L</div> リニア</button>
-      <button type="button" class="speedBtn" data-speed="biorhythm"><div class="noimg">B</div> バイオリズム</button>
+      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,22 22,2" fill="none" stroke="#fff" stroke-width="2"/></svg> リニア</button>
+      <button type="button" class="speedBtn" data-speed="biorhythm"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12c4-10 8 10 12 0s8 10 12 0" fill="none" stroke="#fff" stroke-width="2"/></svg> バイオリズム</button>
     </div>
   </div>
 
   <div class="section">
     <h3>光の形状</h3>
     <div class="shape-buttons scroll-buttons">
-      <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="shapeBtn" data-shape="none"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg> 線</button>
       <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="#fff"/></svg> 面</button>
       <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="0.2"/></svg> 立体</button>
@@ -310,7 +312,7 @@ button:disabled{opacity:.6}
   <div class="section" id="modeSection">
     <h3>光の表現</h3>
     <div class="mode-buttons scroll-buttons">
-      <button type="button" class="modeBtn" data-mode="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="modeBtn" data-mode="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="modeBtn active" data-mode="expand"><img src="光の広がり.gif" alt=""> 拡縮</button>
       <button type="button" class="modeBtn" data-mode="fade"><img src="フェード.gif" alt=""> フェード</button>
     </div>
@@ -318,7 +320,7 @@ button:disabled{opacity:.6}
   <div class="section" id="colorChangeSection">
     <h3>色変化</h3>
     <div class="color-buttons scroll-buttons">
-      <button type="button" class="colorBtn active" data-color="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="colorBtn active" data-color="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="colorBtn" data-color="on"><img src="色変化.gif" alt=""> あり</button>
     </div>
   </div>
@@ -343,7 +345,7 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>切り替え音</h3>
     <div class="switch-buttons scroll-buttons">
-      <button type="button" class="switchBtn active" data-switch="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="switchBtn active" data-switch="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="switchBtn" data-switch="shishi"><img src="ししおどし.jpg" alt=""> ししおどし</button>
       <button type="button" class="switchBtn" data-switch="beep1"><div class="noimg">ビープ1</div> ビープ1</button>
       <button type="button" class="switchBtn" data-switch="beep2"><div class="noimg">ビープ2</div> ビープ2</button>
@@ -353,7 +355,7 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>音楽</h3>
   <div class="music-buttons scroll-buttons">
-      <button type="button" class="musicBtn active" data-music="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="musicBtn active" data-music="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="musicBtn" data-music="canon"><img src="カノン.jpg" alt=""> カノン</button>
       <button type="button" class="musicBtn" data-music="aria"><img src="g線上のアリア.jpg" alt=""> G線上のアリア</button>
     </div>
@@ -362,7 +364,7 @@ button:disabled{opacity:.6}
   <div class="section">
     <h3>フレグランス</h3>
     <div class="fragrance-buttons scroll-buttons">
-      <button type="button" class="fragranceBtn active" data-fragrance="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="fragranceBtn active" data-fragrance="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
       <button type="button" class="fragranceBtn" data-fragrance="lemongrass"><div class="noimg">🍋</div> レモングラス</button>
       <button type="button" class="fragranceBtn" data-fragrance="lavender"><div class="noimg">💜</div> ラベンダー</button>
       <button type="button" class="fragranceBtn" data-fragrance="eucalyptus"><div class="noimg">🌿</div> ユーカリ</button>
@@ -675,8 +677,7 @@ button:disabled{opacity:.6}
       btn.classList.add('active');
       colorChange = btn.dataset.color;
       colorChangeSel.value = colorChange;
-      if(colorChange==='off') applyExpandColors();
-      else restoreDefaultColors();
+      updateColorRow();
     });
   });
   modeBtns.forEach(btn => {
@@ -685,11 +686,7 @@ button:disabled{opacity:.6}
       modeBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       mode = btn.dataset.mode;
-      if(colorChange==='off'){
-        applyExpandColors();
-      } else {
-        restoreDefaultColors();
-      }
+      updateColorRow();
     });
   });
 
@@ -825,6 +822,10 @@ function handleMusic(forceStop=false){
   const colorHold   = document.getElementById('colorHold');
   const colorExhale = document.getElementById('colorExhale');
   const colorRest   = document.getElementById('colorRest');
+  const colorInhaleTd = document.getElementById('colorInhaleTd');
+  const colorHoldTd   = document.getElementById('colorHoldTd');
+  const colorExhaleTd = document.getElementById('colorExhaleTd');
+  const colorRestTd   = document.getElementById('colorRestTd');
   const defaultColors = {
     hold: colorHold.value,
     exhale: colorExhale.value,
@@ -851,11 +852,28 @@ function handleMusic(forceStop=false){
     colorRest.value = defaultColors.rest;
   }
 
+  function updateColorRow(){
+    if(colorChange==='off'){
+      colorInhaleTd.colSpan = 4;
+      colorHoldTd.style.display = 'none';
+      colorExhaleTd.style.display = 'none';
+      colorRestTd.style.display = 'none';
+      applyExpandColors();
+    }else{
+      colorInhaleTd.colSpan = 1;
+      colorHoldTd.style.display = '';
+      colorExhaleTd.style.display = '';
+      colorRestTd.style.display = '';
+      restoreDefaultColors();
+    }
+  }
+
   colorInhale.addEventListener('change', () => {
     if(colorChange==='off') applyExpandColors();
   });
 
   restoreDefaultColors();
+  updateColorRow();
 
   function hexToRgba(hex,a){
     const r=parseInt(hex.slice(1,3),16);
@@ -882,8 +900,10 @@ function handleMusic(forceStop=false){
     breathBar.style.width = widthPercent + '%';
     if(gradient==='on'){
       breathBar.style.background = `linear-gradient(to right, ${hexToRgba(color,0.5)}, ${color} 50%, ${hexToRgba(color,0.5)})`;
+      breathBar.style.boxShadow = '';
     }else{
       breathBar.style.background = color;
+      breathBar.style.boxShadow = `0 0 0 2px ${color}`;
     }
   }
   function setPlane(scale,dur,color,colorDur){
@@ -892,8 +912,10 @@ function handleMusic(forceStop=false){
     breathPlane.style.transform = `scale(${scale})`;
     if(gradient==='on'){
       breathPlane.style.background = `radial-gradient(circle, ${color} 0%, ${hexToRgba(color,0.5)} 70%)`;
+      breathPlane.style.boxShadow = '';
     }else{
       breathPlane.style.background = color;
+      breathPlane.style.boxShadow = `0 0 0 2px ${color}`;
     }
   }
   function setCube(scale,dur,color,colorDur){
@@ -901,6 +923,11 @@ function handleMusic(forceStop=false){
     breathCube.style.transition = `transform ${dur}s ${easing}, color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
     breathCube.style.transform = `scale(${scale})`;
     breathCube.style.color = color;
+    if(gradient==='off'){
+      breathCube.style.filter = 'drop-shadow(0 0 2px '+color+')';
+    }else{
+      breathCube.style.filter = 'none';
+    }
   }
 
   async function stopSession(){
