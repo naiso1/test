@@ -20,10 +20,10 @@ body{
   background:#000 url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60') center/cover no-repeat fixed;
   display:flex;justify-content:center;align-items:center;min-height:100dvh;
 }
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.3)}
 .container{
   position:relative;z-index:1;width:min(95%,1040px);
-  background:rgba(0,0,0,.6);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
+  background:rgba(0,0,0,.3);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
   backdrop-filter:blur(12px);
   margin-top:280px;
   height:calc(100vh - 280px);
@@ -55,13 +55,13 @@ select,input[type="number"],input[type="color"]{
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button{
-  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:0;
+  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:1px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   white-space:nowrap;text-align:center;
 }
 .mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
-  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:0 0 0 2px #fff inset;
+  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:0 0 0 1px #fff inset;
 }
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
@@ -134,6 +134,7 @@ select,input[type="number"],input[type="color"]{
   height:100%;
   background:currentColor;
   opacity:.7;
+  border:1px solid rgba(0,0,0,.8);
 }
 @keyframes rotateCube{from{transform:rotateX(45deg) rotateY(0deg);}to{transform:rotateX(45deg) rotateY(360deg);}}
 button{
@@ -149,7 +150,7 @@ button:disabled{opacity:.6}
 .env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
 .env-buttons::-webkit-scrollbar{display:none}
 .env-scroll{display:flex;align-items:center;gap:4px;justify-content:center}
-.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:18%;display:flex;align-items:center;justify-content:center}
+.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:12.5%;display:flex;align-items:center;justify-content:center}
 .env-scroll button:hover{opacity:.8}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
@@ -288,17 +289,17 @@ button:disabled{opacity:.6}
     <h3>光の形状</h3>
     <div class="shape-buttons scroll-buttons">
       <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
-      <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> 線</button>
+      <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg> 線</button>
       <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#fff"/></svg> 面</button>
-      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="2"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="2"/></svg> 立体</button>
+      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="1"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="1"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="1"/></svg> 立体</button>
     </div>
   </div>
 
   <div class="section" id="gradientSection">
     <h3>グラデーション</h3>
     <div class="gradient-buttons scroll-buttons">
-      <button type="button" class="gradientBtn" data-gradient="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="2"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="2"/></svg> なし</button>
-      <button type="button" class="gradientBtn active" data-gradient="on"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gradOn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" fill="url(#gradOn)" stroke="#fff" stroke-width="2"/></svg> あり</button>
+      <button type="button" class="gradientBtn" data-gradient="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="1"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="1"/></svg> なし</button>
+      <button type="button" class="gradientBtn active" data-gradient="on"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gradOn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" fill="url(#gradOn)" stroke="#fff" stroke-width="1"/></svg> あり</button>
     </div>
   </div>
 
@@ -316,7 +317,7 @@ button:disabled{opacity:.6}
     <div class="env-scroll">
       <button type="button" class="envPrev">◀</button>
       <div class="env-buttons scroll-buttons">
-      <button type="button" class="envBtn active" data-env="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="2"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="2"/></svg> なし</button>
+      <button type="button" class="envBtn active" data-env="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="1"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="1"/></svg> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
       <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
@@ -549,8 +550,8 @@ button:disabled{opacity:.6}
     });
   });
   if(envPrev && envNext){
-    envPrev.addEventListener('click',()=>{envContainer.scrollBy({left:-150,behavior:'smooth'});});
-    envNext.addEventListener('click',()=>{envContainer.scrollBy({left:150,behavior:'smooth'});});
+    envPrev.addEventListener('click',()=>{envContainer.scrollTo({left:0,behavior:'smooth'});});
+    envNext.addEventListener('click',()=>{envContainer.scrollTo({left:envContainer.scrollWidth,behavior:'smooth'});});
   }
   document.querySelector('.envBtn[data-env="off"]').classList.add('active');
   switchBtns.forEach(btn => {
