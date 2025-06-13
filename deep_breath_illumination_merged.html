@@ -54,18 +54,20 @@ select,input[type="number"],input[type="color"]{
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
-.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button{
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button{
   margin:0;padding:0;font-size:.8rem;cursor:pointer;border:2px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   white-space:nowrap;text-align:center;
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active{
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
   background:rgba(255,255,255,.2);color:#000;border-color:#fff;
 }
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
 .speed-buttons{margin:0}
+.gradient-buttons{margin:0}
+.fragrance-buttons{margin:0}
 #barContainer{
   position:fixed;
   top:240px;
@@ -113,11 +115,12 @@ button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
 .scroll-buttons{display:flex;gap:8px;justify-content:center;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
 .scroll-buttons::-webkit-scrollbar{display:none}
-.env-buttons{-ms-overflow-style:auto;scrollbar-width:auto}
-.env-buttons::-webkit-scrollbar{display:block;height:6px}
-.env-buttons::-webkit-scrollbar-track{background:rgba(255,255,255,.1)}
-.env-buttons::-webkit-scrollbar-thumb{background:rgba(255,255,255,.4)}
-.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img{
+.env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
+.env-buttons::-webkit-scrollbar{display:none}
+.env-scroll{display:flex;align-items:center;gap:4px;justify-content:center}
+.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:2px 4px;opacity:.5}
+.env-scroll button:hover{opacity:.8}
+.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
 .shape-buttons svg{width:100%;aspect-ratio:1/1;}
@@ -129,10 +132,11 @@ button:disabled{opacity:.6}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
 #bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),var(--bubble-color,rgba(255,255,255,.2)));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s}
+.bubble{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),var(--bubble-color,rgba(255,255,255,.2)));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s;margin-top:0;animation:float 4s ease-in-out infinite}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
 .bubble.pop{animation:pop .5s forwards}
+@keyframes float{0%,100%{margin-top:0}50%{margin-top:-10px}}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
 </style>
 </head>
@@ -234,8 +238,8 @@ button:disabled{opacity:.6}
   <div class="section" id="speedSection">
     <h3>表現速度</h3>
     <div class="speed-buttons scroll-buttons">
-      <button type="button" class="speedBtn active" data-speed="linear">リニア</button>
-      <button type="button" class="speedBtn" data-speed="biorhythm">バイオリズム</button>
+      <button type="button" class="speedBtn active" data-speed="linear"><div class="noimg">L</div> リニア</button>
+      <button type="button" class="speedBtn" data-speed="biorhythm"><div class="noimg">B</div> バイオリズム</button>
     </div>
   </div>
 
@@ -245,6 +249,14 @@ button:disabled{opacity:.6}
       <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
       <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> 線</button>
       <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#fff"/></svg> 面</button>
+    </div>
+  </div>
+
+  <div class="section" id="gradientSection">
+    <h3>グラデーション</h3>
+    <div class="gradient-buttons scroll-buttons">
+      <button type="button" class="gradientBtn" data-gradient="off"><div class="noimg">OFF</div> なし</button>
+      <button type="button" class="gradientBtn active" data-gradient="on"><div class="noimg">ON</div> あり</button>
     </div>
   </div>
 
@@ -259,7 +271,9 @@ button:disabled{opacity:.6}
   </div>
   <div class="section">
     <h3>環境音</h3>
-    <div class="env-buttons scroll-buttons">
+    <div class="env-scroll">
+      <button type="button" class="envPrev">◀</button>
+      <div class="env-buttons scroll-buttons">
       <button type="button" class="envBtn active" data-env="off"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=" alt=""> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
@@ -269,6 +283,8 @@ button:disabled{opacity:.6}
       <button type="button" class="envBtn" data-env="wind"><img src="風の音.png" alt=""> 風の音</button>
       <button type="button" class="envBtn" data-env="rain"><img src="雨の音.jpg" alt=""> 雨の音</button>
       <button type="button" class="envBtn" data-env="kirakira"><img src="キラキラ.jpg" alt=""> キラキラ</button>
+      </div>
+      <button type="button" class="envNext">▶</button>
     </div>
   </div>
   <div class="section">
@@ -289,6 +305,18 @@ button:disabled{opacity:.6}
       <button type="button" class="musicBtn" data-music="aria"><img src="g線上のアリア.jpg" alt=""> G線上のアリア</button>
     </div>
   </div>
+
+  <div class="section">
+    <h3>フレグランス</h3>
+    <div class="fragrance-buttons scroll-buttons">
+      <button type="button" class="fragranceBtn active" data-fragrance="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="fragranceBtn" data-fragrance="lemongrass"><div class="noimg">🍋</div> レモングラス</button>
+      <button type="button" class="fragranceBtn" data-fragrance="lavender"><div class="noimg">💜</div> ラベンダー</button>
+      <button type="button" class="fragranceBtn" data-fragrance="eucalyptus"><div class="noimg">🌿</div> ユーカリ</button>
+      <button type="button" class="fragranceBtn" data-fragrance="rosemary"><div class="noimg">🌱</div> ローズマリー</button>
+      <button type="button" class="fragranceBtn" data-fragrance="bergamot"><div class="noimg">🍊</div> ベルガモット</button>
+    </div>
+  </div>
   <div class="controls" style="margin-top:8px">
     <button id="applyBtn" style="display:none">適用</button>
   </div>
@@ -296,6 +324,8 @@ button:disabled{opacity:.6}
   <input type="hidden" id="envSound" value="off">
   <input type="hidden" id="switchSound" value="off">
   <input type="hidden" id="musicSel" value="off">
+  <input type="hidden" id="gradientSel" value="on">
+  <input type="hidden" id="fragranceSel" value="off">
 
   <footer style="margin-top:8px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
 </div>
@@ -311,6 +341,8 @@ button:disabled{opacity:.6}
   const envSel        = document.getElementById('envSound');
   const switchSel     = document.getElementById('switchSound');
   const musicSel      = document.getElementById('musicSel');
+  const gradientSel   = document.getElementById('gradientSel');
+  const fragranceSel  = document.getElementById('fragranceSel');
   const cycleInput    = document.getElementById('cycleCount');
   const minuteInput   = document.getElementById('totalMinutes');
   const applyBtn      = document.getElementById('applyBtn');
@@ -321,12 +353,17 @@ button:disabled{opacity:.6}
   const modeBtns      = document.querySelectorAll('.modeBtn');
   const shapeBtns     = document.querySelectorAll('.shapeBtn');
   const speedBtns     = document.querySelectorAll('.speedBtn');
+  const gradientBtns  = document.querySelectorAll('.gradientBtn');
   const envBtns       = document.querySelectorAll('.envBtn');
   const switchBtns    = document.querySelectorAll('.switchBtn');
   const musicBtns     = document.querySelectorAll('.musicBtn');
+  const fragranceBtns = document.querySelectorAll('.fragranceBtn');
   const barContainer  = document.getElementById('barContainer');
   const breathPlane   = document.getElementById('breathPlane');
   const modeSection   = document.getElementById('modeSection');
+  const envPrev       = document.querySelector('.envPrev');
+  const envNext       = document.querySelector('.envNext');
+  const envContainer  = document.querySelector('.env-buttons');
   const bubbleContainer = document.getElementById('bubbleContainer');
   const bubbleButtons = bubbleContainer.querySelectorAll('.bubble');
   let selectedEnvs = [];
@@ -367,6 +404,8 @@ button:disabled{opacity:.6}
   let mode = 'expand';
   let shape = 'line';
   let speed = 'linear';
+  let gradient = gradientSel.value;
+  let fragrance = fragranceSel.value;
   let running = false;
   let cycleLimit = 0;
   let timeLimit  = 0;
@@ -460,6 +499,10 @@ button:disabled{opacity:.6}
       updateBackground();
     });
   });
+  if(envPrev && envNext){
+    envPrev.addEventListener('click',()=>{envContainer.scrollBy({left:-150,behavior:'smooth'});});
+    envNext.addEventListener('click',()=>{envContainer.scrollBy({left:150,behavior:'smooth'});});
+  }
   document.querySelector('.envBtn[data-env="off"]').classList.add('active');
   switchBtns.forEach(btn => {
     if(btn.dataset.switch===switchSel.value) btn.classList.add('active');
@@ -483,6 +526,15 @@ button:disabled{opacity:.6}
       }else{
         handleMusic();
       }
+    });
+  });
+  fragranceBtns.forEach(btn => {
+    if(btn.dataset.fragrance===fragrance) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      fragranceBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      fragrance = btn.dataset.fragrance;
+      fragranceSel.value = fragrance;
     });
   });
   document.querySelectorAll('.scroll-buttons').forEach(sc => {
@@ -528,6 +580,15 @@ button:disabled{opacity:.6}
       speedBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       speed = btn.dataset.speed;
+    });
+  });
+  gradientBtns.forEach(btn=>{
+    if(btn.dataset.gradient===gradient) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      gradientBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      gradient = btn.dataset.gradient;
+      gradientSel.value = gradient;
     });
   });
   modeBtns.forEach(btn => {
@@ -707,13 +768,21 @@ function handleMusic(forceStop=false){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
     breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}`;
     breathBar.style.width = widthPercent + '%';
-    breathBar.style.background = `linear-gradient(to right, rgba(255,255,255,0), ${color} 50%, rgba(255,255,255,0))`;
+    if(gradient==='on'){
+      breathBar.style.background = `linear-gradient(to right, rgba(255,255,255,0), ${color} 50%, rgba(255,255,255,0))`;
+    }else{
+      breathBar.style.background = color;
+    }
   }
   function setPlane(scale,dur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
     breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}`;
     breathPlane.style.transform = `scale(${scale})`;
-    breathPlane.style.background = `radial-gradient(circle, ${color}, rgba(255,255,255,0) 70%)`;
+    if(gradient==='on'){
+      breathPlane.style.background = `radial-gradient(circle, ${color}, rgba(255,255,255,0) 70%)`;
+    }else{
+      breathPlane.style.background = color;
+    }
   }
 
   async function stopSession(){
