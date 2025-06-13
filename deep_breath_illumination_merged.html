@@ -54,7 +54,7 @@ select,input[type="number"],input[type="color"]{
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
-.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button{
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button,.color-buttons button{
   margin:0;padding:0;font-size:.8rem;cursor:pointer;border:1px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
@@ -63,11 +63,13 @@ select,input[type="number"],input[type="color"]{
 .mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
   background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;
 }
+.env-buttons .envBtn.active{border:1px solid #fff;}
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
 .speed-buttons{margin:0}
 .gradient-buttons{margin:0}
 .fragrance-buttons{margin:0}
+.color-buttons{margin:0}
 #barContainer{
   position:fixed;
   top:240px;
@@ -151,7 +153,7 @@ button:disabled{opacity:.6}
 .env-buttons::-webkit-scrollbar{display:none}
 .env-scroll{display:flex;align-items:center;gap:4px;justify-content:space-between}
 .env-scroll .env-buttons{flex:1}
-.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:12.5%;display:flex;align-items:center;justify-content:center}
+.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:32px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .env-scroll button:hover{opacity:.8}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
@@ -165,7 +167,8 @@ button:disabled{opacity:.6}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
 #bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.8),var(--bubble-color,rgba(255,255,255,.2)) 60%,rgba(255,255,255,.1) 80%,transparent);backdrop-filter:blur(8px);box-shadow:inset 0 0 4px rgba(255,255,255,.6),0 0 8px rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s;animation:float 4s ease-in-out infinite;opacity:.9}
+.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.9),var(--bubble-color,rgba(255,255,255,.2)) 60%,rgba(255,255,255,.1) 80%,transparent);backdrop-filter:blur(8px);box-shadow:inset 0 0 6px rgba(255,255,255,.8),0 0 10px rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s;animation:float 4s ease-in-out infinite;opacity:.9}
+.bubble::after{content:'';position:absolute;top:15%;left:15%;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.8),rgba(255,255,255,0) 70%);pointer-events:none}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
 .bubble.pop{animation:pop .5s forwards}
@@ -291,8 +294,8 @@ button:disabled{opacity:.6}
     <div class="shape-buttons scroll-buttons">
       <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
       <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg> 線</button>
-      <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#fff"/></svg> 面</button>
-      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="0.5"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="0.5"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="0.5"/></svg> 立体</button>
+      <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="#fff"/></svg> 面</button>
+      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="0.2"/></svg> 立体</button>
     </div>
   </div>
 
@@ -309,8 +312,14 @@ button:disabled{opacity:.6}
     <div class="mode-buttons scroll-buttons">
       <button type="button" class="modeBtn" data-mode="off"><div class="noimg">画像なし</div> なし</button>
       <button type="button" class="modeBtn active" data-mode="expand"><img src="光の広がり.gif" alt=""> 拡縮</button>
-      <button type="button" class="modeBtn" data-mode="color"><img src="色変化.gif" alt=""> 色変化</button>
       <button type="button" class="modeBtn" data-mode="fade"><img src="フェード.gif" alt=""> フェード</button>
+    </div>
+  </div>
+  <div class="section" id="colorChangeSection">
+    <h3>色変化</h3>
+    <div class="color-buttons scroll-buttons">
+      <button type="button" class="colorBtn active" data-color="off"><div class="noimg">画像なし</div> なし</button>
+      <button type="button" class="colorBtn" data-color="on"><img src="色変化.gif" alt=""> あり</button>
     </div>
   </div>
   <div class="section">
@@ -369,6 +378,7 @@ button:disabled{opacity:.6}
   <input type="hidden" id="switchSound" value="off">
   <input type="hidden" id="musicSel" value="off">
   <input type="hidden" id="gradientSel" value="on">
+  <input type="hidden" id="colorChangeSel" value="off">
   <input type="hidden" id="fragranceSel" value="off">
 
   <footer style="margin-top:8px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
@@ -386,6 +396,7 @@ button:disabled{opacity:.6}
   const switchSel     = document.getElementById('switchSound');
   const musicSel      = document.getElementById('musicSel');
   const gradientSel   = document.getElementById('gradientSel');
+  const colorChangeSel= document.getElementById('colorChangeSel');
   const fragranceSel  = document.getElementById('fragranceSel');
   const cycleInput    = document.getElementById('cycleCount');
   const minuteInput   = document.getElementById('totalMinutes');
@@ -398,6 +409,7 @@ button:disabled{opacity:.6}
   const shapeBtns     = document.querySelectorAll('.shapeBtn');
   const speedBtns     = document.querySelectorAll('.speedBtn');
   const gradientBtns  = document.querySelectorAll('.gradientBtn');
+  const colorBtns     = document.querySelectorAll('.colorBtn');
   const envBtns       = document.querySelectorAll('.envBtn');
   const switchBtns    = document.querySelectorAll('.switchBtn');
   const musicBtns     = document.querySelectorAll('.musicBtn');
@@ -458,6 +470,7 @@ button:disabled{opacity:.6}
   let shape = 'line';
   let speed = 'linear';
   let gradient = gradientSel.value;
+  let colorChange = colorChangeSel.value;
   let fragrance = fragranceSel.value;
   let running = false;
   let cycleLimit = 0;
@@ -655,15 +668,24 @@ button:disabled{opacity:.6}
       gradientSel.value = gradient;
     });
   });
+  colorBtns.forEach(btn=>{
+    if(btn.dataset.color===colorChange) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      colorBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      colorChange = btn.dataset.color;
+      colorChangeSel.value = colorChange;
+      if(colorChange==='off') applyExpandColors();
+      else restoreDefaultColors();
+    });
+  });
   modeBtns.forEach(btn => {
     if(btn.dataset.mode===mode) btn.classList.add('active');
     btn.addEventListener('click', () => {
       modeBtns.forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       mode = btn.dataset.mode;
-      if(mode === 'fade'){
-        applyFadeColors();
-      } else if(mode === 'expand') {
+      if(colorChange==='off'){
         applyExpandColors();
       } else {
         restoreDefaultColors();
@@ -830,8 +852,7 @@ function handleMusic(forceStop=false){
   }
 
   colorInhale.addEventListener('change', () => {
-    if(mode === 'fade') applyFadeColors();
-    else if(mode === 'expand') applyExpandColors();
+    if(colorChange==='off') applyExpandColors();
   });
 
   restoreDefaultColors();
@@ -844,6 +865,10 @@ function handleMusic(forceStop=false){
   }
 
   function getColors(){
+    if(colorChange==='off'){
+      const c = colorInhale.value;
+      return [c,c,c,c];
+    }
     return [
       colorInhale.value,
       colorHold.value,
@@ -908,7 +933,7 @@ function handleMusic(forceStop=false){
     });
     Object.values(switchAudios).forEach(el=>{try{el.pause();}catch{} el.currentTime=0;});
     handleMusic(true);
-    if(bubbleContainer) {
+    if(bubbleContainer && settings.style.display==='none') {
       bubbleButtons.forEach(b=>b.classList.remove('pop'));
       bubbleContainer.style.display='';
     }
@@ -946,8 +971,6 @@ function handleMusic(forceStop=false){
     if(shape === 'line'){
       if(mode === 'expand'){
         setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
-      } else if(mode === 'color') {
-        setBar(100, 0, color, 0.8);
       } else if(mode === 'fade') {
         if(gradient==='on'){
           if(currentPhase===0){
@@ -990,8 +1013,6 @@ function handleMusic(forceStop=false){
     } else if(shape === 'plane'){
       if(mode === 'expand'){
         setPlane(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
-      } else if(mode === 'color'){
-        setPlane(1, 0, color, 0.8);
       } else if(mode === 'fade'){
         if(gradient==='on'){
           if(currentPhase===0){
@@ -1034,8 +1055,6 @@ function handleMusic(forceStop=false){
     } else if(shape === 'cube'){
       if(mode === 'expand'){
         setCube(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
-      } else if(mode === 'color'){
-        setCube(1, 0, color, 0.8);
       } else if(mode === 'fade'){
         if(gradient==='on'){
           if(currentPhase===0){
