@@ -89,12 +89,12 @@ select,input[type="number"],input[type="color"]{
 }
 #breathPlane{
   position:fixed;
-  top:35%;
+  top:calc(35% - 120px);
   left:50%;
-  width:60vmin;
-  height:60vmin;
-  margin-left:-30vmin;
-  margin-top:-30vmin;
+  width:30vmin;
+  height:30vmin;
+  margin-left:-15vmin;
+  margin-top:-15vmin;
   background:#fff;
   border-radius:50%;
   filter:blur(40px);
@@ -105,6 +105,32 @@ select,input[type="number"],input[type="color"]{
   z-index:1;
   display:none
 }
+#breathCube{
+  position:fixed;
+  top:calc(35% - 120px);
+  left:50%;
+  width:30vmin;
+  height:30vmin;
+  margin-left:-15vmin;
+  margin-top:-15vmin;
+  pointer-events:none;
+  z-index:1;
+  display:none;
+  color:#fff;
+  transform:scale(0);
+  transform-origin:center;
+  transition:transform 1s linear,color .8s linear;
+}
+#breathCube svg{
+  width:100%;
+  height:100%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  transform-style:preserve-3d;
+  animation:rotateCube 20s linear infinite;
+}
+@keyframes rotateCube{from{transform:rotateX(45deg) rotateY(0deg);}to{transform:rotateX(45deg) rotateY(360deg);}}
 button{
   margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:0;cursor:pointer;width:100%;
   background:rgba(255,255,255,.15);color:#fff;
@@ -118,7 +144,7 @@ button:disabled{opacity:.6}
 .env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
 .env-buttons::-webkit-scrollbar{display:none}
 .env-scroll{display:flex;align-items:center;gap:4px;justify-content:center}
-.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:2px 4px;opacity:.5}
+.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:12.5%;display:flex;align-items:center;justify-content:center}
 .env-scroll button:hover{opacity:.8}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
@@ -132,11 +158,11 @@ button:disabled{opacity:.6}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
 #bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),var(--bubble-color,rgba(255,255,255,.2)));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s;margin-top:0;animation:float 4s ease-in-out infinite}
+.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),var(--bubble-color,rgba(255,255,255,.2)));backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;cursor:pointer;transition:transform .3s,opacity .3s;animation:float 4s ease-in-out infinite}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
 .bubble.pop{animation:pop .5s forwards}
-@keyframes float{0%,100%{margin-top:0}50%{margin-top:-10px}}
+@keyframes float{0%,100%{top:0}50%{top:-10px}}
 @media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
 </style>
 </head>
@@ -144,6 +170,7 @@ button:disabled{opacity:.6}
 <div class="overlay"></div>
 <div id="barContainer"><div id="breathBar"></div></div>
 <div id="breathPlane"></div>
+<div id="breathCube"><svg viewBox="0 0 100 100"><polygon points="50,5 95,25 95,75 50,95 5,75 5,25"/><polyline points="50,5 50,55 95,75"/><polyline points="50,55 5,25"/></svg></div>
 <div class="container">
   <div id="fixedArea">
     <h1>深呼吸誘発システム</h1>
@@ -249,6 +276,7 @@ button:disabled{opacity:.6}
       <button type="button" class="shapeBtn" data-shape="none"><div class="noimg">画像なし</div> なし</button>
       <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> 線</button>
       <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#fff"/></svg> 面</button>
+      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="2"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="2"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="2"/></svg> 立体</button>
     </div>
   </div>
 
@@ -360,12 +388,17 @@ button:disabled{opacity:.6}
   const fragranceBtns = document.querySelectorAll('.fragranceBtn');
   const barContainer  = document.getElementById('barContainer');
   const breathPlane   = document.getElementById('breathPlane');
+  const breathCube    = document.getElementById('breathCube');
   const modeSection   = document.getElementById('modeSection');
   const envPrev       = document.querySelector('.envPrev');
   const envNext       = document.querySelector('.envNext');
   const envContainer  = document.querySelector('.env-buttons');
   const bubbleContainer = document.getElementById('bubbleContainer');
   const bubbleButtons = bubbleContainer.querySelectorAll('.bubble');
+  bubbleButtons.forEach(btn=>{
+    btn.style.animationDelay = `${Math.random()*4}s`;
+    btn.style.animationDuration = `${3+Math.random()*2}s`;
+  });
   let selectedEnvs = [];
   let lastEnv = 'off';
   const canonMinutes = 431.654/60;
@@ -553,14 +586,22 @@ button:disabled{opacity:.6}
     if(shape==='line'){
       barContainer.style.display='';
       breathPlane.style.display='none';
+      breathCube.style.display='none';
       modeSection.style.display='';
     }else if(shape==='plane'){
       barContainer.style.display='none';
       breathPlane.style.display='block';
+      breathCube.style.display='none';
+      modeSection.style.display='';
+    }else if(shape==='cube'){
+      barContainer.style.display='none';
+      breathPlane.style.display='none';
+      breathCube.style.display='block';
       modeSection.style.display='';
     }else{
       barContainer.style.display='none';
       breathPlane.style.display='none';
+      breathCube.style.display='none';
       modeSection.style.display='none';
     }
   }
@@ -784,6 +825,12 @@ function handleMusic(forceStop=false){
       breathPlane.style.background = color;
     }
   }
+  function setCube(scale,dur,color,colorDur){
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathCube.style.transition = `transform ${dur}s ${easing}, color ${colorDur}s ${easing}`;
+    breathCube.style.transform = `scale(${scale})`;
+    breathCube.style.color = color;
+  }
 
   async function stopSession(){
     if(timerId) clearInterval(timerId);
@@ -798,6 +845,11 @@ function handleMusic(forceStop=false){
     breathPlane.style.backgroundColor = 'transparent';
     void breathPlane.offsetWidth;
     breathPlane.style.transition = '';
+    breathCube.style.transition = 'none';
+    breathCube.style.transform = 'scale(0)';
+    breathCube.style.color = '#fff';
+    void breathCube.offsetWidth;
+    breathCube.style.transition = '';
     phaseText.textContent = '準備中...';
     timerText.textContent = '--';
     startBtn.disabled = false;
@@ -853,7 +905,7 @@ function handleMusic(forceStop=false){
       } else if(mode === 'fade') {
         if(currentPhase === 0){
           breathBar.style.transition = 'background-color 0s';
-          breathBar.style.backgroundColor = '#000';
+          breathBar.style.backgroundColor = 'transparent';
           void breathBar.offsetWidth;
           setBar(100, 0, color, duration);
         } else if(currentPhase === 1){
@@ -862,7 +914,7 @@ function handleMusic(forceStop=false){
           breathBar.style.transition = 'background-color 0s';
           breathBar.style.backgroundColor = color;
           void breathBar.offsetWidth;
-          setBar(100, 0, '#000', duration);
+          setBar(100, 0, 'transparent', duration);
         } else {
           setBar(100, 0, color, 0);
         }
@@ -877,7 +929,7 @@ function handleMusic(forceStop=false){
       } else if(mode === 'fade'){
         if(currentPhase === 0){
           breathPlane.style.transition = 'background-color 0s';
-          breathPlane.style.backgroundColor = '#000';
+          breathPlane.style.backgroundColor = 'transparent';
           void breathPlane.offsetWidth;
           setPlane(1, 0, color, duration);
         } else if(currentPhase === 1){
@@ -886,12 +938,36 @@ function handleMusic(forceStop=false){
           breathPlane.style.transition = 'background-color 0s';
           breathPlane.style.backgroundColor = color;
           void breathPlane.offsetWidth;
-          setPlane(1, 0, '#000', duration);
+          setPlane(1, 0, 'transparent', duration);
         } else {
           setPlane(1, 0, color, 0);
         }
       } else {
         setPlane(0, 0, 'transparent', 0);
+      }
+    } else if(shape === 'cube'){
+      if(mode === 'expand'){
+        setCube(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
+      } else if(mode === 'color'){
+        setCube(1, 0, color, 0.8);
+      } else if(mode === 'fade'){
+        if(currentPhase === 0){
+          breathCube.style.transition = 'color 0s';
+          breathCube.style.color = 'transparent';
+          void breathCube.offsetWidth;
+          setCube(1, 0, color, duration);
+        } else if(currentPhase === 1){
+          setCube(1, 0, color, 0);
+        } else if(currentPhase === 2){
+          breathCube.style.transition = 'color 0s';
+          breathCube.style.color = color;
+          void breathCube.offsetWidth;
+          setCube(1, 0, 'transparent', duration);
+        } else {
+          setCube(1, 0, color, 0);
+        }
+      } else {
+        setCube(0, 0, 'transparent', 0);
       }
     }
 
