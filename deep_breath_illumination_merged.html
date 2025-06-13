@@ -61,7 +61,7 @@ select,input[type="number"],input[type="color"]{
   white-space:nowrap;text-align:center;
 }
 .mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
-  background:rgba(255,255,255,.2);color:#000;border-color:#fff;
+  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:0 0 0 2px #fff inset;
 }
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
@@ -89,12 +89,12 @@ select,input[type="number"],input[type="color"]{
 }
 #breathPlane{
   position:fixed;
-  top:calc(35% - 120px);
+  top:calc(35% - 160px);
   left:50%;
-  width:30vmin;
-  height:30vmin;
-  margin-left:-15vmin;
-  margin-top:-15vmin;
+  width:15vmin;
+  height:15vmin;
+  margin-left:-7.5vmin;
+  margin-top:-7.5vmin;
   background:#fff;
   border-radius:50%;
   filter:blur(40px);
@@ -107,12 +107,12 @@ select,input[type="number"],input[type="color"]{
 }
 #breathCube{
   position:fixed;
-  top:calc(35% - 120px);
+  top:calc(35% - 160px);
   left:50%;
-  width:30vmin;
-  height:30vmin;
-  margin-left:-15vmin;
-  margin-top:-15vmin;
+  width:15vmin;
+  height:15vmin;
+  margin-left:-7.5vmin;
+  margin-top:-7.5vmin;
   pointer-events:none;
   z-index:1;
   display:none;
@@ -121,14 +121,19 @@ select,input[type="number"],input[type="color"]{
   transform-origin:center;
   transition:transform 1s linear,color .8s linear;
 }
-#breathCube svg{
+#breathCube .cube-inner{
   width:100%;
   height:100%;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:2;
+  position:relative;
   transform-style:preserve-3d;
   animation:rotateCube 20s linear infinite;
+}
+#breathCube .cube-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:currentColor;
+  opacity:.7;
 }
 @keyframes rotateCube{from{transform:rotateX(45deg) rotateY(0deg);}to{transform:rotateX(45deg) rotateY(360deg);}}
 button{
@@ -144,7 +149,7 @@ button:disabled{opacity:.6}
 .env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
 .env-buttons::-webkit-scrollbar{display:none}
 .env-scroll{display:flex;align-items:center;gap:4px;justify-content:center}
-.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:12.5%;display:flex;align-items:center;justify-content:center}
+.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:18%;display:flex;align-items:center;justify-content:center}
 .env-scroll button:hover{opacity:.8}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
@@ -170,7 +175,16 @@ button:disabled{opacity:.6}
 <div class="overlay"></div>
 <div id="barContainer"><div id="breathBar"></div></div>
 <div id="breathPlane"></div>
-<div id="breathCube"><svg viewBox="0 0 100 100"><polygon points="50,5 95,25 95,75 50,95 5,75 5,25"/><polyline points="50,5 50,55 95,75"/><polyline points="50,55 5,25"/></svg></div>
+<div id="breathCube">
+  <div class="cube-inner">
+    <div class="cube-face" style="transform:rotateY(0deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(180deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(-90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateX(90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateX(-90deg) translateZ(7.5vmin);"></div>
+  </div>
+</div>
 <div class="container">
   <div id="fixedArea">
     <h1>深呼吸誘発システム</h1>
@@ -283,8 +297,8 @@ button:disabled{opacity:.6}
   <div class="section" id="gradientSection">
     <h3>グラデーション</h3>
     <div class="gradient-buttons scroll-buttons">
-      <button type="button" class="gradientBtn" data-gradient="off"><div class="noimg">OFF</div> なし</button>
-      <button type="button" class="gradientBtn active" data-gradient="on"><div class="noimg">ON</div> あり</button>
+      <button type="button" class="gradientBtn" data-gradient="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="2"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="2"/></svg> なし</button>
+      <button type="button" class="gradientBtn active" data-gradient="on"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gradOn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" fill="url(#gradOn)" stroke="#fff" stroke-width="2"/></svg> あり</button>
     </div>
   </div>
 
@@ -302,7 +316,7 @@ button:disabled{opacity:.6}
     <div class="env-scroll">
       <button type="button" class="envPrev">◀</button>
       <div class="env-buttons scroll-buttons">
-      <button type="button" class="envBtn active" data-env="off"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=" alt=""> なし</button>
+      <button type="button" class="envBtn active" data-env="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="2"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="2"/></svg> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
       <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
@@ -398,6 +412,8 @@ button:disabled{opacity:.6}
   bubbleButtons.forEach(btn=>{
     btn.style.animationDelay = `${Math.random()*4}s`;
     btn.style.animationDuration = `${3+Math.random()*2}s`;
+    btn.style.marginTop = `${(Math.random()*2-1)*10}px`;
+    btn.style.marginLeft = `${(Math.random()*2-1)*10}px`;
   });
   let selectedEnvs = [];
   let lastEnv = 'off';
@@ -797,6 +813,13 @@ function handleMusic(forceStop=false){
 
   restoreDefaultColors();
 
+  function hexToRgba(hex,a){
+    const r=parseInt(hex.slice(1,3),16);
+    const g=parseInt(hex.slice(3,5),16);
+    const b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
   function getColors(){
     return [
       colorInhale.value,
@@ -807,27 +830,27 @@ function handleMusic(forceStop=false){
   }
   function setBar(widthPercent,widthDur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}`;
+    breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
     breathBar.style.width = widthPercent + '%';
     if(gradient==='on'){
-      breathBar.style.background = `linear-gradient(to right, rgba(255,255,255,0), ${color} 50%, rgba(255,255,255,0))`;
+      breathBar.style.background = `linear-gradient(to right, ${hexToRgba(color,0.5)}, ${color} 50%, ${hexToRgba(color,0.5)})`;
     }else{
       breathBar.style.background = color;
     }
   }
   function setPlane(scale,dur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}`;
+    breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
     breathPlane.style.transform = `scale(${scale})`;
     if(gradient==='on'){
-      breathPlane.style.background = `radial-gradient(circle, ${color}, rgba(255,255,255,0) 70%)`;
+      breathPlane.style.background = `radial-gradient(circle, ${color} 0%, ${hexToRgba(color,0.5)} 70%)`;
     }else{
       breathPlane.style.background = color;
     }
   }
   function setCube(scale,dur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathCube.style.transition = `transform ${dur}s ${easing}, color ${colorDur}s ${easing}`;
+    breathCube.style.transition = `transform ${dur}s ${easing}, color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
     breathCube.style.transform = `scale(${scale})`;
     breathCube.style.color = color;
   }
@@ -903,20 +926,40 @@ function handleMusic(forceStop=false){
       } else if(mode === 'color') {
         setBar(100, 0, color, 0.8);
       } else if(mode === 'fade') {
-        if(currentPhase === 0){
-          breathBar.style.transition = 'background-color 0s';
-          breathBar.style.backgroundColor = 'transparent';
-          void breathBar.offsetWidth;
-          setBar(100, 0, color, duration);
-        } else if(currentPhase === 1){
-          setBar(100, 0, color, 0);
-        } else if(currentPhase === 2){
-          breathBar.style.transition = 'background-color 0s';
-          breathBar.style.backgroundColor = color;
-          void breathBar.offsetWidth;
-          setBar(100, 0, 'transparent', duration);
-        } else {
-          setBar(100, 0, color, 0);
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setBar(100,0,color,0);
+            breathBar.style.opacity=0;
+            void breathBar.offsetWidth;
+            breathBar.style.transition=`opacity ${duration}s linear`;
+            breathBar.style.opacity=1;
+          }else if(currentPhase===1){
+            setBar(100,0,color,0);
+            breathBar.style.opacity=1;
+          }else if(currentPhase===2){
+            setBar(100,0,color,0);
+            breathBar.style.transition=`opacity ${duration}s linear`;
+            breathBar.style.opacity=0;
+          }else{
+            setBar(100,0,color,0);
+            breathBar.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathBar.style.transition = 'background-color 0s';
+            breathBar.style.backgroundColor = 'transparent';
+            void breathBar.offsetWidth;
+            setBar(100, 0, color, duration);
+          } else if(currentPhase === 1){
+            setBar(100, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathBar.style.transition = 'background-color 0s';
+            breathBar.style.backgroundColor = color;
+            void breathBar.offsetWidth;
+            setBar(100, 0, 'transparent', duration);
+          } else {
+            setBar(100, 0, color, 0);
+          }
         }
       } else {
         setBar(0, 0, 'transparent', 0);
@@ -927,20 +970,40 @@ function handleMusic(forceStop=false){
       } else if(mode === 'color'){
         setPlane(1, 0, color, 0.8);
       } else if(mode === 'fade'){
-        if(currentPhase === 0){
-          breathPlane.style.transition = 'background-color 0s';
-          breathPlane.style.backgroundColor = 'transparent';
-          void breathPlane.offsetWidth;
-          setPlane(1, 0, color, duration);
-        } else if(currentPhase === 1){
-          setPlane(1, 0, color, 0);
-        } else if(currentPhase === 2){
-          breathPlane.style.transition = 'background-color 0s';
-          breathPlane.style.backgroundColor = color;
-          void breathPlane.offsetWidth;
-          setPlane(1, 0, 'transparent', duration);
-        } else {
-          setPlane(1, 0, color, 0);
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=0;
+            void breathPlane.offsetWidth;
+            breathPlane.style.transition=`opacity ${duration}s linear`;
+            breathPlane.style.opacity=1;
+          }else if(currentPhase===1){
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=1;
+          }else if(currentPhase===2){
+            setPlane(1,0,color,0);
+            breathPlane.style.transition=`opacity ${duration}s linear`;
+            breathPlane.style.opacity=0;
+          }else{
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathPlane.style.transition = 'background-color 0s';
+            breathPlane.style.backgroundColor = 'transparent';
+            void breathPlane.offsetWidth;
+            setPlane(1, 0, color, duration);
+          } else if(currentPhase === 1){
+            setPlane(1, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathPlane.style.transition = 'background-color 0s';
+            breathPlane.style.backgroundColor = color;
+            void breathPlane.offsetWidth;
+            setPlane(1, 0, 'transparent', duration);
+          } else {
+            setPlane(1, 0, color, 0);
+          }
         }
       } else {
         setPlane(0, 0, 'transparent', 0);
@@ -951,20 +1014,40 @@ function handleMusic(forceStop=false){
       } else if(mode === 'color'){
         setCube(1, 0, color, 0.8);
       } else if(mode === 'fade'){
-        if(currentPhase === 0){
-          breathCube.style.transition = 'color 0s';
-          breathCube.style.color = 'transparent';
-          void breathCube.offsetWidth;
-          setCube(1, 0, color, duration);
-        } else if(currentPhase === 1){
-          setCube(1, 0, color, 0);
-        } else if(currentPhase === 2){
-          breathCube.style.transition = 'color 0s';
-          breathCube.style.color = color;
-          void breathCube.offsetWidth;
-          setCube(1, 0, 'transparent', duration);
-        } else {
-          setCube(1, 0, color, 0);
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setCube(1,0,color,0);
+            breathCube.style.opacity=0;
+            void breathCube.offsetWidth;
+            breathCube.style.transition=`opacity ${duration}s linear`;
+            breathCube.style.opacity=1;
+          }else if(currentPhase===1){
+            setCube(1,0,color,0);
+            breathCube.style.opacity=1;
+          }else if(currentPhase===2){
+            setCube(1,0,color,0);
+            breathCube.style.transition=`opacity ${duration}s linear`;
+            breathCube.style.opacity=0;
+          }else{
+            setCube(1,0,color,0);
+            breathCube.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathCube.style.transition = 'color 0s';
+            breathCube.style.color = 'transparent';
+            void breathCube.offsetWidth;
+            setCube(1, 0, color, duration);
+          } else if(currentPhase === 1){
+            setCube(1, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathCube.style.transition = 'color 0s';
+            breathCube.style.color = color;
+            void breathCube.offsetWidth;
+            setCube(1, 0, 'transparent', duration);
+          } else {
+            setCube(1, 0, color, 0);
+          }
         }
       } else {
         setCube(0, 0, 'transparent', 0);
