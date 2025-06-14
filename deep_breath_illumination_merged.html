@@ -64,6 +64,7 @@ select,input[type="number"],input[type="color"]{
   background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;
 }
 .env-buttons .envBtn.active{border:1px solid #fff;}
+.color-buttons .colorBtn.active{border:1px solid #fff;}
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
 .speed-buttons{margin:0}
@@ -91,13 +92,14 @@ select,input[type="number"],input[type="color"]{
 }
 #breathPlane{
   position:fixed;
-  top:calc(35% - 160px);
+  top:120px;
   left:50%;
   width:15vmin;
   height:15vmin;
   margin-left:-7.5vmin;
   margin-top:-7.5vmin;
-  background:#fff;
+  background:#444;
+  outline:1px solid #666;
   border-radius:50%;
   filter:blur(40px);
   transform:scale(0);
@@ -109,12 +111,14 @@ select,input[type="number"],input[type="color"]{
 }
 #breathCube{
   position:fixed;
-  top:calc(35% - 160px);
+  top:120px;
   left:50%;
   width:15vmin;
   height:15vmin;
   margin-left:-7.5vmin;
   margin-top:-7.5vmin;
+  background:#444;
+  outline:1px solid #666;
   pointer-events:none;
   z-index:1;
   display:none;
@@ -159,7 +163,7 @@ button:disabled{opacity:.6}
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
 .speed-buttons svg{width:100%;aspect-ratio:1/1;}
-.env-buttons button{width:16%;}
+.env-buttons button{width:12.5%;}
 .shape-buttons svg{width:100%;aspect-ratio:1/1;}
 .noimg{
   width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
@@ -286,8 +290,8 @@ button:disabled{opacity:.6}
   <div class="section" id="speedSection">
     <h3>表現速度</h3>
     <div class="speed-buttons scroll-buttons">
-      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,22 22,2" fill="none" stroke="#fff" stroke-width="2"/></svg> リニア</button>
-      <button type="button" class="speedBtn" data-speed="biorhythm"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12c4-10 8 10 12 0s8 10 12 0" fill="none" stroke="#fff" stroke-width="2"/></svg> バイオリズム</button>
+      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,12 6,2 10,22 14,2 18,22 22,12" fill="none" stroke="#fff" stroke-width="0.5"/></svg> リニア</button>
+      <button type="button" class="speedBtn" data-speed="biorhythm"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12c4-10 8 10 12 0s8 10 12 0" fill="none" stroke="#fff" stroke-width="0.5"/></svg> バイオリズム</button>
     </div>
   </div>
 
