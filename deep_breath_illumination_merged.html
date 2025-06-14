@@ -55,13 +55,13 @@ select,input[type="number"],input[type="color"]{
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
 .mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button,.color-buttons button{
-  margin:0;padding:0;font-size:.8rem;cursor:pointer;border:1px solid transparent;border-radius:0;
+  margin:0;padding:0;font-size:.8rem;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border:1px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  white-space:nowrap;text-align:center;
+  white-space:nowrap;text-align:center;opacity:.6;transition:opacity .2s;
 }
 .mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
-  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;
+  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;opacity:1;
 }
 .env-buttons .envBtn.active{border:1px solid #fff;}
 .color-buttons .colorBtn.active{border:1px solid #fff;}
@@ -86,7 +86,7 @@ select,input[type="number"],input[type="color"]{
 #grayArea{
   position:fixed;
   left:50%;
-  background:rgba(128,128,128,.4);
+  background:#888;
   border:1px dashed #666;
   transform:translateX(-50%);
   pointer-events:none;
@@ -108,8 +108,8 @@ select,input[type="number"],input[type="color"]{
   height:15vmin;
   margin-left:-7.5vmin;
   margin-top:-7.5vmin;
-  background:#444;
-  outline:1px solid #666;
+  background:transparent;
+  outline:none;
   border-radius:50%;
   transform:scale(0);
   transform-origin:center;
@@ -126,8 +126,8 @@ select,input[type="number"],input[type="color"]{
   height:15vmin;
   margin-left:-7.5vmin;
   margin-top:-7.5vmin;
-  background:#444;
-  outline:1px solid #666;
+  background:transparent;
+  outline:none;
   pointer-events:none;
   z-index:1;
   display:none;
@@ -164,11 +164,7 @@ button:disabled{opacity:.6}
 .scroll-buttons::-webkit-scrollbar{display:none}
 .env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
 .env-buttons::-webkit-scrollbar{display:none}
-.env-scroll{display:flex;align-items:center;gap:4px;justify-content:space-between}
-.env-scroll .env-buttons{flex:1}
-.env-scroll button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:.8rem;cursor:pointer;padding:0;opacity:.5;width:32px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
-.env-scroll button:hover{opacity:.8}
-.mode-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.color-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.fragrance-buttons button:hover{opacity:.8}
+.mode-buttons button:hover,.env-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.fragrance-buttons button:hover,.color-buttons button:hover{opacity:1}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
@@ -301,7 +297,7 @@ button:disabled{opacity:.6}
   <div class="section" id="speedSection">
     <h3>表現速度</h3>
     <div class="speed-buttons scroll-buttons">
-      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,12 6,9 10,15 14,9 18,15 22,12" fill="none" stroke="#fff" stroke-width="0.5"/></svg> リニア</button>
+      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,12 3.5,9 9.5,15 11,12 12.5,9 18.5,15 20,12" fill="none" stroke="#fff" stroke-width="0.5"/></svg> リニア</button>
       <button type="button" class="speedBtn" data-speed="biorhythm"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12c4-10 8 10 12 0s8 10 12 0" fill="none" stroke="#fff" stroke-width="0.5"/></svg> バイオリズム</button>
     </div>
   </div>
@@ -341,9 +337,7 @@ button:disabled{opacity:.6}
   </div>
   <div class="section">
     <h3>環境音</h3>
-    <div class="env-scroll">
-      <button type="button" class="envPrev">◀</button>
-      <div class="env-buttons scroll-buttons">
+    <div class="env-buttons scroll-buttons">
       <button type="button" class="envBtn active" data-env="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="1"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="1"/></svg> なし</button>
       <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
       <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
@@ -353,8 +347,6 @@ button:disabled{opacity:.6}
       <button type="button" class="envBtn" data-env="wind"><img src="風の音.png" alt=""> 風の音</button>
       <button type="button" class="envBtn" data-env="rain"><img src="雨の音.jpg" alt=""> 雨の音</button>
       <button type="button" class="envBtn" data-env="kirakira"><img src="キラキラ.jpg" alt=""> キラキラ</button>
-      </div>
-      <button type="button" class="envNext">▶</button>
     </div>
   </div>
   <div class="section">
@@ -437,8 +429,6 @@ button:disabled{opacity:.6}
   const modeSection   = document.getElementById('modeSection');
   const grayArea      = document.getElementById('grayArea');
   const mainContainer = document.querySelector('.container');
-  const envPrev       = document.querySelector('.envPrev');
-  const envNext       = document.querySelector('.envNext');
   const envContainer  = document.querySelector('.env-buttons');
   const bubbleContainer = document.getElementById('bubbleContainer');
   const bubbleButtons = bubbleContainer.querySelectorAll('.bubble');
@@ -587,10 +577,6 @@ button:disabled{opacity:.6}
       updateBackground();
     });
   });
-  if(envPrev && envNext){
-    envPrev.addEventListener('click',()=>{envContainer.scrollTo({left:0,behavior:'smooth'});});
-    envNext.addEventListener('click',()=>{envContainer.scrollTo({left:envContainer.scrollWidth,behavior:'smooth'});});
-  }
   document.querySelector('.envBtn[data-env="off"]').classList.add('active');
   switchBtns.forEach(btn => {
     if(btn.dataset.switch===switchSel.value) btn.classList.add('active');
@@ -644,7 +630,7 @@ button:disabled{opacity:.6}
     grayArea.style.top = barHeight*2 + 'px';
     grayArea.style.width = size + 'px';
     grayArea.style.height = size + 'px';
-    grayArea.style.marginLeft = -(size/2) + 'px';
+    grayArea.style.marginLeft = '0px';
     const center = barHeight*2 + size/2;
     breathPlane.style.top = center + 'px';
     breathCube.style.top = center + 'px';
