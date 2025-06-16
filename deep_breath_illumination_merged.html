@@ -162,8 +162,10 @@ button:disabled{opacity:.6}
 .controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
 .scroll-buttons{display:flex;gap:8px;justify-content:center;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
 .scroll-buttons::-webkit-scrollbar{display:none}
-.env-buttons{scrollbar-width:none;overflow-x:auto;-ms-overflow-style:none}
-.env-buttons::-webkit-scrollbar{display:none}
+.env-buttons{overflow-x:auto;scrollbar-width:thin}
+.env-buttons::-webkit-scrollbar{height:6px}
+.env-buttons::-webkit-scrollbar-track{background:transparent}
+.env-buttons::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
 .mode-buttons button:hover,.env-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.fragrance-buttons button:hover,.color-buttons button:hover{opacity:1}
 .mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
@@ -179,7 +181,7 @@ button:disabled{opacity:.6}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
 #bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--bubble-color,rgba(255,255,255,.7)),var(--bubble-color,rgba(255,255,255,.2)) 60%,var(--bubble-color,rgba(255,255,255,.05)) 80%,transparent);box-shadow:inset 0 0 6px var(--bubble-color,rgba(255,255,255,.5)),0 0 10px var(--bubble-color,rgba(255,255,255,.3));border:1px solid var(--bubble-color,rgba(255,255,255,.3));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .3s;animation:float 4s ease-in-out infinite;}
+.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--bubble-color,rgba(255,255,255,.7)),var(--bubble-color,rgba(255,255,255,.2)) 60%,var(--bubble-color,rgba(255,255,255,.05)) 80%,transparent);box-shadow:inset 0 0 6px var(--bubble-color,rgba(255,255,255,.5)),0 0 10px var(--bubble-color,rgba(255,255,255,.3));border:1px solid var(--bubble-color,rgba(255,255,255,.3));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .3s;animation:float 4s ease-in-out infinite;-webkit-text-stroke:1px #000;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;}
 .bubble::after{content:"";position:absolute;top:15%;left:15%;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,var(--bubble-color,rgba(255,255,255,.5)),rgba(255,255,255,0) 70%);pointer-events:none}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
@@ -215,11 +217,12 @@ button:disabled{opacity:.6}
     </div>
   </div>
   <div id="bubbleContainer">
-    <div class="bubble" style="--bubble-color:#ff7f7f">気持ちを切り替えたい</div>
+    <div class="bubble" style="--bubble-color:#ff7f7f">気持ちを<br>切り替えたい</div>
     <div class="bubble" style="--bubble-color:#ffcc66">緊張をほぐしたい</div>
     <div class="bubble" style="--bubble-color:#66ccff">集中力を上げたい</div>
-    <div class="bubble" style="--bubble-color:#99ff99">リフレッシュしたい</div>
+    <div class="bubble" style="--bubble-color:#99ff99">リフレッシュ<br>したい</div>
     <div class="bubble" style="--bubble-color:#cc99ff">寝たい</div>
+    <div class="bubble" data-env="underwater" data-switch="dive" style="--bubble-color:#66ffff">実験<br>水の中</div>
   </div>
 
 
@@ -1245,6 +1248,21 @@ function handleMusic(forceStop=false){
   bubbleButtons.forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       btn.classList.add('pop');
+      const env = btn.dataset.env;
+      const sw  = btn.dataset.switch;
+      if(env){
+        selectedEnvs.forEach(stopEnvSound);
+        selectedEnvs = [env];
+        lastEnv = env;
+        startEnvSound(env);
+        envBtns.forEach(b=>{b.classList.toggle('active', b.dataset.env===env);});
+        envSel.value = env;
+        updateBackground();
+      }
+      if(sw){
+        switchBtns.forEach(b=>{b.classList.toggle('active', b.dataset.switch===sw);});
+        switchSel.value = sw;
+      }
       await startSession();
     });
     btn.addEventListener('animationend',()=>{btn.classList.remove('pop');});
