@@ -180,8 +180,8 @@ button:disabled{opacity:.6}
 #phaseText,#timerText{margin:4px 0}
 #fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
 #settings{flex:1;overflow-y:auto;overflow-x:hidden}
-#bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px}
-.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--bubble-color,rgba(255,255,255,.7)),var(--bubble-color,rgba(255,255,255,.2)) 60%,var(--bubble-color,rgba(255,255,255,.05)) 80%,transparent);box-shadow:inset 0 0 6px var(--bubble-color,rgba(255,255,255,.5)),0 0 10px var(--bubble-color,rgba(255,255,255,.3));border:1px solid var(--bubble-color,rgba(255,255,255,.3));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .3s;animation:float 4s ease-in-out infinite;-webkit-text-stroke:1px #000;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;}
+#bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-evenly;margin-top:12px}
+.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--bubble-color,rgba(255,255,255,.7)),var(--bubble-color,rgba(255,255,255,.2)) 60%,var(--bubble-color,rgba(255,255,255,.05)) 80%,transparent);box-shadow:inset 0 0 6px var(--bubble-color,rgba(255,255,255,.5)),0 0 10px var(--bubble-color,rgba(255,255,255,.3));border:1px solid var(--bubble-color,rgba(255,255,255,.3));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .3s;animation:float 4s ease-in-out infinite;-webkit-text-stroke:0.5px rgba(0,0,0,.6);text-shadow:0 0 2px rgba(0,0,0,.8);}
 .bubble::after{content:"";position:absolute;top:15%;left:15%;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,var(--bubble-color,rgba(255,255,255,.5)),rgba(255,255,255,0) 70%);pointer-events:none}
 .bubble:hover{transform:scale(1.1)}
 @keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
@@ -1216,6 +1216,10 @@ function handleMusic(forceStop=false){
         if(remaining <= 0){
           clearInterval(timerId);
           prevPhase = currentPhase;
+          if(switchSel.value === 'dive' && prevPhase === 2){
+            switchAudios.dive.currentTime = 0;
+            switchAudios.dive.play().catch(()=>{});
+          }
           currentPhase = (currentPhase + 1) % 4;
           nextPhase();
         }
