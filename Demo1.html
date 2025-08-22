@@ -54,23 +54,25 @@ select,input[type="number"],input[type="color"]{
 .patterns tbody tr:hover{background:rgba(255,255,255,.2)}
 .section{margin:12px 0}
 .section h3{margin-bottom:4px;font-weight:600}
-.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button,.color-buttons button{
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button,.color-buttons button,.color-count-buttons button{
   margin:0;padding:0;font-size:.8rem;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border:1px solid transparent;border-radius:0;
   background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   white-space:nowrap;text-align:center;opacity:.6;transition:opacity .2s;
 }
-.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active,.color-count-buttons button.active{
   background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;opacity:1;
 }
 .env-buttons .envBtn.active{border:1px solid #fff;}
 .color-buttons .colorBtn.active{border:1px solid #fff;}
+.color-count-buttons .colorCountBtn.active{border:1px solid #fff;}
 .mode-buttons{margin:0}
 .shape-buttons{margin:0}
 .speed-buttons{margin:0}
 .gradient-buttons{margin:0}
 .fragrance-buttons{margin:0}
 .color-buttons{margin:0}
+.color-count-buttons{margin:0}
 #barContainer{
   position:fixed;
   top:240px;
@@ -101,6 +103,14 @@ select,input[type="number"],input[type="color"]{
   filter:blur(8px);
   box-shadow:0 0 20px rgba(255,255,255,.8);
   transition:width 1s linear,background-color .8s;
+}
+#breathBarBase{
+  position:absolute;left:50%;top:0;height:100%;width:100%;
+  transform:translateX(-50%);
+  transform-origin:center;border-radius:20px;
+  filter:blur(8px);
+  box-shadow:0 0 20px rgba(255,255,255,.8);
+  display:none;
 }
 #breathPlane{
   position:fixed;
@@ -169,8 +179,8 @@ button:disabled{opacity:.6}
 .env-buttons::-webkit-scrollbar{height:6px}
 .env-buttons::-webkit-scrollbar-track{background:transparent}
 .env-buttons::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
-.mode-buttons button:hover,.env-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.fragrance-buttons button:hover,.color-buttons button:hover{opacity:1}
-.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img{
+.mode-buttons button:hover,.env-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.fragrance-buttons button:hover,.color-buttons button:hover,.color-count-buttons button:hover{opacity:1}
+.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img,.color-count-buttons img{
   width:100%;aspect-ratio:1/1;object-fit:cover
 }
 .speed-buttons svg{width:100%;aspect-ratio:1/1;}
@@ -231,7 +241,7 @@ button:disabled{opacity:.6}
 <body>
 <div class="overlay"></div>
 <div id="grayArea"></div>
-<div id="barContainer"><div id="breathBar"></div></div>
+<div id="barContainer"><div id="breathBarBase"></div><div id="breathBar"></div></div>
 <div id="breathPlane"></div>
 <div id="breathCube">
   <div class="cube-inner">
@@ -280,7 +290,9 @@ button:disabled{opacity:.6}
       <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持<br>（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
       <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス呼吸法</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
       <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
+      <tr data-pattern="music11"><td>1:1</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
       <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
+      <tr data-pattern="music22"><td>2:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
       <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
     </tbody>
   </table>
@@ -379,6 +391,13 @@ button:disabled{opacity:.6}
       <button type="button" class="colorBtn" data-color="on"><img src="色変化.gif" alt=""> あり</button>
     </div>
   </div>
+  <div class="section" id="colorCountSection">
+    <h3>色の数</h3>
+    <div class="color-count-buttons scroll-buttons">
+      <button type="button" class="colorCountBtn active" data-count="one">1色</button>
+      <button type="button" class="colorCountBtn" data-count="two">2色</button>
+    </div>
+  </div>
   <div class="section" id="bgColorSection">
     <h3>背景色</h3>
     <button type="button" id="bgColorBtn">色を選択</button>
@@ -437,9 +456,10 @@ button:disabled{opacity:.6}
   <input type="hidden" id="envSound" value="off">
   <input type="hidden" id="switchSound" value="off">
   <input type="hidden" id="musicSel" value="off">
-  <input type="hidden" id="gradientSel" value="on">
-  <input type="hidden" id="colorChangeSel" value="off">
-  <input type="hidden" id="fragranceSel" value="off">
+<input type="hidden" id="gradientSel" value="on">
+<input type="hidden" id="colorChangeSel" value="off">
+<input type="hidden" id="colorCountSel" value="one">
+<input type="hidden" id="fragranceSel" value="off">
 
   <footer style="margin-top:8px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
 </div>
@@ -450,6 +470,7 @@ button:disabled{opacity:.6}
   const customInputs  = document.getElementById('customInputs');
   const startBtn      = document.getElementById('startBtn');
   const breathBar     = document.getElementById('breathBar');
+  const breathBarBase = document.getElementById('breathBarBase');
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
   const envSel        = document.getElementById('envSound');
@@ -457,6 +478,7 @@ button:disabled{opacity:.6}
   const musicSel      = document.getElementById('musicSel');
   const gradientSel   = document.getElementById('gradientSel');
   const colorChangeSel= document.getElementById('colorChangeSel');
+  const colorCountSel = document.getElementById('colorCountSel');
   const fragranceSel  = document.getElementById('fragranceSel');
   const cycleInput    = document.getElementById('cycleCount');
   const minuteInput   = document.getElementById('totalMinutes');
@@ -466,6 +488,7 @@ button:disabled{opacity:.6}
   const footer        = document.querySelector('footer');
   const patternRows   = document.querySelectorAll('.patterns tbody tr');
   const modeBtns      = document.querySelectorAll('.modeBtn');
+  const colorCountBtns= document.querySelectorAll('.colorCountBtn');
   const shapeBtns     = document.querySelectorAll('.shapeBtn');
   const speedBtns     = document.querySelectorAll('.speedBtn');
   const gradientBtns  = document.querySelectorAll('.gradientBtn');
@@ -519,19 +542,21 @@ button:disabled{opacity:.6}
   }
 
   function setBarOrigin(){
-    if(mode==='expand-left'){
-      breathBar.style.left='0';
-      breathBar.style.transform='none';
-      breathBar.style.transformOrigin='left';
-    }else if(mode==='expand-right'){
-      breathBar.style.left='100%';
-      breathBar.style.transform='translateX(-100%)';
-      breathBar.style.transformOrigin='right';
-    }else{
-      breathBar.style.left='50%';
-      breathBar.style.transform='translateX(-50%)';
-      breathBar.style.transformOrigin='center';
-    }
+    [breathBar,breathBarBase].forEach(bar=>{
+      if(mode==='expand-left'){
+        bar.style.left='0';
+        bar.style.transform='none';
+        bar.style.transformOrigin='left';
+      }else if(mode==='expand-right'){
+        bar.style.left='100%';
+        bar.style.transform='translateX(-100%)';
+        bar.style.transformOrigin='right';
+      }else{
+        bar.style.left='50%';
+        bar.style.transform='translateX(-50%)';
+        bar.style.transformOrigin='center';
+      }
+    });
   }
 
   function applyBgColor(color){
@@ -557,6 +582,7 @@ button:disabled{opacity:.6}
   let speed = 'linear';
   let gradient = gradientSel.value;
   let colorChange = colorChangeSel.value;
+  let colorCount = colorCountSel.value;
   let fragrance = fragranceSel.value;
   let running = false;
   let cycleLimit = 0;
@@ -576,14 +602,21 @@ button:disabled{opacity:.6}
   const induceTimeInput = document.getElementById('induceTime');
 
   function updateInputsFromPattern(){
-    const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
-    while(arr.length < 4) arr.push(0);
-    if(patternSelect.value==='music'){
-      arr[0]=musicSel.value==='canon'?3.636363636:0;
-      arr[2]=musicSel.value==='canon'?7.272727273:0;
-      arr[1]=arr[3]=0;
+    let arr;
+    if(patternSelect.value.startsWith('music')){
+      const base = musicSel.value!=='off'?3.636363636:0;
+      if(patternSelect.value==='music11'){
+        arr=[base,0,base,0];
+      }else if(patternSelect.value==='music22'){
+        arr=[base*2,0,base*2,0];
+      }else{
+        arr=[base,0,base*2,0];
+      }
     } else if(patternSelect.value==='resStep'){
       arr=[3.3,0,6.7,0];
+    } else {
+      arr = patternSelect.value.split('-').map(n=>parseFloat(n));
+      while(arr.length < 4) arr.push(0);
     }
     [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
       if(patternSelect.value !== 'custom') el.value = arr[i];
@@ -773,16 +806,26 @@ button:disabled{opacity:.6}
       gradientSel.value = gradient;
     });
   });
-    colorBtns.forEach(btn=>{
-      if(btn.dataset.color===colorChange) btn.classList.add('active');
-      btn.addEventListener('click',()=>{
-        colorBtns.forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        colorChange = btn.dataset.color;
-        colorChangeSel.value = colorChange;
-        updateColorRow();
-      });
+  colorBtns.forEach(btn=>{
+    if(btn.dataset.color===colorChange) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      colorBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      colorChange = btn.dataset.color;
+      colorChangeSel.value = colorChange;
+      updateColorRow();
     });
+  });
+  colorCountBtns.forEach(btn=>{
+    if(btn.dataset.count===colorCount) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      colorCountBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      colorCount = btn.dataset.count;
+      colorCountSel.value = colorCount;
+      updateColorRow();
+    });
+  });
 
     bgColorBtn.addEventListener('click',()=>bgColorInput.click());
     bgColorInput.addEventListener('input',()=>applyBgColor(bgColorInput.value));
@@ -911,13 +954,11 @@ function handleMusic(forceStop=false){
       const rest   = parseFloat(restInput.value) || 0;
       return [inhale,hold,exhale,rest];
     }
-    if(patternSelect.value === 'music'){
-      return [
-        musicSel.value!=='off'?3.636363636:0,
-        0,
-        musicSel.value!=='off'?7.272727273:0,
-        0
-      ];
+    if(patternSelect.value.startsWith('music')){
+      const base = musicSel.value!=='off'?3.636363636:0;
+      if(patternSelect.value==='music11') return [base,0,base,0];
+      if(patternSelect.value==='music22') return [base*2,0,base*2,0];
+      return [base,0,base*2,0];
     }
     if(patternSelect.value === 'resStep'){
       const initIn = parseFloat(initInhaleInput.value)||0;
@@ -949,8 +990,10 @@ function handleMusic(forceStop=false){
   function applyExpandColors(){
     const c = colorInhale.value;
     colorHold.value = c;
-    colorExhale.value = c;
-    colorRest.value = c;
+    if(colorCount==='one'){
+      colorExhale.value = c;
+      colorRest.value = c;
+    }
   }
 
   function applyFadeColors(){
@@ -968,22 +1011,31 @@ function handleMusic(forceStop=false){
 
   function updateColorRow(){
     if(colorChange==='off'){
-      colorInhaleTd.colSpan = 4;
-      colorHoldTd.style.display = 'none';
-      colorExhaleTd.style.display = 'none';
-      colorRestTd.style.display = 'none';
-      applyExpandColors();
+      if(colorCount==='one'){
+        colorInhaleTd.colSpan = 4;
+        colorHoldTd.style.display = 'none';
+        colorExhaleTd.style.display = 'none';
+        colorRestTd.style.display = 'none';
+        applyExpandColors();
+      }else{
+        colorInhaleTd.colSpan = 2;
+        colorHoldTd.style.display = 'none';
+        colorExhaleTd.style.display = '';
+        colorExhaleTd.colSpan = 2;
+        colorRestTd.style.display = 'none';
+      }
     }else{
       colorInhaleTd.colSpan = 1;
       colorHoldTd.style.display = '';
       colorExhaleTd.style.display = '';
+      colorExhaleTd.colSpan = 1;
       colorRestTd.style.display = '';
       restoreDefaultColors();
     }
   }
 
   colorInhale.addEventListener('change', () => {
-    if(colorChange==='off') applyExpandColors();
+    if(colorChange==='off' && colorCount==='one') applyExpandColors();
   });
 
   restoreDefaultColors();
@@ -998,6 +1050,9 @@ function handleMusic(forceStop=false){
 
   function getColors(){
     if(colorChange==='off'){
+      if(colorCount==='two'){
+        return [colorInhale.value,colorInhale.value,colorExhale.value,colorExhale.value];
+      }
       const c = colorInhale.value;
       return [c,c,c,c];
     }
@@ -1019,6 +1074,26 @@ function handleMusic(forceStop=false){
       breathBar.style.background = color;
       breathBar.style.boxShadow = `0 0 0 2px ${color}`;
     }
+  }
+  function setDualBar(activeColor,passiveColor,widthDur){
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathBarBase.style.display='';
+    breathBarBase.style.transition=`background-color 0.8s ${easing}`;
+    breathBarBase.style.background = passiveColor;
+    breathBar.style.transition='none';
+    breathBar.style.width='0%';
+    if(gradient==='on'){
+      breathBar.style.background = `linear-gradient(to right, transparent, ${activeColor} 50%, transparent)`;
+      breathBar.style.boxShadow='';
+      breathBarBase.style.boxShadow='';
+    }else{
+      breathBar.style.background = activeColor;
+      breathBar.style.boxShadow = `0 0 0 2px ${activeColor}`;
+      breathBarBase.style.boxShadow = `0 0 0 2px ${passiveColor}`;
+    }
+    void breathBar.offsetWidth;
+    breathBar.style.transition=`width ${widthDur}s ${easing}, background-color 0.8s ${easing}`;
+    breathBar.style.width='100%';
   }
   function setPlane(scale,dur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
@@ -1054,6 +1129,7 @@ function handleMusic(forceStop=false){
     breathBar.style.width = '0%';
     void breathBar.offsetWidth;
     breathBar.style.transition = '';
+    breathBarBase.style.display='none';
     breathPlane.style.transition = 'none';
     breathPlane.style.transform = 'scale(0)';
     breathPlane.style.backgroundColor = 'transparent';
@@ -1115,8 +1191,18 @@ function handleMusic(forceStop=false){
     phaseText.textContent = phaseNames[currentPhase] || '';
     if(shape === 'line'){
       if(mode.startsWith('expand')){
-        setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
+        if(colorCount==='two'){
+          const inhaleColor = colors[0];
+          const exhaleColor = colors[2];
+          const activeColor  = currentPhase < 2 ? inhaleColor : exhaleColor;
+          const passiveColor = currentPhase < 2 ? exhaleColor : inhaleColor;
+          setDualBar(activeColor, passiveColor, duration);
+        }else{
+          breathBarBase.style.display='none';
+          setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
+        }
       } else if(mode === 'fade') {
+        breathBarBase.style.display='none';
         if(gradient==='on'){
           if(currentPhase===0){
             setBar(100,0,color,0);
@@ -1156,6 +1242,7 @@ function handleMusic(forceStop=false){
         setBar(0, 0, 'transparent', 0);
       }
     } else if(shape === 'plane'){
+      breathBarBase.style.display='none';
       if(mode.startsWith('expand')){
         setPlane(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
       } else if(mode === 'fade'){
@@ -1198,6 +1285,7 @@ function handleMusic(forceStop=false){
         setPlane(0, 0, 'transparent', 0);
       }
     } else if(shape === 'cube'){
+      breathBarBase.style.display='none';
       if(mode.startsWith('expand')){
         setCube(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
       } else if(mode === 'fade'){
@@ -1305,6 +1393,7 @@ function handleMusic(forceStop=false){
 
   async function startSession(){
     running = true;
+    breathBarBase.style.display='none';
     currentPhase = 0;
     prevPhase = 0;
     cyclesDone = 0;
