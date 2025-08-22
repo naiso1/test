@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>深呼吸誘発システム – Mobile v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-inhale:#76c7c0;
+  --color-hold:#f7c59f;
+  --color-exhale:#ff6f61;
+  --color-rest:#74b9ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","YuGothic","Meiryo",sans-serif;
+  color:#fff;
+  background:#000 url('https://images.unsplash.com/photo-1542365889-c15a8c7cb2f9?auto=format&fit=crop&w=1400&q=60') center/cover no-repeat fixed;
+  display:flex;justify-content:center;align-items:center;min-height:100dvh;
+}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.3)}
+.container{
+  position:relative;z-index:1;width:min(95%,1040px);
+  background:rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.2);border-radius:14px;padding:clamp(1rem,4vw,2rem);text-align:center;
+  backdrop-filter:blur(12px);
+  margin-top:280px;
+  height:calc(100vh - 280px);
+  display:flex;flex-direction:column;
+  overflow-y:hidden;overflow-x:visible;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
+}
+.container::-webkit-scrollbar{width:6px}
+.container::-webkit-scrollbar-track{background:transparent}
+.container::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
+.container h1{font-size:1.6rem;margin-bottom:4px}
+.paramtable{width:100%;border-collapse:collapse;margin:16px 0;font-size:.9rem}
+#customInputs{width:50%;margin:16px auto}
+.paramtable th,.paramtable td{border:1px solid #999;padding:4px;text-align:center}
+#customInputs th{white-space:nowrap}
+label{display:block;margin:12px 0 4px;font-size:.9rem}
+select,input[type="number"],input[type="color"]{
+  width:100%;padding:6px 8px;font-size:1rem;border:none;border-radius:0;margin-bottom:12px;
+  background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(6px);
+}
+.patterns{width:100%;border-collapse:collapse;margin:12px auto;font-size:.8rem}
+.patterns th,.patterns td{
+  border:1px solid #999;padding:4px;font-size:min(.8rem,2.5vw);
+  white-space:normal;line-height:1.2em;height:2.4em;
+}
+.patterns tbody tr.selected{background:rgba(255,255,255,.3)}
+.patterns tbody tr:hover{background:rgba(255,255,255,.2)}
+.section{margin:12px 0}
+.section h3{margin-bottom:4px;font-weight:600}
+.mode-buttons button,.env-buttons button,.switch-buttons button,.music-buttons button,.shape-buttons button,.speed-buttons button,.gradient-buttons button,.fragrance-buttons button,.color-buttons button{
+  margin:0;padding:0;font-size:.8rem;font-family:'Noto Sans JP',sans-serif;cursor:pointer;border:1px solid transparent;border-radius:0;
+  background:transparent;color:#fff;flex:0 0 auto;width:12.5%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  white-space:nowrap;text-align:center;opacity:.6;transition:opacity .2s;
+}
+.mode-buttons button.active,.env-buttons button.active,.switch-buttons button.active,.music-buttons button.active,.shape-buttons button.active,.speed-buttons button.active,.gradient-buttons button.active,.fragrance-buttons button.active{
+  background:rgba(255,255,255,.2);color:#000;border-color:#fff;box-shadow:none;opacity:1;
+}
+.env-buttons .envBtn.active{border:1px solid #fff;}
+.color-buttons .colorBtn.active{border:1px solid #fff;}
+.mode-buttons{margin:0}
+.shape-buttons{margin:0}
+.speed-buttons{margin:0}
+.gradient-buttons{margin:0}
+.fragrance-buttons{margin:0}
+.color-buttons{margin:0}
+#barContainer{
+  position:fixed;
+  top:240px;
+  left:0;
+  width:100%;
+  height:60px;
+  background:#444;
+  clip-path:path('M0 100% Q50% 0 100% 100% L0 100% Z');
+  margin:0;
+  z-index:3;
+  overflow:hidden;
+  box-shadow:0 0 15px rgba(255,255,255,.2);
+}
+#grayArea{
+  position:fixed;
+  left:50%;
+  background:#888;
+  border:1px dashed #666;
+  transform:translateX(-50%);
+  pointer-events:none;
+  display:none;
+  z-index:0;
+}
+#breathBar{
+  position:absolute;left:50%;top:0;height:100%;width:0%;
+  background:#fff;border-radius:20px;transform:translateX(-50%);
+  transform-origin:center;border-radius:20px;
+  filter:blur(8px);
+  box-shadow:0 0 20px rgba(255,255,255,.8);
+  transition:width 1s linear,background-color .8s;
+}
+#breathPlane{
+  position:fixed;
+  top:120px;
+  left:50%;
+  width:15vmin;
+  height:15vmin;
+  margin-left:-7.5vmin;
+  margin-top:-7.5vmin;
+  background:transparent;
+  outline:none;
+  border-radius:50%;
+  transform:scale(0);
+  transform-origin:center;
+  transition:transform 1s linear,background-color .8s linear;
+  pointer-events:none;
+  z-index:1;
+  display:none
+}
+#breathCube{
+  position:fixed;
+  top:120px;
+  left:50%;
+  width:15vmin;
+  height:15vmin;
+  margin-left:-7.5vmin;
+  margin-top:-7.5vmin;
+  background:transparent;
+  outline:none;
+  pointer-events:none;
+  z-index:1;
+  display:none;
+  color:#fff;
+  transform:scale(0);
+  transform-origin:center;
+  transition:transform 1s linear,color .8s linear;
+}
+#breathCube .cube-inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  animation:rotateCube 20s linear infinite;
+}
+#breathCube .cube-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:currentColor;
+  opacity:.7;
+  border:1px solid rgba(0,0,0,.8);
+}
+@keyframes rotateCube{from{transform:rotateX(45deg) rotateY(0deg);}to{transform:rotateX(45deg) rotateY(360deg);}}
+button{
+  margin:4px;padding:10px;font-size:1rem;font-weight:600;border:none;border-radius:0;cursor:pointer;width:100%;
+  background:rgba(255,255,255,.15);color:#fff;
+}
+#startBtn{background:rgba(118,199,192,.5);color:#fff}
+#applyBtn{background:rgba(116,185,255,.5);color:#fff}
+button:disabled{opacity:.6}
+.controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.scroll-buttons{display:flex;gap:8px;justify-content:center;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.scroll-buttons::-webkit-scrollbar{display:none}
+.env-buttons{overflow-x:auto;scrollbar-width:thin}
+.env-buttons::-webkit-scrollbar{height:6px}
+.env-buttons::-webkit-scrollbar-track{background:transparent}
+.env-buttons::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
+.mode-buttons button:hover,.env-buttons button:hover,.switch-buttons button:hover,.music-buttons button:hover,.shape-buttons button:hover,.speed-buttons button:hover,.gradient-buttons button:hover,.fragrance-buttons button:hover,.color-buttons button:hover{opacity:1}
+.mode-buttons img,.env-buttons img,.switch-buttons img,.music-buttons img,.gradient-buttons img,.fragrance-buttons img,.color-buttons img{
+  width:100%;aspect-ratio:1/1;object-fit:cover
+}
+.speed-buttons svg{width:100%;aspect-ratio:1/1;}
+.env-buttons button{width:12.5%;}
+.shape-buttons svg{width:100%;aspect-ratio:1/1;}
+.noimg{
+  width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+  background:#555;color:#fff;font-size:.6rem
+}
+#phaseText,#timerText{margin:4px 0}
+#fixedArea{position:sticky;top:0;background:rgba(0,0,0,.6);padding-bottom:8px;z-index:2}
+#settings{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:rgba(0,0,0,.8);
+  border:2px solid #555;
+  border-radius:12px;
+  padding:12px;
+}
+
+.nav-header{
+  background:#222;
+  color:#0ff;
+  text-align:center;
+  padding:8px;
+  margin-bottom:12px;
+  border-radius:6px;
+  font-size:1.2rem;
+}
+
+#settings h3{
+  background:#222;
+  color:#0ff;
+  text-align:center;
+  padding:6px;
+  border-radius:6px;
+}
+
+.controls button{
+  margin:0 4px;
+  padding:8px 12px;
+  background:#222;
+  border:1px solid #555;
+  border-radius:6px;
+  color:#0ff;
+}
+#bubbleContainer{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-evenly;margin-top:12px}
+.bubble{position:relative;top:0;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--bubble-color,rgba(255,255,255,.7)),var(--bubble-color,rgba(255,255,255,.2)) 60%,var(--bubble-color,rgba(255,255,255,.05)) 80%,transparent);box-shadow:inset 0 0 6px var(--bubble-color,rgba(255,255,255,.5)),0 0 10px var(--bubble-color,rgba(255,255,255,.3));border:1px solid var(--bubble-color,rgba(255,255,255,.3));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:transform .3s;animation:float 4s ease-in-out infinite;-webkit-text-stroke:0.5px rgba(0,0,0,.6);text-shadow:0 0 2px rgba(0,0,0,.8);}
+.bubble::after{content:"";position:absolute;top:15%;left:15%;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,var(--bubble-color,rgba(255,255,255,.5)),rgba(255,255,255,0) 70%);pointer-events:none}
+.bubble:hover{transform:scale(1.1)}
+@keyframes pop{from{transform:scale(1);opacity:1}to{transform:scale(1.4);opacity:0}}
+.bubble.pop{animation:pop .5s forwards}
+@keyframes float{0%,100%{top:0}50%{top:-10px}}
+@media(hover:hover) and (pointer:fine){button:hover{filter:brightness(.9);border-color:rgba(255,255,255,.6)}}
+</style>
+</head>
+<body>
+<div class="overlay"></div>
+<div id="grayArea"></div>
+<div id="barContainer"><div id="breathBar"></div></div>
+<div id="breathPlane"></div>
+<div id="breathCube">
+  <div class="cube-inner">
+    <div class="cube-face" style="transform:rotateY(0deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(180deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateY(-90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateX(90deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:rotateX(-90deg) translateZ(7.5vmin);"></div>
+  </div>
+</div>
+<div class="container">
+  <div id="fixedArea">
+    <h1>深呼吸誘発システム</h1>
+
+    <div id="phaseText">準備中...</div>
+    <div id="timerText">--</div>
+    <div id="controls" class="controls">
+      <button id="startBtn">スタート</button>
+      <button id="settingsBtn">設定</button>
+    </div>
+  </div>
+  <div id="bubbleContainer">
+    <div class="bubble" style="--bubble-color:#ff7f7f">気持ちを<br>切り替えたい</div>
+    <div class="bubble" style="--bubble-color:#ffcc66">緊張をほぐしたい</div>
+    <div class="bubble" style="--bubble-color:#66ccff">集中力を上げたい</div>
+    <div class="bubble" style="--bubble-color:#99ff99">リフレッシュ<br>したい</div>
+    <div class="bubble" style="--bubble-color:#cc99ff">寝たい</div>
+    <div class="bubble" data-env="underwater" data-switch="dive" style="--bubble-color:#66ffff">実験<br>水の中</div>
+  </div>
+
+
+  <div id="settings" style="display:none">
+  <div class="nav-header">設定</div>
+  <h3>呼吸リズム</h3>
+  <p style="margin-bottom:8px;font-size:.9rem">下記の表を参考に目的に合った呼吸法を選択し、回数や時間を設定してカスタマイズできます。</p>
+
+  <table class="patterns">
+    <thead>
+      <tr><th>呼吸リズム</th><th>名称</th><th>主な目的・適用シーン</th><th>主な身体的変化</th><th>主な心理的変化</th><th>推奨回数/時間</th></tr>
+    </thead>
+    <tbody>
+      <tr data-pattern="3.3-0-6.7-0"><td>3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="resStep"><td>初期～3.3-6.7</td><td>レゾナンス＋ワンツー呼吸法<br>（徐々に誘導）</td><td>仕事中・運転後のクールダウン</td><td>末梢血流↑、心拍↓</td><td>ストレススコア↓、気分回復</td><td>5分</td></tr>
+      <tr data-pattern="4-7-8-0"><td>4-7-8</td><td>4-7-8呼吸法</td><td>入眠前・急性不安の鎮静</td><td>HRV↑、心拍↓、血圧↓</td><td>入眠時間短縮、主観的不安↓</td><td>4セット</td></tr>
+      <tr data-pattern="4-4-4-4"><td>4-4-4-4</td><td>ボックス呼吸法</td><td>高ストレス下での集中維持<br>（軍・警察訓練ほか）</td><td>副交感優位化、コルチゾール↓</td><td>集中力↑、情動コントロール</td><td>3分</td></tr>
+      <tr data-pattern="5-0-5-0"><td>5-5</td><td>レゾナンス呼吸法</td><td>HRV最大化、長期ストレス耐性</td><td>HRV↑、血圧変動整流</td><td>気分安定、認知柔軟性↑</td><td>5分</td></tr>
+      <tr data-pattern="7-0-11-0"><td>7-11</td><td>7-11ブリージング</td><td>急性の緊張緩和、舞台前・商談前</td><td>呼吸数↓、迷走神経刺激</td><td>不安↓、落ち着き↑</td><td>3分</td></tr>
+      <tr data-pattern="music"><td>1:2</td><td>音楽連動</td><td>音楽鑑賞時</td><td>－</td><td>－</td><td>音楽による</td></tr>
+      <tr data-pattern="custom"><td>-</td><td>カスタム</td><td colspan="4">任意設定</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8rem;opacity:.6">* 推奨回数/時間は一般的なガイドラインの目安です。体調や目的に合わせて調整してください。</p>
+
+  <input type="hidden" id="patternSelect" value="3.3-0-6.7-0">
+
+  <table id="customInputs" class="paramtable">
+    <thead>
+      <tr>
+        <th></th>
+        <th>🫁 吸う</th>
+        <th>⏸️ 止める</th>
+        <th>💨 吐く</th>
+        <th>⏸️ 止める</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>秒数</th>
+        <td><input type="number" id="inhaleSec" min="1" value="5"></td>
+        <td><input type="number" id="holdSec" min="0" value="0"></td>
+        <td><input type="number" id="exhaleSec" min="1" value="5"></td>
+        <td><input type="number" id="restSec" min="0" value="0"></td>
+      </tr>
+      <tr id="colorRow">
+        <th>色</th>
+        <td id="colorInhaleTd"><input type="color" id="colorInhale" value="#76c7c0"></td>
+        <td id="colorHoldTd"><input type="color" id="colorHold" value="#f7c59f"></td>
+        <td id="colorExhaleTd"><input type="color" id="colorExhale" value="#ff6f61"></td>
+        <td id="colorRestTd"><input type="color" id="colorRest" value="#74b9ff"></td>
+      </tr>
+      <tr>
+        <th>回数(0=無限)</th>
+        <td colspan="4"><input type="number" id="cycleCount" min="0" value="0"></td>
+      </tr>
+      <tr>
+        <th>時間(分,0=無限)</th>
+        <td colspan="4"><input type="number" id="totalMinutes" min="0" value="0"></td>
+      </tr>
+      <tr class="resStepRow">
+        <th>初期リズム：吸う(秒)</th>
+        <td colspan="4"><input type="number" id="initInhale" step="0.1" value="2.5"></td>
+      </tr>
+      <tr class="resStepRow">
+        <th>初期リズム：吐く(秒)</th>
+        <td colspan="4"><input type="number" id="initExhale" step="0.1" value="2.5"></td>
+      </tr>
+      <tr class="resStepRow">
+        <th>誘導時間(秒)</th>
+        <td colspan="4"><input type="number" id="induceTime" step="1" value="60"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section" id="speedSection">
+    <h3>表現速度</h3>
+    <div class="speed-buttons scroll-buttons">
+      <button type="button" class="speedBtn active" data-speed="linear"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="2,12 3.5,9 9.5,15 11,12 12.5,9 18.5,15 20,12" fill="none" stroke="#fff" stroke-width="0.5"/></svg> リニア</button>
+      <button type="button" class="speedBtn" data-speed="biorhythm"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 12c4-10 8 10 12 0s8 10 12 0" fill="none" stroke="#fff" stroke-width="0.5"/></svg> バイオリズム</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>光の形状</h3>
+    <div class="shape-buttons scroll-buttons">
+      <button type="button" class="shapeBtn" data-shape="none"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="shapeBtn active" data-shape="line"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="12" x2="22" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg> 線</button>
+      <button type="button" class="shapeBtn" data-shape="plane"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" fill="#fff"/></svg> 面</button>
+      <button type="button" class="shapeBtn" data-shape="cube"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4z" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M4 6l8 4 8-4" fill="none" stroke="#fff" stroke-width="0.2"/><path d="M12 10v12" fill="none" stroke="#fff" stroke-width="0.2"/></svg> 立体</button>
+    </div>
+  </div>
+
+  <div class="section" id="gradientSection">
+    <h3>グラデーション</h3>
+    <div class="gradient-buttons scroll-buttons">
+      <button type="button" class="gradientBtn" data-gradient="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="gradientBtn active" data-gradient="on"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gradOn" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#000"/><stop offset="100%" stop-color="#fff"/></linearGradient></defs><rect x="1" y="1" width="22" height="22" fill="url(#gradOn)" stroke="#fff" stroke-width="0.5"/></svg> あり</button>
+    </div>
+  </div>
+
+  <div class="section" id="modeSection">
+    <h3>光の表現</h3>
+    <div class="mode-buttons scroll-buttons">
+      <button type="button" class="modeBtn" data-mode="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="modeBtn active" data-mode="expand"><img src="光の広がり.gif" alt=""> 拡縮</button>
+      <button type="button" class="modeBtn" data-mode="fade"><img src="フェード.gif" alt=""> フェード</button>
+    </div>
+  </div>
+  <div class="section" id="colorChangeSection">
+    <h3>色変化</h3>
+    <div class="color-buttons scroll-buttons">
+      <button type="button" class="colorBtn active" data-color="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="colorBtn" data-color="on"><img src="色変化.gif" alt=""> あり</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>環境音</h3>
+    <div class="env-buttons scroll-buttons">
+      <button type="button" class="envBtn active" data-env="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="1"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="1"/></svg> なし</button>
+      <button type="button" class="envBtn" data-env="wave"><img src="波の音.jpg" alt=""> 波の音</button>
+      <button type="button" class="envBtn" data-env="birds"><img src="鳥のさえずり.jpg" alt=""> 鳥のさえずり</button>
+      <button type="button" class="envBtn" data-env="onsen"><img src="温泉の音.jpg" alt=""> 温泉の音</button>
+      <button type="button" class="envBtn" data-env="bubble"><img src="泡風呂.jpeg" alt=""> 泡風呂</button>
+      <button type="button" class="envBtn" data-env="water"><img src="水.jpg" alt=""> 水</button>
+      <button type="button" class="envBtn" data-env="underwater"><img src="水中.png" alt=""> 水中</button>
+      <button type="button" class="envBtn" data-env="wind"><img src="風の音.png" alt=""> 風の音</button>
+      <button type="button" class="envBtn" data-env="rain"><img src="雨の音.jpg" alt=""> 雨の音</button>
+      <button type="button" class="envBtn" data-env="kirakira"><img src="キラキラ.jpg" alt=""> キラキラ</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>切り替え音</h3>
+    <div class="switch-buttons scroll-buttons">
+      <button type="button" class="switchBtn active" data-switch="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="switchBtn" data-switch="shishi"><img src="ししおどし.jpg" alt=""> ししおどし</button>
+      <button type="button" class="switchBtn" data-switch="beep1"><div class="noimg">ビープ1</div> ビープ1</button>
+      <button type="button" class="switchBtn" data-switch="beep2"><div class="noimg">ビープ2</div> ビープ2</button>
+      <button type="button" class="switchBtn" data-switch="beep3"><div class="noimg">ビープ3</div> ビープ3</button>
+      <button type="button" class="switchBtn" data-switch="dive"><img src="飛び込み音.jpg" alt=""> 飛び込み音</button>
+    </div>
+  </div>
+  <div class="section">
+    <h3>音楽</h3>
+  <div class="music-buttons scroll-buttons">
+      <button type="button" class="musicBtn active" data-music="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="musicBtn" data-music="canon"><img src="カノン.jpg" alt=""> カノン</button>
+      <button type="button" class="musicBtn" data-music="aria"><img src="g線上のアリア.jpg" alt=""> G線上のアリア</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>フレグランス</h3>
+    <div class="fragrance-buttons scroll-buttons">
+      <button type="button" class="fragranceBtn active" data-fragrance="off"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="22" height="22" fill="none" stroke="#fff" stroke-width="0.5"/><line x1="4" y1="4" x2="20" y2="20" stroke="#fff" stroke-width="0.5"/></svg> なし</button>
+      <button type="button" class="fragranceBtn" data-fragrance="lemongrass"><div class="noimg">🍋</div> レモングラス</button>
+      <button type="button" class="fragranceBtn" data-fragrance="lavender"><div class="noimg">💜</div> ラベンダー</button>
+      <button type="button" class="fragranceBtn" data-fragrance="eucalyptus"><div class="noimg">🌿</div> ユーカリ</button>
+      <button type="button" class="fragranceBtn" data-fragrance="rosemary"><div class="noimg">🌱</div> ローズマリー</button>
+      <button type="button" class="fragranceBtn" data-fragrance="bergamot"><div class="noimg">🍊</div> ベルガモット</button>
+    </div>
+  </div>
+  <div class="controls" style="margin-top:8px">
+    <button id="applyBtn" style="display:none">適用</button>
+  </div>
+  </div>
+  <input type="hidden" id="envSound" value="off">
+  <input type="hidden" id="switchSound" value="off">
+  <input type="hidden" id="musicSel" value="off">
+  <input type="hidden" id="gradientSel" value="on">
+  <input type="hidden" id="colorChangeSel" value="off">
+  <input type="hidden" id="fragranceSel" value="off">
+
+  <footer style="margin-top:8px;font-size:.7rem;opacity:.5">v3 – Generated 2025-06-06 07:59:20</footer>
+</div>
+
+<script>
+(function(){
+  const patternSelect = document.getElementById('patternSelect');
+  const customInputs  = document.getElementById('customInputs');
+  const startBtn      = document.getElementById('startBtn');
+  const breathBar     = document.getElementById('breathBar');
+  const phaseText     = document.getElementById('phaseText');
+  const timerText     = document.getElementById('timerText');
+  const envSel        = document.getElementById('envSound');
+  const switchSel     = document.getElementById('switchSound');
+  const musicSel      = document.getElementById('musicSel');
+  const gradientSel   = document.getElementById('gradientSel');
+  const colorChangeSel= document.getElementById('colorChangeSel');
+  const fragranceSel  = document.getElementById('fragranceSel');
+  const cycleInput    = document.getElementById('cycleCount');
+  const minuteInput   = document.getElementById('totalMinutes');
+  const applyBtn      = document.getElementById('applyBtn');
+  const settings      = document.getElementById('settings');
+  const settingsBtn   = document.getElementById('settingsBtn');
+  const footer        = document.querySelector('footer');
+  const patternRows   = document.querySelectorAll('.patterns tbody tr');
+  const modeBtns      = document.querySelectorAll('.modeBtn');
+  const shapeBtns     = document.querySelectorAll('.shapeBtn');
+  const speedBtns     = document.querySelectorAll('.speedBtn');
+  const gradientBtns  = document.querySelectorAll('.gradientBtn');
+  const colorBtns     = document.querySelectorAll('.colorBtn');
+  const envBtns       = document.querySelectorAll('.envBtn');
+  const switchBtns    = document.querySelectorAll('.switchBtn');
+  const musicBtns     = document.querySelectorAll('.musicBtn');
+  const fragranceBtns = document.querySelectorAll('.fragranceBtn');
+  const barContainer  = document.getElementById('barContainer');
+  const breathPlane   = document.getElementById('breathPlane');
+  const breathCube    = document.getElementById('breathCube');
+  const modeSection   = document.getElementById('modeSection');
+  const grayArea      = document.getElementById('grayArea');
+  const mainContainer = document.querySelector('.container');
+  const envContainer  = document.querySelector('.env-buttons');
+  const bubbleContainer = document.getElementById('bubbleContainer');
+  const bubbleButtons = bubbleContainer.querySelectorAll('.bubble');
+  bubbleButtons.forEach(btn=>{
+    btn.style.animationDelay = `${Math.random()*4}s`;
+    btn.style.animationDuration = `${3+Math.random()*2}s`;
+    btn.style.marginTop = `${(Math.random()*2-1)*10}px`;
+    btn.style.marginLeft = `${(Math.random()*2-1)*10}px`;
+  });
+  let selectedEnvs = [];
+  let lastEnv = 'off';
+  const canonMinutes = 431.654/60;
+  const ariaMinutes  = 355.66/60;
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const ENV_MAX_VOL = isMobile ? 0.5 : 0.8;
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const defaultBg = 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=1400&q=60';
+  const bgMap = {
+    off: defaultBg,
+    wave: '波の音.jpg',
+    underwater: "水中.png",
+    birds: '鳥のさえずり.jpg',
+    onsen: '温泉の音.jpg',
+    bubble: '泡風呂.jpeg',
+    water: '水.jpg',
+    wind: '風の音.png',
+    rain: '雨の音.jpg',
+    kirakira: 'キラキラ.jpg'
+  };
+
+  function updateBackground(){
+    const url = bgMap[lastEnv] || defaultBg;
+    document.body.style.background = `#000 url('${url}') center/cover no-repeat fixed`;
+  }
+
+  const recommendedMap = {
+    '4-7-8-0': '4セット',
+    '4-4-4-4': '3分',
+    '5-0-5-0': '5分',
+    '3.3-0-6.7-0': '5分',
+    '7-0-11-0': '3分',
+    'resStep': '5分'
+  };
+
+  let timerId = null;
+  let currentPhase = 0;
+  let prevPhase = 0;
+  let mode = 'expand';
+  let shape = 'line';
+  let speed = 'linear';
+  let gradient = gradientSel.value;
+  let colorChange = colorChangeSel.value;
+  let fragrance = fragranceSel.value;
+  let running = false;
+  let cycleLimit = 0;
+  let timeLimit  = 0;
+  let cyclesDone = 0;
+  let startTime  = 0;
+  let cycleStarted = false;
+
+  const phaseNames = ['吸って〜','止めて〜','吐いて〜','止めて〜'];
+
+  const inhaleInput = document.getElementById('inhaleSec');
+  const holdInput   = document.getElementById('holdSec');
+  const exhaleInput = document.getElementById('exhaleSec');
+  const restInput   = document.getElementById('restSec');
+  const initInhaleInput = document.getElementById('initInhale');
+  const initExhaleInput = document.getElementById('initExhale');
+  const induceTimeInput = document.getElementById('induceTime');
+
+  function updateInputsFromPattern(){
+    const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
+    while(arr.length < 4) arr.push(0);
+    if(patternSelect.value==='music'){
+      arr[0]=musicSel.value==='canon'?3.636363636:0;
+      arr[2]=musicSel.value==='canon'?7.272727273:0;
+      arr[1]=arr[3]=0;
+    } else if(patternSelect.value==='resStep'){
+      arr=[3.3,0,6.7,0];
+    }
+    [inhaleInput,holdInput,exhaleInput,restInput].forEach((el,i)=>{
+      if(patternSelect.value !== 'custom') el.value = arr[i];
+      el.disabled = patternSelect.value !== 'custom';
+    });
+    const initEnabled = patternSelect.value==='resStep' || patternSelect.value==='custom';
+    [initInhaleInput,initExhaleInput,induceTimeInput].forEach(el=>{el.disabled=!initEnabled;});
+    const rec = recommendedMap[patternSelect.value];
+    if(rec){
+      if(rec.includes('セット')){
+        const m = rec.match(/(\d+)/g);
+        cycleInput.value = m ? parseInt(m[m.length-1]) : 0;
+        minuteInput.value = 0;
+      } else if(rec.includes('分')){
+        const m = rec.match(/(\d+)(?:-(\d+))?/);
+        minuteInput.value = m ? parseInt(m[2] || m[1]) : 0;
+        cycleInput.value = 0;
+      }
+    }
+  }
+
+  patternRows.forEach(row => {
+    if(row.dataset.pattern===patternSelect.value) row.classList.add('selected');
+    row.addEventListener('click', () => {
+      patternRows.forEach(r=>r.classList.remove('selected'));
+      row.classList.add('selected');
+      patternSelect.value = row.dataset.pattern;
+      updateInputsFromPattern();
+    });
+  });
+  updateInputsFromPattern();
+  function startEnvSound(env){
+    const obj = envAudios[env];
+    if(!obj) return;
+    if(obj.audio.paused){
+      audioCtx.resume().catch(()=>{});
+      obj.audio.play().catch(()=>{});
+    }
+    obj.gain.gain.value = ENV_MAX_VOL;
+  }
+  envBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const env = btn.dataset.env;
+      if(env === 'off'){
+        selectedEnvs.forEach(stopEnvSound);
+        selectedEnvs = [];
+        lastEnv = 'off';
+        envBtns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+      } else {
+        btn.classList.toggle('active');
+        if(btn.classList.contains('active')){
+          selectedEnvs.push(env);
+          lastEnv = env;
+          startEnvSound(env);
+        } else {
+          selectedEnvs = selectedEnvs.filter(e=>e!==env);
+          stopEnvSound(env);
+          if(lastEnv===env) lastEnv = selectedEnvs[selectedEnvs.length-1] || 'off';
+        }
+        envBtns.forEach(b=>{if(b.dataset.env==='off') b.classList.remove('active');});
+        if(selectedEnvs.length===0){
+          document.querySelector('.envBtn[data-env="off"]').classList.add('active');
+          lastEnv = 'off';
+        }
+      }
+      envSel.value = selectedEnvs.join(',');
+      updateBackground();
+    });
+  });
+  document.querySelector('.envBtn[data-env="off"]').classList.add('active');
+  switchBtns.forEach(btn => {
+    if(btn.dataset.switch===switchSel.value) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      switchBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      switchSel.value = btn.dataset.switch;
+    });
+  });
+  musicBtns.forEach(btn => {
+    if(btn.dataset.music===musicSel.value) btn.classList.add('active');
+    btn.addEventListener('click', async () => {
+      musicBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      musicSel.value = btn.dataset.music;
+      if(btn.dataset.music==='canon') minuteInput.value = canonMinutes.toFixed(1);
+      else if(btn.dataset.music==='aria') minuteInput.value = ariaMinutes.toFixed(1);
+      if(btn.dataset.music!=='off' && running){
+        await stopSession();
+        await startSession();
+      }else{
+        handleMusic();
+      }
+    });
+  });
+  fragranceBtns.forEach(btn => {
+    if(btn.dataset.fragrance===fragrance) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      fragranceBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      fragrance = btn.dataset.fragrance;
+      fragranceSel.value = fragrance;
+    });
+  });
+  document.querySelectorAll('.scroll-buttons').forEach(sc => {
+    let down=false,startX=0,scroll=0;
+    sc.addEventListener('pointerdown',e=>{
+      down=true;startX=e.clientX;scroll=sc.scrollLeft;sc.style.cursor='grabbing';
+    });
+    sc.addEventListener('pointermove',e=>{if(down) sc.scrollLeft=scroll-(e.clientX-startX);});
+    const end=()=>{down=false;sc.style.cursor='';};
+    sc.addEventListener('pointerup',end);
+    sc.addEventListener('pointerleave',end);
+    sc.addEventListener('pointercancel',end);
+  });
+  updateBackground();
+  function updateGrayAreaDims(){
+    const barHeight = barContainer.offsetHeight;
+    const containerTop = mainContainer.offsetTop;
+    const size = containerTop - barHeight*2;
+    grayArea.style.top = barHeight*2 + 'px';
+    grayArea.style.width = size + 'px';
+    grayArea.style.height = size + 'px';
+    grayArea.style.marginLeft = '0px';
+    const center = barHeight*2 + size/2;
+    breathPlane.style.top = center + 'px';
+    breathCube.style.top = center + 'px';
+    breathPlane.style.maxWidth = size + 'px';
+    breathPlane.style.maxHeight = size + 'px';
+    breathCube.style.maxWidth = size + 'px';
+    breathCube.style.maxHeight = size + 'px';
+  }
+  window.addEventListener('resize',updateGrayAreaDims);
+  updateGrayAreaDims();
+  function updateShapeVisibility(){
+    if(shape==='line'){
+      barContainer.style.display='';
+      breathPlane.style.display='none';
+      breathCube.style.display='none';
+      grayArea.style.display='none';
+      modeSection.style.display='';
+    }else if(shape==='plane'){
+      barContainer.style.display='none';
+      breathPlane.style.display='block';
+      breathCube.style.display='none';
+      grayArea.style.display='block';
+      modeSection.style.display='';
+    }else if(shape==='cube'){
+      barContainer.style.display='none';
+      breathPlane.style.display='none';
+      breathCube.style.display='block';
+      grayArea.style.display='none';
+      modeSection.style.display='';
+    }else{
+      barContainer.style.display='none';
+      breathPlane.style.display='none';
+      breathCube.style.display='none';
+      grayArea.style.display='none';
+      modeSection.style.display='none';
+    }
+  }
+  updateShapeVisibility();
+  shapeBtns.forEach(btn=>{
+    if(btn.dataset.shape===shape) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      shapeBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      shape = btn.dataset.shape;
+      updateShapeVisibility();
+    });
+  });
+  speedBtns.forEach(btn=>{
+    if(btn.dataset.speed===speed) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      speedBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      speed = btn.dataset.speed;
+    });
+  });
+  gradientBtns.forEach(btn=>{
+    if(btn.dataset.gradient===gradient) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      gradientBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      gradient = btn.dataset.gradient;
+      gradientSel.value = gradient;
+    });
+  });
+  colorBtns.forEach(btn=>{
+    if(btn.dataset.color===colorChange) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      colorBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      colorChange = btn.dataset.color;
+      colorChangeSel.value = colorChange;
+      updateColorRow();
+    });
+  });
+  modeBtns.forEach(btn => {
+    if(btn.dataset.mode===mode) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      modeBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      updateColorRow();
+    });
+  });
+
+  function createEnvAudio(src){
+    const audio = new Audio(encodeURI(src));
+    audio.preload = 'auto';
+    audio.setAttribute('playsinline','');
+    audio.loop = true;
+    const track = audioCtx.createMediaElementSource(audio);
+    const gain  = audioCtx.createGain();
+    gain.gain.value = 0;
+    track.connect(gain).connect(audioCtx.destination);
+    audio.load();
+    return {audio,gain,fade:null};
+  }
+  const envAudios = {
+    wave:createEnvAudio('波の音.mp3'),
+    birds:createEnvAudio('鳥のさえずり.mp3'),
+    onsen:createEnvAudio('温泉の音.mp3'),
+    bubble:createEnvAudio('泡風呂.mp3'),
+    water:createEnvAudio('水.mp3'),
+    underwater:createEnvAudio("水中.mp3"),
+    wind:createEnvAudio('風の音.mp3'),
+    rain:createEnvAudio('雨の音.mp3'),
+    kirakira:createEnvAudio('キラキラ.mp3')
+  };
+  const switchAudios = {
+    shishi:new Audio(encodeURI('ししおどし.mp3')),
+    beep1:new Audio('data:audio/wav;base64,UklGRl4RAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YToRAAAAAAEQwh8EL4g9Fkt1V3Vi6Wusc555p323f8V/0n3meQ90ZmwKYx9Y0ktVPt0vpCDpEOkA5/Ag4dbRRcOotTapIZ6VlLmMrIaHglqALoAEgtSFj4sek2OcOKdys+DAS8963jDuLv4xDv0dUC3tO5pJHlZIYexq4XIJeUt9lH/efyV+cXrRdFxtL2RvWUhN6z+MMWcitxK8Arfy5uKK0+HEJrePqlCflZWGjUSH5oJ/gBmAtYFMhdCKLJJBm+ql/rFLv53Nudxi7Fv8YQw3HJsrTzoaSMJUFmDoaRBybnjofGx/739xfvZ6jXVLbk9lu1q6Tn5BOTMnJIQUjgSH9K3kQdWBxqi47auEoJyWWo7ih0yDq4ALgGyByoQYij+RI5qhpI6wur3xy/naluqI+pAKbhrjKa44lkZiU+Be32g6cc13f3w8f/p/tn50e0J2NW9pZgJcKVANQ+Q05iVQFmEGWfZ25vrWI8gtuk+tvqGnlzSPhoi4g96AA4AqgU+EZYlYkAuZXKMiry28SMo72crotvi/CKUYKCgKNw9F/lGkXdFnXXAldw98Bn/+f/R+7Hvydhpwf2dEXZJRmUSMNqMnHBgzCCr4QOi22MnJtru2rvyiuJgTkDGJK4QYgQKA74Dag7mIdo/5lx2iuq2iuqLIf9f/5uT27QbaFmwmYzWEQ5ZQY1y9ZntveHaZe8l+/H8tf158m3f4cI9ogV74UiFGMTheKeUZBQr8+Qzqc9pxy0O9ILA/pM+Z+ZDhiaWEWIEIgLqAbIMSiJuO65bioFesHLn+xsXVNuUT9RoFDhWuJLoz9kEpTx5bpGWSbsR1HHuGfvN/Xn/JfD540XGZabpfWVSmR9M5FyuuG9YLz/vY6zLcHM3Tvo+xh6XqmuSRmIokhZ6BFICMgASDcofFjeOVrJ/4qpm3XsUO1G7jQvNIA0ET7iINMmRAuE3TWYZkpG0KdZl6PH7jf4l/Ln3beKNynmrtYLZVJ0lyO80sdR2mDaL9pu3z3crOZsACs9SmC5zVklWLqoXrgSeAZICjgtmG9ozhlHuenakatsDDWNKo4XLxdQFzESshXjDPPkNMhFhiY7FsSnQQeux9zX+tf4x9cnlwc55rG2IPV6RKDT2BLjofdg90/3Tvtt960P3BebQlqDKdy5MYjDeGP4JAgEOASIJFhiyM5JNPnUeon7QmwqXQ49+i76P/pA9oH60uNj3KSjFXOWK3a4RzgXmVfbB/y3/jfQJ6N3SYbEVjY1gdTKY+MzD+IEURRgFD8XvhLdKXw/S1e6ldnsiU4YzKhpmCYYApgPOBuIVoi+2SKZz1piezj8D1ziDe1O3Q/dUNoh35LJs7TUnZVQxhuGq4cut4N32Nf+J/NH6Mevd0jG1pZLJZk008QOIxwSITExkDFPNB4+LTNMVzt9WqjZ/JlbCNY4f6goiAFYCmgTGFq4r8kQebqKW0sfu+R81f3Abs/vsEDNsbQyv8Oc1HfFTZX7Rp5nFOeNN8Y3/yf39+EHuydXtuiGX9WgRPzkGPM4Ek4BTsBOT0CeWZ1dTG9bgzrMOg0ZaFjgKIYYO1gAiAXoGxhPOJEJHrmWCkRbBqvZzLoNo66iv6MwoTGoopWzhIRhxToV6qaA5xrHdpfDJ/+3/Dfo17ZnZkb6FmQ1xxUFxDOTU/JqwWvga29tLmU9d3yHu6l639od2XYI+oiM+D6YACgB6BN4RCiSqQ1Jgco9qu3rvzyeLYbuhZ+GEISRjQJ7Y2wES2UWRdmmcwcAN3+Hv6fv5/AH8DfBR3R3C2Z4Rd2lHoROA2/Cd3GJAIiPic6A7ZHcoFvP6uPKPvmEGQU4lDhCSBA4DkgMSDl4hKj8KX3aFzrVS6Tcgn16Tmh/aPBn4WEyYONTVDTVAiXIVmTW9UdoF7vH77fzd/dHy8dyRxxWjAXj9Tb0aEOLYpQRpiClr6aOrM2sbLkr1psICkB5onkQWKvoRlgQmAsIBWg/KHcI62lqOgEKzOuKvGbdXb5Lb0vQSyFFQkZDOmQd9O3FprZWNun3UDe3h+8X9nf958Xnj7cc5p+F+fVPNHJjpvKwkcMwws/DTsjNxyzSO/2bHJpSSbFJK+ij+FrYEXgIOA8IJTh5uNr5Vvn7KqTLcLxbbTE+Pl8uoC5RKUIrcxE0BuTZFZTGR0beR0f3otfuB/kX9Bffp4zXLSaiph+1VzScQ7JS3QHQMO//0C7k3eIM+3wE2zF6dGnAaTfIvGhfuBK4BdgJCCu4bNjK6UP55Yqc61bsMB0k3hFfEYARcR0SAIMH0++EtBWCdjf2wjdPR5233If7N/nn2PeZhz0GtXYlNX8EpfPdgulR/TD9L/0e8R4NHQT8LFtGmobZ39k0CMVIZQgkaAPoA2gimGBIyzkxSdA6hTtNTBT9CJ30bvRv9IDw0fVi7kPH5K7Fb9YYVrXHNjeYN9qn/Qf/R9HnpedMlsgGOmWGhM+D6KMFkhohGkAaDx1eGE0unDQLa/qZme+5QKjeiGrIJogCWA44GdhUKLvZLum7Km3bI+wJ/Oxt137XP9eA1IHaIsSDsBSZRVz2CFao5yzHgkfYV/5X9Efqd6HXW8baNk9VndTYxAODIaI28TdgNw85zjOtSHxcC3G6vLn/6V2o2Chw6DkIASgJeBF4WGisyRzppmpWqxq77xzAXcquug+6cLgBvrKqk5f0c2VJtff2m7cS54v3xZf/R/jX4pe9Z1qm7BZT5bTU8eQuQz2iQ8FUkFQfVk5fHVKMdDuXqsAaEGl7GOI4h3g7+AB4BRgZiEz4nikLOZH6T8rxu9R8tG2t7pzvnWCbgZMikHOPpF1FJiXnRo4nCLd1N8J3/9f9B+pXuJdpFv2WaDXLpQrEOONZkmCBcbBxP3Leer18zIyrrerTyiFJiNj8qI5oP0gAKAEoEfhB+J/Y+dmNyikq6Pu5/JidgS6Pz3BAjuF3cnYTZxRG5RJF1jZwNw4Xbhe+5+/n8Mfxp8NndzcOxnxF0iUjZFNDdVKNMY7Qjl+PjoZ9lyylS8Rq99oyeZb5B3iVuEMIEDgNmArYN1iB6PjJeeoSytBrr5x87WSOYq9jIGIha6Jbk05UIEUOFbTWYebzF2aHuvfvl/QX+JfN13T3H6aP9ehlO9Rtg4DyqcGr8Kt/rE6ibbHMzivbOwwqQ/mlaRKorXhHOBDICngEGD0odFjoGWZaDKq4G4V8YV1YDkWfRgBFYU+yMPM1VBlk6aWjJlNG56del6aX7uf3B/8nx+eCZyAmo1YOVUQEh5OsYrZByQDIr8kezm3MjNdL8jsgumXZtEkuOKWYW8gRuAe4DcgjSHco17lTGfbKr/trjEXtO44ojyjQKJEjoiYTHCPyNNTlkSZENtvnRjeh1+23+Yf1R9GHn2cgVrZ2FBVsBJFzx8LSseYA5c/l7up952zwjBmLNap4CcN5Oii+KFDIIwgFaAfYKdhqSMe5QDnhSpgrUcw6rR8+C48LoAuhB3ILEvLD6tS/1X7GJNbPxz13nKfcJ/un+wfax5wHMDbJNil1c7S7E9Ly/vHy8QLgAt8GvgKNGhwhC1raipnTCUaIxxhmKCTYA4gCWCDIbdi4GT2Zy/pwi0g8H4zy/f6e7o/usOsx7/LZI8MkqoVsFhUmszc0V5cH2jf9V/BX46eoR0+my6Y+lYs0xJP+AwsyH+EQEC/fEw4tvSPMSNtgWq1p4ulTONBoe/gm+AIIDTgYGFHIuMkrSbb6aSsu2/Sc5s3RvtFv0bDe0cSiz1OrRITlWRYFFqZXKteBB9fX/pf1N+wXpCdext3GQ3WidO3UCOMnQjzBPUA83z9+OR1NrFDbhhqwigMpYFjqKHIoOZgA+AiIH9hGGKnZGVmiSlIbFavpzMrNtO60P7SgslG5MqVTkyR/BTXV9KaZBxDniqfFB/93+bfkJ7+3XZbvllgFuXT25COjQ0JZgVpgWe9b/lStZ8x5G5waxAoTuX3I5EiIyDyYAFgESBf4SsibOQe5neo7Ovy7zyyu3Zgulx+XkJXBnZKLM3rEWNUiNePmi2cGl3PHwcf/1/3H69e612v28RZ8RcAlH7Q+M18iZkF3gHcPeJ5wTYIMkYuyaufKJKmLmP7Ij9gwCBAoAGgQiE/YjQj2aYnKJKrkC7Sskw2Lfnn/enB5IXHicNNiJEJlHkXCxn1m++dsl74n7+fxd/MXxYd6BwI2gDXmlShUWJN60oLhlKCUL5VOnB2cfKpLyPr72jX5mckJqJc4Q9gQWAzoCXg1SI8o5Wl1+h5Ky4uaXHdtbt5c311QXGFWAlZDSWQrtPoFsVZvBuDXZPe6J++H9Lf598/nd7cS9pPV/NUwtHLDlnKvcaHAsU+yDrf9txzDK+/LADpXiahZFOivCEgYEOgJ2ALYOyhxqOTJYnoISrM7gExr3UJeT88wIE+hOhI7kyBUFMTlha+WQEblV1z3pafut/eH8GfZ14UHI3anNgK1WNSMw6Hiy/HOwM5/zt7D/dHs7Ev22yTqaXm3SSCYt0hcyBHoBzgMmCFYdIjUiV9J4nqrO2ZcQH017iK/IwAiwS4CELMXE/2UwLWddjE22YdEh6DX7Xf59/Z302eR9zOGujYYVWDEppPNMthR69Drr+u+4C383PWsHjs52nu5xok8mL/oUdgjWAUIBrgn+GfIxJlMedz6g2tcrCU9GY4FzwXQBeEB0gWy/aPWFLuVexYhxs1HO7ebh9vX/Af8F9yXnoczVszmLbV4dLAz6GL0ogjBCMAIrwxuB/0fPCXLXxqOWdYpSQjI6GdIJTgDOAFILwhbaLT5OenHynvbMxwaLP1d6N7ov+jg5YHqgtQDzmSWNWhWEfawpzJ3ldfZx/2X8VflZ6q3QrbfVjLFn+TJo/NjENIloSXgJa8oviM9OOxNm2SqoTn2KVXY0lh9KCd4AdgMSBZ4X2ilySepstpkiynL/zzRLdv+y4/L4MkhzyK6I6Z0gIVVRgHWo7co54/Hx0f+x/Yn7cemh1HG4WZXlacU4tQeQyziMoFDEEKvRS5OnULcZauKerRqBnli+Owoc3g6KADYB6geSEPIpukVya4qTXsAq+RsxS2/Lq5vrtCsoaOyoCOeRGqVMeXxVpZXHud5R8Rn/4f6h+W3sfdgdvMWbBW+BPvUKPNI0l9BUEBvv1G+ai1s/H37kIrX+hcZcIj2WIooPTgASAN4FnhIiJhZBDmZ2jaq98vJ3KlNkm6RP5HAkBGYEoXjdeRUZS410HaIpwR3cmfBF//n/oftV7z3btb0hnBF1KUUpENzZKJ8AX1gfN9+TnXdh0yWe7bq68ooGY5o8OiRSEDIECgPqA8YPbiKOPL5hcogKu8br2yNjXW+dB90oHNhfFJrg100PeUKRc9Waob5t2sXvWfv1/In9IfHp3zHBZaEJesVLTRd03BimKGacJn/mw6RraHMvzvNev/qOXmcuQvomMhEqBBoDEgIGDM4jGjiGXIKGerGq5Uscd1pLlcPV4BWoVByUPNEZCck9fW91lwW7odTZ7lH71f1V/tHweeKZxZGl8XxNUWEd/Ob8qUxt5C3L7fOvZ28fMgr5GsUWlsZq1kXOKCoWPgRGAlIAYg5KH8I0YluqfPqvmt7HFZdTJ45/zpQOeE0cjYzK1QAJOFlq/ZNRtMHW0ekt+53+Bfxp9vHh6cmtqsGBxVdpIHzt2LBodSQ1E/Untmd10zhXAuLKRptGbpJIvi4+F24EigGyAtYL3hh+NFJW4nuKpZrYTxLDSA+LP8dIB0BGGIbUwID+OTMhYnWPibHF0LHr8fdJ/pn95fVR5R3Nra99hylZYSrs8Ki7gHhkPF/8X71zfI9CrwS604af2nJqT8Ysahi6CO4BJgFmCYoZUjBeUi52LqOq0eML80D7g/+8='),
+    beep2:new Audio('data:audio/wav;base64,UklGRl4RAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YToRAAAAAAUTnyVjN+tH21bdY6du/HatfJh/rn/ufGd3Om+UZLJX3khrOLgmKBQmAR7ue9unyQm5/qncnO6RcYmXg4CAP4DTgjCINpC3mninMbaNxjDYtuq0/b8QayNONQJGKFVpYnttH3YifGR/0n9pfTZ4WXD8ZVtZv0p5OucobBZyA2XwsN2+y/W6tatUnh6TVIonhLmAIIBegmaHHI9TmdOlU7SCxAPWc+ho+3cONSE1MxNEbVPtYEZsN3WOeyZ/63/Zfft4bnFbZ/1amUyCPBIrrhi+Ba3y6N/Zzee8c63Un1iUQIvAhP2ADIDygaaGC475lzWkfLJ8wtnTMeYd+S4M+x4YMR5CrFFpXwhrRnTvet1++n8/frZ5enKyaJdcbU6GPjst7hoJCPf0I+L4z9++OK9coZuVNoxkhUuBAoCSgfCFBI2mlp+iq7B6wLPR8uPS9uQJvxz3LiNA40/dXcFpS3NGeop+/n+bfmd6fHMAaileO1CEQF8vLB1UCkH3YOQb0tzAA7HsouaWNY0ShqOBA4A7gUSFBoxclRGh4a5+vpDPtuGH9JkHgRrSLCQ+FE5JXHFoR3KUeS1++H/sfg57dXRFa7RfAlJ+Qn8xaB+eDI35n+ZC1N7C1bKEpDqYPo7KhgaCD4DvgKKEEosclIqfHa2IvHLNe98+8k4FQBipKh88P0yuWhlnOnHXeMV9538zf6t7ZHWCbDZhwlNxRJwzoSHmDtj74eht1uXErrQjppeZUY+Mh3OCJYCugAqEKIrkkgyeYauXuljLRN327wID/hV9KBU6ZEoLWbhlI3AQeFJ9zH9vfz58Sna1bbFie1VgRrQ11yMuEST+JOub2PLGjbbJp/yabJBXiOuCRoB3gH2DR4m1kZWcq6mruELJD9uv7bYAuRNNJgc4gkhhV09kAm8/d9V8pn+hf8Z8JXfgbiNkLldISMg3CiZ0E3AAau3M2gLJcbh3qWmckZEtiW2DcYBKgPqCcIiPkCeb/KfGtjDH3thp62r+cxEaJPM1mkavVd1i2W1kdk58dn/If0R993cBcI1l2VgrStc5Oii5FbwCsO8B3RjLXLosq9+dv5INivmDp4AogIGCo4dyj8GZVabntCPFr9Ym6R78LA/kIdwzrUT3U2Rhp2yAdb17O3/lf7d9wHgZce9mfFoHTOE7Zyr7FwgF+PE43zLNTLzorFyf9pP2io+E54ARgBOC4IZfjmOYtaQNsxzDhNTk5tL54wysH8AxuUI3UuJfa2uSdCF79X73fyF+fnkockloGVzdTeY9kCw8GlMHQvRy4VDPQr6rruKgNpXpizCFMoEEgK+BJ4ZUjQ6XHKM6sRnBXdKk5If3mQpwHaAvwUBxUFheJ2qac3x6pX7+f4B+Mnotc5lprV2tT+c/ti57HJ4JjPau43LRPsB0sG+ifpbljNuFh4ECgFWBeIVUjMKVi6Furxu/OdBn4j31TwgzG3wtwz6kTsdc2miZcsx5S377f9R+3HopdOFqOl92UeJB1zC3HugL1/jt5ZfTPsJEsgWk0JfrjZCG5oEKgAaB04Rdi36UAqCorSO9Gc4s4PPyBAbzGFQrvzzRTC5bhGeOcRJ55n3ufx5/fHsbdSFsv2A4U9dD9TLxIDEOIvsu6MHVRMQbtKGlKpn7jk6HUIIdgMGAOIRvikOTgZ7pqzC7/svz3arwuAOxFikptzr3So1ZJmZ6cE54d33Wf15/EXwEdldtPGLzVMdFDjUoI3kQbv1x6u7XT8b4tUanjJoTkBeIxYI6gIeAqIOMiRGSCJ0xqkO55sm+22PubAFtFPomqjgYSeVXv2Rdb4F3/Xyzf5N/nXzidoRusWOoVrJHJDdcJcASuv+17B7aXsjbt/Go95s1keqIRINigFeAIYOyiOmQl5uBqFy31MeL2R3sIP8oEskkmDYyRzZWUWM2bql2eXyGf71/Hn23d6hvHmVVWJZJNDmNJwUVBgL87lLccsrDuaSqap1hksaJzYOVgDKApYLih8mPL5rXpnq1xcVc19np1PzhD5QigjRGRYBU2WEGbch163tOf91/lX2DeMNwg2b7WXRLQDu7KUgXUgRD8Yjei8yyu16s5Z6Vk62KYITSgBeANIIch7OOzpg1pZ+zvMMw1ZfniPqYDVwgaDJUQ8NSWmDOa910U3sMf/J/AX5EedVx32eaW0xNRz3lK4oZnQaM88Hgp86mvR+uaKDSlJ2L/YQZgQeAzIFfhqaNd5eao8qxuMEH01blPfhPCyEeSTBdQf9Q016MauhzsHq/fv1/Y377ed1yMmkxXR5PST8MLskb6QjW9f3iyNCgv+av9KEYlpaMpYVrgQKAb4GthaKMJ5YHovyvuL/i0Bjj8vUECeUbJi5hPzRPRF1CaelyBHpofv1/u36oetxzfWrAXulQRUEvMAYeMwsh+Dvl7dKfwbSxhqNml5mNV4bIgQeAHYEFhaiL4ZR7oDSuvr3BztzgqPO5BqUZ/ytfPWJNrVvvZ+JxTXkGfvN/CH9Le9F0v2tIYK1SPUNOMkEgfA1s+nvnFdWjw4mzIaW+mKaOEocvghaA1YBnhLiKpJP3nnOsyrukzKPeX/FuBGQX1SlZO4tLD1qTZtBwjHiafd5/S3/ke711+GzHYWtULkVpNHkixQ+4/L3pQdesxWS1w6YemryP2IeggjCAmIDTg9GJb5J8nbmq27mMymzcF+8iAiEVqCdNOa1JaVgvZbZvwXckfb9/g39zfJ92KG4/YyJWGkd/Nq4kDBIE/wLscNm6x0W3bKiGm9uQqIgbg1WAZYBKg/SIQ5EInAap8rd3yDna0ezW/9wSdyU9N8lHvFbDY5Ju7XajfJV/sX/3fHd3T2+uZNFXAUmROOAmURRQAUfuo9vNySy5Har2nAOSgYmhg4SAPIDLgiGIIZCdmlqnD7ZoxgjYjOqK/ZUQQyMoNd9FCFVOYmVtDnYYfGB/1H9xfUV4bXAVZnlZ4UqeOg8plRacA4/w2N3kyxi71KtvnjSTZIoxhL6AHoBWgliHCI86mbWlMrRdxNvVSeg++00ODCEPM+9DTVPSYDBsJnWDeyF/7X/hfQl5gXF0Zxpbu0ynPDor1xjoBdfyEeAAzgu9k63wn2+UUYvLhAKBC4DrgZiG+I3glxikW7JXwrLTCObz+AQM0h7xMPpBi1FNX/FqNXTketh++39GfsN5jHLKaLRcjk6qPmItFxszCCH1S+If0AO/WK94obKVSIxwhVGBAoCLgeOF8oyOloOiirBWwIzRyeOo9roJlhzQLv8/wk/AXalpOXM6eoR+/n+hfnR6jnMXakVeW1CpQIYvVR1+Cmv3ieRD0gDBJLEJo/6WSI0fhqqBBIA1gTiF9YtFlfWgwK5avmnPjeFd9G8HWBqqLP89800sXFloNHKGeSZ+93/xfhp7hnRca89fIlKhQqYxkB/HDLf5yOZq1APD97KhpFOYUo7Xhg6CEIDqgJeEAYsFlG+f/axkvEvNU98U8iQFFxiBKvo7HUyQWgBnJnHJeL195n83f7Z7dXWYbFFh4lOVRMIzySEQDwL8CumV1gvF0LRBprCZZY+ah3yCJ4CpgACEGIrOkvGdQatzujHLG93M79gC1BVVKPA5QUrtWJ5lDnABeEp9yn9zf0h8WnbLbctimlWDRto1/yNYEU7+TuvD2BfHr7bopxWbgZBmiPSCSIBzgHODOImfkXucjKmJuBzJ59qF7YwAkBMlJuE3X0hCVzVk7m4wd8x8o3+kf898NXf1bj1kTFdrSO03MiaeE5oAk+302ijJlLiWqYOcppE9iXeDdIBIgPGCYYh6kA2b3qektgvHtthA60D+ShHyI801d0aQVcNixG1UdkR8cn/Kf0x9BngVcKdl91hNSvw5YijiFeYC2u8p3T7Lf7pMq/qd1ZIdigOEq4AmgHmClYdej6eZN6bFtP7Eh9b86PT7Ag+8IbUziUTXU0hhkGxvdbJ7Nn/mf799zXgtcQhnmlopTAY8jiolGDIFIvJg31jNcLwIrXifDJQHi5uE7IAQgAuC04ZLjkqYl6TssvfCXdS75qn5uQyDH5kxlkIXUsZfVGuAdBZ78H74fyh+i3k7cmFoNlz+TQs+tyxlGn0Ha/Sa4XbPZr7Lrv6gTZX7izyFN4EEgKiBGoZCjfaW/6IZsfTANdJ75F33cApIHXkvnEBRUDxeEGqIc3B6n37+f4Z+Pno/c7Fpyl3NTwtA3S6kHMgJtvbX45nRYsCVsIyilpb4jOeFjYECgE+BbIVCjKqVb6FNr/e+EtA+4hP1JQgKG1Utnj6DTqpcwmiGcr95RH77f9p+53o6dPhqVl+WUQZC/jDgHhIMAfkW5r/TY8JmsiKk6Jf+jZ2G7oELgACByIRMi2eU5p+Irf+8880D4Mny2gXKGC0rmjyvTBBbbGd7cQV53n3sfyN/h3ssdTds22BYU/tDHDMZIVsOTPtX6OnVacQ9tL+lQ5kPj1yHWIIfgLyALoRfii2TZp7Kqw2718vL3YHwjgOIFgEpkjrVSm9ZDWZmcEB4bn3Tf2J/HHwUdm1tV2ITVetFNTVQI6MQmP2a6hbYdMYatmSnppookCaIzoI9gIOAnoN8ifyR7ZwSqiC5wMmV2znuQgFEFNImhDj1SMdXpmRIb3J39Hywf5Z/pnzydpluzGPHVtRHSTeEJeoS5P/f7EbahMj9txCpEZxLkfmITYNmgFSAGIOjiNSQfZtiqDm3rsdj2fTr9v7+EaAkcjYPRxdWNmMhbpl2b3yCf8B/J33Gd71vOGV0WLhJWjm1Jy8VMAIl73rcmMrnucOqhZ12kteJ14OZgDCAnYLTh7WPFZq5pli1oMU017Dpqvy3D2siXDQjRWBUvmHwbLd14XtKf99/nX2ReNdwnGYZWpZLZTvjKXIXfARt8bDesczWu36sAZ+rk76Ka4TXgBaALIIOh5+OtZgXpX2zl8MI1W3nXvpvDTMgQTIxQ6NSPmC3a8t0R3sHf/N/CX5Reehx92e3W25NbD0NLLMZxwa28+rgzs7KvT+uhKDplK6LCYUfgQaAxYFShpONXpd9o6mxk8Hg0i3lE/glC/kdIjA5Qd5Qt151atZzpHq5fv1/an4IevBySmlOXT9PbT8zLvIbEgkA9ibj79DEvwewEKIvlqiMsYVygQKAaYGhhZCMEJbqoduvlL+70O/iyPXbCLwb/y09PxNPJ10qaddy93lhfv1/wX60eu5zlGrcXglRakFWMC8eXQtL+GTlFNPEwdWxo6N/l6yNZIbPgQeAGIH5hJeLypRfoBSumr2azrPgfvOPBnwZ2Cs7PUFNkFvWZ85xP3n/ffJ/DX9We+J01WtjYM1SYEN0Mmkgpg2W+qTnPdXIw6qzPqXXmLmOIIc2ghiA0IBchKeKjZPcnlOsprt+zHreNfFEBDsXrikzO2lL8Vl6Zr1wfniSfdx/T3/ve811Dm3iYYpUUkWPNKEi7w/i/OfpadfSxYa14aY3mtCP54eogjOAlIDJg8GJWZJhnZqquLlmykTc7u74AfcUgCcoOYpJS1gWZaFvs3cbfbx/h398fK52PW5ZY0FWPUelNtYkNRIu/yvsmNngx2e3i6igm/CQt4gkg1iAYYBAg+WILpHum+eoz7dSyBHaqOys/7ISTyUXN6ZHnlapY31u3XaafJF/tH8AfYZ3ZG/IZPBXI0m3OAgnexR6AXHuy9vzyU+5PKoRnRmSkYmrg4iAOoDCghKIDZCEmjyn7LVCxuHXY+pg/WwQGiMCNbxF6VQzYlBt/nUOfFx/1n95fVN4gXAvZpdZA0vEOjYpvxbGA7jwAd4LzDy79KuKnkuTdYo8hMKAHYBOgkqH9I4hmZilELQ4xLTVIOgU+yQO4yDoMstDLVO2YBlsFXV4exx/7n/ofRd5lXE='),
+    beep3:new Audio('data:audio/wav;base64,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'),
+    dive:new Audio(encodeURI("ダイビング（水中）.mp3")),
+  };
+  Object.values(switchAudios).forEach(a=>{a.preload='auto';a.setAttribute('playsinline','');});
+  const diveRiseAudio = new Audio(encodeURI("水面に浮かび上がる.mp3"));
+  diveRiseAudio.preload="auto";
+  diveRiseAudio.setAttribute("playsinline", "");
+  const musicAudios = {
+    canon:new Audio(encodeURI('カノン.m4a')),
+    aria:new Audio(encodeURI('G線上のアリア.m4a'))
+  };
+
+  function stopEnvSound(env){
+    const obj = envAudios[env];
+    if(obj){
+      if(obj.fade) clearInterval(obj.fade);
+      try{obj.audio.pause();}catch{}
+      obj.audio.currentTime = 0;
+      obj.gain.gain.value = 0;
+    }
+  }
+
+function handleMusic(forceStop=false){
+  Object.values(musicAudios).forEach(a=>{try{a.pause();}catch{} a.currentTime=0;});
+  if(!forceStop && running && musicSel.value!=='off'){
+    const el = musicAudios[musicSel.value];
+    if(el){ el.volume=0.8; el.play().catch(()=>{}); }
+  }
+}
+
+    function playEnv(dur, from, to){
+      if(selectedEnvs.length===0) return;
+      selectedEnvs.forEach(env=>{
+        const obj = envAudios[env];
+        if(!obj) return;
+        if(obj.audio.paused){
+          audioCtx.resume().catch(()=>{});
+          obj.audio.play().catch(()=>{});
+        }
+        if(obj.fade) clearInterval(obj.fade);
+        const startVol = from * ENV_MAX_VOL;
+        const endVol   = to   * ENV_MAX_VOL;
+        const steps    = dur > 0 ? Math.max(1, Math.round(dur * 20)) : 1;
+        const stepDur  = dur > 0 ? (dur * 1000 / steps) : 0;
+        let step = 0;
+        obj.gain.gain.value = startVol;
+        if(steps === 1){
+          obj.gain.gain.value = endVol;
+          if(to === 0){
+            obj.fade = setTimeout(()=>{ try{obj.audio.pause();}catch{} obj.audio.currentTime=0; }, 50);
+          }
+          return;
+        }
+        obj.fade = setInterval(()=>{
+          step++;
+          const ratio = step / steps;
+          const ease = speed==='biorhythm'? (1 - Math.cos(Math.PI*ratio))/2 : ratio;
+          obj.gain.gain.value = startVol + (endVol - startVol) * ease;
+          if(step >= steps){
+            clearInterval(obj.fade);
+            obj.fade = null;
+            obj.gain.gain.value = endVol;
+            if(to === 0){
+              obj.audio.pause();
+              obj.audio.currentTime = 0;
+            }
+          }
+        }, stepDur);
+      });
+    }
+
+  function playSwitchSound(){
+    if(switchSel.value==='off') return;
+    const el = switchAudios[switchSel.value];
+    if(el){ el.currentTime=0; el.volume=1; el.play().catch(()=>{}); }
+  }
+
+  function getDurations(){
+    if(patternSelect.value === 'custom'){
+      const inhale = parseFloat(inhaleInput.value) || 0;
+      const hold   = parseFloat(holdInput.value) || 0;
+      const exhale = parseFloat(exhaleInput.value) || 0;
+      const rest   = parseFloat(restInput.value) || 0;
+      return [inhale,hold,exhale,rest];
+    }
+    if(patternSelect.value === 'music'){
+      return [
+        musicSel.value!=='off'?3.636363636:0,
+        0,
+        musicSel.value!=='off'?7.272727273:0,
+        0
+      ];
+    }
+    if(patternSelect.value === 'resStep'){
+      const initIn = parseFloat(initInhaleInput.value)||0;
+      const initEx = parseFloat(initExhaleInput.value)||0;
+      const dur    = parseFloat(induceTimeInput.value)||1;
+      const prog   = running?Math.min(1,(Date.now()-startTime)/(dur*1000)):0;
+      const inhale = initIn + (3.3 - initIn)*prog;
+      const exhale = initEx + (6.7 - initEx)*prog;
+      return [inhale,0,exhale,0];
+    }
+    const arr = patternSelect.value.split('-').map(n=>parseFloat(n));
+    while(arr.length < 4) arr.push(0);
+    return arr;
+  }
+  const colorInhale = document.getElementById('colorInhale');
+  const colorHold   = document.getElementById('colorHold');
+  const colorExhale = document.getElementById('colorExhale');
+  const colorRest   = document.getElementById('colorRest');
+  const colorInhaleTd = document.getElementById('colorInhaleTd');
+  const colorHoldTd   = document.getElementById('colorHoldTd');
+  const colorExhaleTd = document.getElementById('colorExhaleTd');
+  const colorRestTd   = document.getElementById('colorRestTd');
+  const defaultColors = {
+    hold: colorHold.value,
+    exhale: colorExhale.value,
+    rest: colorRest.value
+  };
+
+  function applyExpandColors(){
+    const c = colorInhale.value;
+    colorHold.value = c;
+    colorExhale.value = c;
+    colorRest.value = c;
+  }
+
+  function applyFadeColors(){
+    const c = colorInhale.value;
+    colorHold.value = c;
+    colorExhale.value = c;
+    colorRest.value = c;
+  }
+
+  function restoreDefaultColors(){
+    colorHold.value = defaultColors.hold;
+    colorExhale.value = defaultColors.exhale;
+    colorRest.value = defaultColors.rest;
+  }
+
+  function updateColorRow(){
+    if(colorChange==='off'){
+      colorInhaleTd.colSpan = 4;
+      colorHoldTd.style.display = 'none';
+      colorExhaleTd.style.display = 'none';
+      colorRestTd.style.display = 'none';
+      applyExpandColors();
+    }else{
+      colorInhaleTd.colSpan = 1;
+      colorHoldTd.style.display = '';
+      colorExhaleTd.style.display = '';
+      colorRestTd.style.display = '';
+      restoreDefaultColors();
+    }
+  }
+
+  colorInhale.addEventListener('change', () => {
+    if(colorChange==='off') applyExpandColors();
+  });
+
+  restoreDefaultColors();
+  updateColorRow();
+
+  function hexToRgba(hex,a){
+    const r=parseInt(hex.slice(1,3),16);
+    const g=parseInt(hex.slice(3,5),16);
+    const b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function getColors(){
+    if(colorChange==='off'){
+      const c = colorInhale.value;
+      return [c,c,c,c];
+    }
+    return [
+      colorInhale.value,
+      colorHold.value,
+      colorExhale.value,
+      colorRest.value
+    ];
+  }
+  function setBar(widthPercent,widthDur,color,colorDur){
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
+    breathBar.style.width = widthPercent + '%';
+    if(gradient==='on'){
+      breathBar.style.background = `linear-gradient(to right, ${hexToRgba(color,0.5)}, ${color} 50%, ${hexToRgba(color,0.5)})`;
+      breathBar.style.boxShadow = '';
+    }else{
+      breathBar.style.background = color;
+      breathBar.style.boxShadow = `0 0 0 2px ${color}`;
+    }
+  }
+  function setPlane(scale,dur,color,colorDur){
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
+    breathPlane.style.transform = `scale(${scale})`;
+    if(gradient==='on'){
+      breathPlane.style.background = `radial-gradient(circle, ${color} 0%, ${hexToRgba(color,0.5)} 70%)`;
+      breathPlane.style.filter = 'blur(40px)';
+      breathPlane.style.boxShadow = '';
+    }else{
+      breathPlane.style.background = color;
+      breathPlane.style.filter = 'none';
+      breathPlane.style.boxShadow = 'none';
+    }
+  }
+  function setCube(scale,dur,color,colorDur){
+    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
+    breathCube.style.transition = `transform ${dur}s ${easing}, color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
+    breathCube.style.transform = `scale(${scale})`;
+    breathCube.style.color = color;
+    if(gradient==='off'){
+      breathCube.style.filter = 'drop-shadow(0 0 2px '+color+')';
+    }else{
+      breathCube.style.filter = 'none';
+    }
+  }
+
+  async function stopSession(){
+    if(timerId) clearInterval(timerId);
+    timerId = null;
+    running = false;
+    breathBar.style.transition = 'none';
+    breathBar.style.width = '0%';
+    void breathBar.offsetWidth;
+    breathBar.style.transition = '';
+    breathPlane.style.transition = 'none';
+    breathPlane.style.transform = 'scale(0)';
+    breathPlane.style.backgroundColor = 'transparent';
+    void breathPlane.offsetWidth;
+    breathPlane.style.transition = '';
+    breathCube.style.transition = 'none';
+    breathCube.style.transform = 'scale(0)';
+    breathCube.style.color = '#fff';
+    void breathCube.offsetWidth;
+    breathCube.style.transition = '';
+    phaseText.textContent = '準備中...';
+    timerText.textContent = '--';
+    startBtn.disabled = false;
+    startBtn.textContent = 'スタート';
+    Object.values(envAudios).forEach(obj=>{
+      if(obj.fade) clearTimeout(obj.fade);
+      try{obj.audio.pause();}catch{}
+      obj.audio.currentTime = 0;
+      obj.gain.gain.value = 0;
+    });
+    Object.values(switchAudios).forEach(el=>{try{el.pause();}catch{} el.currentTime=0;});
+    handleMusic(true);
+    try{diveRiseAudio.pause();}catch{} diveRiseAudio.currentTime=0;
+    if(bubbleContainer && settings.style.display==='none') {
+      bubbleButtons.forEach(b=>b.classList.remove('pop'));
+      bubbleContainer.style.display='';
+    }
+  }
+
+  function nextPhase(){
+    const durations = getDurations();
+    const colors    = getColors();
+    const holdDur   = durations[1];
+
+    let guard = 0;
+    while(durations[currentPhase] === 0 && guard < 4){
+      currentPhase = (currentPhase + 1) % 4;
+      guard++;
+    }
+
+    if(currentPhase === 0){
+      if(cycleStarted){
+        cyclesDone++;
+        if(cycleLimit > 0 && cyclesDone >= cycleLimit){
+          stopSession();
+          return;
+        }
+      }
+      cycleStarted = true;
+    }
+    if(timeLimit > 0 && Date.now() - startTime >= timeLimit){
+      stopSession();
+      return;
+    }
+
+    const duration = durations[currentPhase];
+    const color    = colors[currentPhase];
+
+    phaseText.textContent = phaseNames[currentPhase] || '';
+    if(shape === 'line'){
+      if(mode === 'expand'){
+        setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
+      } else if(mode === 'fade') {
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setBar(100,0,color,0);
+            breathBar.style.opacity=0;
+            void breathBar.offsetWidth;
+            breathBar.style.transition=`opacity ${duration}s linear`;
+            breathBar.style.opacity=1;
+          }else if(currentPhase===1){
+            setBar(100,0,color,0);
+            breathBar.style.opacity=1;
+          }else if(currentPhase===2){
+            setBar(100,0,color,0);
+            breathBar.style.transition=`opacity ${duration}s linear`;
+            breathBar.style.opacity=0;
+          }else{
+            setBar(100,0,color,0);
+            breathBar.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathBar.style.transition = 'background-color 0s';
+            breathBar.style.backgroundColor = 'transparent';
+            void breathBar.offsetWidth;
+            setBar(100, 0, color, duration);
+          } else if(currentPhase === 1){
+            setBar(100, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathBar.style.transition = 'background-color 0s';
+            breathBar.style.backgroundColor = color;
+            void breathBar.offsetWidth;
+            setBar(100, 0, 'transparent', duration);
+          } else {
+            setBar(100, 0, color, 0);
+          }
+        }
+      } else {
+        setBar(0, 0, 'transparent', 0);
+      }
+    } else if(shape === 'plane'){
+      if(mode === 'expand'){
+        setPlane(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
+      } else if(mode === 'fade'){
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=0;
+            void breathPlane.offsetWidth;
+            breathPlane.style.transition=`opacity ${duration}s linear`;
+            breathPlane.style.opacity=1;
+          }else if(currentPhase===1){
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=1;
+          }else if(currentPhase===2){
+            setPlane(1,0,color,0);
+            breathPlane.style.transition=`opacity ${duration}s linear`;
+            breathPlane.style.opacity=0;
+          }else{
+            setPlane(1,0,color,0);
+            breathPlane.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathPlane.style.transition = 'background-color 0s';
+            breathPlane.style.backgroundColor = 'transparent';
+            void breathPlane.offsetWidth;
+            setPlane(1, 0, color, duration);
+          } else if(currentPhase === 1){
+            setPlane(1, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathPlane.style.transition = 'background-color 0s';
+            breathPlane.style.backgroundColor = color;
+            void breathPlane.offsetWidth;
+            setPlane(1, 0, 'transparent', duration);
+          } else {
+            setPlane(1, 0, color, 0);
+          }
+        }
+      } else {
+        setPlane(0, 0, 'transparent', 0);
+      }
+    } else if(shape === 'cube'){
+      if(mode === 'expand'){
+        setCube(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
+      } else if(mode === 'fade'){
+        if(gradient==='on'){
+          if(currentPhase===0){
+            setCube(1,0,color,0);
+            breathCube.style.opacity=0;
+            void breathCube.offsetWidth;
+            breathCube.style.transition=`opacity ${duration}s linear`;
+            breathCube.style.opacity=1;
+          }else if(currentPhase===1){
+            setCube(1,0,color,0);
+            breathCube.style.opacity=1;
+          }else if(currentPhase===2){
+            setCube(1,0,color,0);
+            breathCube.style.transition=`opacity ${duration}s linear`;
+            breathCube.style.opacity=0;
+          }else{
+            setCube(1,0,color,0);
+            breathCube.style.opacity=0;
+          }
+        }else{
+          if(currentPhase === 0){
+            breathCube.style.transition = 'color 0s';
+            breathCube.style.color = 'transparent';
+            void breathCube.offsetWidth;
+            setCube(1, 0, color, duration);
+          } else if(currentPhase === 1){
+            setCube(1, 0, color, 0);
+          } else if(currentPhase === 2){
+            breathCube.style.transition = 'color 0s';
+            breathCube.style.color = color;
+            void breathCube.offsetWidth;
+            setCube(1, 0, 'transparent', duration);
+          } else {
+            setCube(1, 0, color, 0);
+          }
+        }
+      } else {
+        setCube(0, 0, 'transparent', 0);
+      }
+    }
+
+    const isUnderDive = selectedEnvs.includes("underwater") && switchSel.value==="dive";
+    if(isUnderDive){
+      if(currentPhase === 0){
+        stopEnvSound("underwater");
+        diveRiseAudio.currentTime = 0;
+        diveRiseAudio.play().catch(()=>{});
+      } else if(currentPhase === 1 || currentPhase === 2){
+        switchAudios.dive.currentTime = 0;
+        switchAudios.dive.play().catch(()=>{});
+        startEnvSound("underwater");
+      }
+    }else{
+      if(currentPhase === 0){
+        playSwitchSound();
+        playEnv(duration,0,1);
+      } else if(currentPhase === 1){
+        if(selectedEnvs.includes("underwater")) startEnvSound("underwater");
+        playSwitchSound();
+        playEnv(duration,1,1);
+      } else if(currentPhase === 2){
+        if(selectedEnvs.includes("underwater")) startEnvSound("underwater");
+        playSwitchSound();
+        playEnv(duration,1,0);
+      } else if(currentPhase === 3){
+        playSwitchSound();
+        playEnv(duration,0,0);
+      }
+    }
+
+    if(duration === 0){
+      currentPhase = (currentPhase + 1) % 4;
+      nextPhase();
+      return;
+    }
+
+    let start = Date.now();
+    let end   = start + duration*1000;
+    timerText.textContent = duration.toFixed(1) + ' 秒';
+
+    timerId = setInterval(()=>{
+      const now = Date.now();
+      const remaining = Math.max(0,(end - now)/1000);
+      timerText.textContent = remaining.toFixed(1) + ' 秒';
+
+      if(timeLimit > 0 && now - startTime >= timeLimit){
+        stopSession();
+        return;
+      }
+
+        if(remaining <= 0){
+          clearInterval(timerId);
+          prevPhase = currentPhase;
+          if(switchSel.value === 'dive' && prevPhase === 2){
+            switchAudios.dive.currentTime = 0;
+            switchAudios.dive.play().catch(()=>{});
+          }
+          currentPhase = (currentPhase + 1) % 4;
+          nextPhase();
+        }
+    }, 100);
+  }
+
+  async function startSession(){
+    running = true;
+    currentPhase = 0;
+    prevPhase = 0;
+    cyclesDone = 0;
+    cycleStarted = false;
+    cycleLimit = parseInt(cycleInput.value,10) || 0;
+    timeLimit  = (parseFloat(minuteInput.value) || 0) * 60000;
+    startTime  = Date.now();
+    handleMusic();
+    nextPhase();
+    startBtn.textContent = 'ストップ';
+    if(bubbleContainer) bubbleContainer.style.display='none';
+  }
+
+  startBtn.addEventListener('click', async ()=>{
+    if(running){
+      await stopSession();
+    }else{
+      await startSession();
+    }
+  });
+
+  bubbleButtons.forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      btn.classList.add('pop');
+      const env = btn.dataset.env;
+      const sw  = btn.dataset.switch;
+      if(env){
+        selectedEnvs.forEach(stopEnvSound);
+        selectedEnvs = [env];
+        lastEnv = env;
+        startEnvSound(env);
+        envBtns.forEach(b=>{b.classList.toggle('active', b.dataset.env===env);});
+        envSel.value = env;
+        updateBackground();
+      }
+      if(sw){
+        switchBtns.forEach(b=>{b.classList.toggle('active', b.dataset.switch===sw);});
+        switchSel.value = sw;
+      }
+      await startSession();
+    });
+    btn.addEventListener('animationend',()=>{btn.classList.remove('pop');});
+  });
+
+  applyBtn.addEventListener('click', async ()=>{
+    await stopSession();
+    await startSession();
+  });
+
+  settings.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('change',()=>{ applyBtn.style.display=''; });
+  });
+
+  settingsBtn.addEventListener('click', ()=>{
+    const open = settings.style.display !== 'none';
+    settings.style.display = open ? 'none' : '';
+    settingsBtn.textContent = open ? '設定' : '閉じる';
+    if(open){
+      applyBtn.style.display='none';
+      footer.style.display='';
+      if(!running && bubbleContainer) bubbleContainer.style.display='';
+    }else{
+      footer.style.display='none';
+      if(bubbleContainer) bubbleContainer.style.display='none';
+    }
+  });
+})();
+</script>
+</body>
+</html>
