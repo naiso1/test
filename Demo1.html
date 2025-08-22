@@ -104,13 +104,21 @@ select,input[type="number"],input[type="color"]{
   box-shadow:0 0 20px rgba(255,255,255,.8);
   transition:width 1s linear,background-color .8s;
 }
-#breathBarBase{
-  position:absolute;left:50%;top:0;height:100%;width:100%;
-  transform:translateX(-50%);
-  transform-origin:center;border-radius:20px;
-  filter:blur(8px);
-  box-shadow:0 0 20px rgba(255,255,255,.8);
-  display:none;
+#breathBar .color-layer{
+  position:absolute;
+  inset:0;
+  transform-origin:center;
+  transform:scaleX(0);
+  background:currentColor;
+  filter:blur(10px);
+}
+#breathPlane .color-layer{
+  position:absolute;
+  inset:0;
+  transform-origin:center;
+  transform:scale(0);
+  background:currentColor;
+  filter:blur(40px);
 }
 #breathPlane{
   position:fixed;
@@ -247,11 +255,11 @@ button:disabled{opacity:.6}
 <body>
 <div class="overlay"></div>
 <div id="grayArea"></div>
-<div id="barContainer"><div id="breathBarBase"></div><div id="breathBar"></div></div>
-<div id="breathPlane"></div>
+<div id="barContainer"><div id="breathBar"><div class="color-layer"></div></div></div>
+<div id="breathPlane"><div class="color-layer"></div></div>
 <div id="breathCube">
   <div class="cube-inner">
-    <div class="cube-face" style="transform:rotateY(0deg) translateZ(7.5vmin);"></div>
+    <div class="cube-face" style="transform:translateZ(7.5vmin);"></div>
     <div class="cube-face" style="transform:rotateY(180deg) translateZ(7.5vmin);"></div>
     <div class="cube-face" style="transform:rotateY(90deg) translateZ(7.5vmin);"></div>
     <div class="cube-face" style="transform:rotateY(-90deg) translateZ(7.5vmin);"></div>
@@ -476,7 +484,6 @@ button:disabled{opacity:.6}
   const customInputs  = document.getElementById('customInputs');
   const startBtn      = document.getElementById('startBtn');
   const breathBar     = document.getElementById('breathBar');
-  const breathBarBase = document.getElementById('breathBarBase');
   const phaseText     = document.getElementById('phaseText');
   const timerText     = document.getElementById('timerText');
   const envSel        = document.getElementById('envSound');
@@ -548,7 +555,7 @@ button:disabled{opacity:.6}
   }
 
   function setBarOrigin(){
-    [breathBar,breathBarBase].forEach(bar=>{
+    [breathBar].forEach(bar=>{
       if(mode==='expand-left'){
         bar.style.left='0';
         bar.style.transform='none';
@@ -1071,49 +1078,54 @@ function handleMusic(forceStop=false){
   }
   function setBar(widthPercent,widthDur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
-    breathBar.style.width = widthPercent + '%';
-    if(gradient==='on'){
-      breathBar.style.background = `linear-gradient(to right, ${hexToRgba(color,0.5)}, ${color} 50%, ${hexToRgba(color,0.5)})`;
-      breathBar.style.boxShadow = '';
+    if(mode.startsWith('expand') && colorCount==='two'){
+      const base = colorExhale.value;
+      const overlay = breathBar.querySelector('.color-layer');
+      const origin = mode==='expand-left'?'left':mode==='expand-right'?'right':'center';
+      breathBar.style.transition = `background-color ${colorDur}s ${easing}`;
+      breathBar.style.left = '0';
+      breathBar.style.transform = 'none';
+      breathBar.style.width = '100%';
+      breathBar.style.background = base;
+      overlay.style.background = colorInhale.value;
+      overlay.style.transformOrigin = origin;
+      overlay.style.transition = `transform ${widthDur}s ${easing}`;
+      overlay.style.transform = `scaleX(${widthPercent/100})`;
     }else{
-      breathBar.style.background = color;
-      breathBar.style.boxShadow = `0 0 0 2px ${color}`;
+      breathBar.style.transition = `width ${widthDur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
+      breathBar.style.width = widthPercent + '%';
+      if(gradient==='on'){
+        breathBar.style.background = `linear-gradient(to right, ${hexToRgba(color,0.5)}, ${color} 50%, ${hexToRgba(color,0.5)})`;
+        breathBar.style.boxShadow = '';
+      }else{
+        breathBar.style.background = color;
+        breathBar.style.boxShadow = `0 0 0 2px ${color}`;
+      }
     }
   }
   
-function setDualBar(activeColor,passiveColor,widthDur,expanding){
-    const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathBarBase.style.display='';
-    breathBarBase.style.transition=`background-color 0.8s ${easing}`;
-    breathBarBase.style.background = passiveColor;
-    breathBar.style.transition='none';
-    breathBar.style.width = expanding ? '0%' : '100%';
-    if(gradient==='on'){
-      breathBar.style.background = `linear-gradient(to right, transparent, ${activeColor} 50%, transparent)`;
-      breathBar.style.boxShadow='';
-      breathBarBase.style.boxShadow='';
-    }else{
-      breathBar.style.background = activeColor;
-      breathBar.style.boxShadow = `0 0 0 2px ${activeColor}`;
-      breathBarBase.style.boxShadow = `0 0 0 2px ${passiveColor}`;
-    }
-    void breathBar.offsetWidth;
-    breathBar.style.transition=`width ${widthDur}s ${easing}, background-color 0.8s ${easing}`;
-    breathBar.style.width = expanding ? '100%' : '0%';
-  }
 function setPlane(scale,dur,color,colorDur){
     const easing = speed==='biorhythm' ? 'cubic-bezier(0.42,0,0.58,1)' : 'linear';
-    breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
-    breathPlane.style.transform = `scale(${scale})`;
-    if(gradient==='on'){
-      breathPlane.style.background = `radial-gradient(circle, ${color} 0%, ${hexToRgba(color,0.5)} 70%)`;
-      breathPlane.style.filter = 'blur(40px)';
-      breathPlane.style.boxShadow = '';
+    if(mode.startsWith('expand') && colorCount==='two'){
+      const base = colorExhale.value;
+      const overlay = breathPlane.querySelector('.color-layer');
+      breathPlane.style.transition = `background-color ${colorDur}s ${easing}`;
+      breathPlane.style.background = base;
+      overlay.style.background = colorInhale.value;
+      overlay.style.transition = `transform ${dur}s ${easing}`;
+      overlay.style.transform = `scale(${scale})`;
     }else{
-      breathPlane.style.background = color;
-      breathPlane.style.filter = 'none';
-      breathPlane.style.boxShadow = 'none';
+      breathPlane.style.transition = `transform ${dur}s ${easing}, background-color ${colorDur}s ${easing}, opacity ${colorDur}s ${easing}`;
+      breathPlane.style.transform = `scale(${scale})`;
+      if(gradient==='on'){
+        breathPlane.style.background = `radial-gradient(circle, ${color} 0%, ${hexToRgba(color,0.5)} 70%)`;
+        breathPlane.style.filter = 'blur(40px)';
+        breathPlane.style.boxShadow = '';
+      }else{
+        breathPlane.style.background = color;
+        breathPlane.style.filter = 'none';
+        breathPlane.style.boxShadow = 'none';
+      }
     }
   }
   function setCube(scale,dur,color,colorDur){
@@ -1134,12 +1146,13 @@ function setPlane(scale,dur,color,colorDur){
     running = false;
     breathBar.style.transition = 'none';
     breathBar.style.width = '0%';
+    breathBar.querySelector('.color-layer').style.transform = 'scaleX(0)';
     void breathBar.offsetWidth;
     breathBar.style.transition = '';
-    breathBarBase.style.display='none';
     breathPlane.style.transition = 'none';
     breathPlane.style.transform = 'scale(0)';
     breathPlane.style.backgroundColor = 'transparent';
+    breathPlane.querySelector('.color-layer').style.transform = 'scale(0)';
     void breathPlane.offsetWidth;
     breathPlane.style.transition = '';
     breathCube.style.transition = 'none';
@@ -1198,18 +1211,8 @@ function setPlane(scale,dur,color,colorDur){
     phaseText.textContent = phaseNames[currentPhase] || '';
     if(shape === 'line'){
       if(mode.startsWith('expand')){
-        if(colorCount==='two'){
-          const inhaleColor = colors[0];
-          const exhaleColor = colors[2];
-          const activeColor  = currentPhase < 2 ? inhaleColor : exhaleColor;
-          const passiveColor = currentPhase < 2 ? exhaleColor : inhaleColor;
-          setDualBar(activeColor, passiveColor, duration, currentPhase < 2);
-        }else{
-          breathBarBase.style.display='none';
-          setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
-        }
+        setBar(currentPhase < 2 ? 100 : 0, duration, color, 0.8);
       } else if(mode === 'fade') {
-        breathBarBase.style.display='none';
         if(gradient==='on'){
           if(currentPhase===0){
             setBar(100,0,color,0);
@@ -1249,7 +1252,6 @@ function setPlane(scale,dur,color,colorDur){
         setBar(0, 0, 'transparent', 0);
       }
     } else if(shape === 'plane'){
-      breathBarBase.style.display='none';
       if(mode.startsWith('expand')){
         setPlane(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
       } else if(mode === 'fade'){
@@ -1292,7 +1294,6 @@ function setPlane(scale,dur,color,colorDur){
         setPlane(0, 0, 'transparent', 0);
       }
     } else if(shape === 'cube'){
-      breathBarBase.style.display='none';
       if(mode.startsWith('expand')){
         setCube(currentPhase < 2 ? 1 : 0, duration, color, 0.8);
       } else if(mode === 'fade'){
@@ -1400,7 +1401,6 @@ function setPlane(scale,dur,color,colorDur){
 
   async function startSession(){
     running = true;
-    breathBarBase.style.display='none';
     currentPhase = 0;
     prevPhase = 0;
     cyclesDone = 0;
